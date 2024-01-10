@@ -107,8 +107,9 @@ export default function LoginScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          {[1, 2, 3].map((touch) => (
+          {[1, 2, 3].map((touch, i) => (
             <TouchableOpacity
+              key={i}
               onPress={() => {}}
               style={{
                 borderColor: "#ddd",

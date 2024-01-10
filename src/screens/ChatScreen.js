@@ -106,9 +106,9 @@ export default function ChatScreen({ navigation, route }) {
         }}
       >
         {messages &&
-          messages.map((m) => {
+          messages.map((m,i) => {
             return (
-              <View style={styles.message(m.senderID === user.uid)}>
+              <View style={styles.message(m.senderID === user.uid)} key={i}>
                 <Text style={styles.textMessage(m.senderID === user.uid)}>
                   {m.text}
                 </Text>
