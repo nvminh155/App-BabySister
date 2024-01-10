@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+
+  <style>
+    #menu {
+      height: 100vh;
+
+      background-color: gainsboro;
+      display: flex;
+      gap: 70px;
+      justify-content: center;
+      align-items: center;
+    }
+    #menu a div div{
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background-color: black;
+    }
+
+    .active {
+        margin-bottom: 60px;
+        background-color: #5C59EB;
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+    }
+  </style>
+  <body>
+    <div id="menu">
+      <a><div><div></div></div></a>
+      <a><div><div></div></div></a>
+      <a><div><div></div></div></a>
+      <a><div><div></div></div></a>
+      <a><div><div></div></div></a>
+    </div>
+
+    <script>
+      var all = document.querySelectorAll("a");
+
+      function reset() {
+        var resetAll = document.querySelectorAll("a");
+        resetAll.forEach((a) => {
+          a.classList =  '';
+        });
+      }
+      all.forEach((a) => {
+        a.addEventListener("click", async () => {
+            await reset()
+            var div = a.querySelector('div')
+            div.classList.toggle('active');
+
+
+        });
+      });
+    </script>
+  </body>
+</html>
