@@ -6,58 +6,15 @@
     <title>Document</title>
   </head>
 
-  <style>
-    #menu {
-      height: 100vh;
 
-      background-color: gainsboro;
-      display: flex;
-      gap: 70px;
-      justify-content: center;
-      align-items: center;
-    }
-    #menu a div div{
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      background-color: black;
-    }
-
-    .active {
-        margin-bottom: 60px;
-        background-color: #5C59EB;
-        width: 70px;
-        height: 70px;
-        border-radius: 50%;
-    }
-  </style>
   <body>
-    <div id="menu">
-      <a><div><div></div></div></a>
-      <a><div><div></div></div></a>
-      <a><div><div></div></div></a>
-      <a><div><div></div></div></a>
-      <a><div><div></div></div></a>
+        
+    <div style="padding: 0 10px 0;">
+      <img src="./src/assets/images/stay-home-take-care.png"/>
+      <div style="display: flex; justify-content: center;">
+        <div style="background-color: #DEDCFF;">asflkjaslkfjlkasf</div>
+        <div>131313131asfasfasf</div>
+      </div>
     </div>
-
-    <script>
-      var all = document.querySelectorAll("a");
-
-      function reset() {
-        var resetAll = document.querySelectorAll("a");
-        resetAll.forEach((a) => {
-          a.classList =  '';
-        });
-      }
-      all.forEach((a) => {
-        a.addEventListener("click", async () => {
-            await reset()
-            var div = a.querySelector('div')
-            div.classList.toggle('active');
-
-
-        });
-      });
-    </script>
   </body>
 </html>

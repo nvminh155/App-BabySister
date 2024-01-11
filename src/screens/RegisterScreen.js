@@ -5,7 +5,8 @@ import {
   TouchableOpacity,
   View,
   ScrollView,
-  Image,Modal 
+  Image,
+  Modal,
 } from "react-native";
 import DatePicker from "react-native-date-picker";
 
@@ -26,25 +27,16 @@ import GoogleSVG from "../assets/images/misc/google.svg";
 import FacebookSVG from "../assets/images/misc/facebook.svg";
 import TwitterSVG from "../assets/images/misc/twitter.svg";
 
+import { COLORS } from "../constants/COLORS";
+
 export default function SignupScreen({ navigation }) {
-  
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
-  const [dobLabel, setDobLabel] = useState('Date of Birth');
+  const [dobLabel, setDobLabel] = useState("Date of Birth");
 
-  
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
   const [fullName, setFullName] = useState("Nguyen Van Minh");
-
-
-  function handleChangeStartDate(propDate) {
-    setStartedDate(propDate);
-  }
-
-  const handleOnPressStartDate = () => {
-    setOpenStartDatePicker(!openStartDatePicker);
-  };
 
   const handleSignup = () => {
     console.log(email, password);
@@ -70,7 +62,7 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1}}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{ paddingHorizontal: 15 }}
@@ -92,100 +84,82 @@ export default function SignupScreen({ navigation }) {
         >
           Register
         </Text>
-        <View
-          style={{
-            flexDirection: "row",
-            borderBottomColor: "#ccc",
-            borderBottomWidth: 1,
-            paddingBottom: 8,
-            marginBottom: 25,
-          }}
-        >
-          <Ionicons
-            name="person-outline"
-            size={20}
-            color="#666"
-            style={{ marginRight: 5 }}
-          />
-          <TextInput
-            style={{ flex: 1, paddingVertical: 0 }}
-            onChangeText={(text) => setFullName(text)}
-            value={fullName}
-            placeholder="Enter FullName"
-          />
-        </View>
+
+        <InputField
+          label={"Enter FullName"}
+          icon={
+            <Ionicons
+              name="person-outline"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
+          }
+          onChangeText={(text) => setFullName(text)}
+          value={fullName}
+        />
+
+        <InputField
+          label={"Enter Email"}
+          icon={
+            <MaterialIcons
+              name="alternate-email"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
+          }
+          onChangeText={(text) => setEmail(text)}
+          value={email}
+        />
+
+        <InputField
+          label={"Enter Password"}
+          icon={
+            <Ionicons
+              name="ios-lock-closed-outline"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
+          }
+          onChangeText={(text) => setPassword(text)}
+          value={password}
+          inputType={"password"}
+        />
 
         <View
           style={{
             flexDirection: "row",
             borderBottomColor: "#ccc",
-            borderBottomWidth: 1,
-            paddingBottom: 8,
-            marginBottom: 25,
-          }}
-        >
-          <MaterialIcons
-            name="alternate-email"
-            size={20}
-            color="#666"
-            style={{ marginRight: 5 }}
-          />
-          <TextInput
-            style={{ flex: 1, paddingVertical: 0 }}
-            onChangeText={(text) => setEmail(text)}
-            value={email}
-            placeholder="Enter Email"
-          />
-        </View>
-
-        <View
-          style={{
-            flexDirection: "row",
-            borderBottomColor: "#ccc",
-            borderBottomWidth: 1,
-            paddingBottom: 8,
-            marginBottom: 25,
-          }}
-        >
-          <Ionicons
-            name="ios-lock-closed-outline"
-            size={20}
-            color="#666"
-            style={{ marginRight: 5 }}
-          />
-          <TextInput
-            style={{ flex: 1, paddingVertical: 0 }}
-            onChangeText={(text) => setPassword(text)}
-            value={password}
-            placeholder="Enter password"
-            secureTextEntry={true}
-          />
-        </View>
-
-        <View
-          style={{
-            flexDirection: 'row',
-            borderBottomColor: '#ccc',
             borderBottomWidth: 1,
             paddingBottom: 8,
             marginBottom: 30,
-          }}>
+          }}
+        >
           <Ionicons
             name="calendar-outline"
             size={20}
             color="#666"
-            style={{marginRight: 5}}
+            style={{ marginRight: 5 }}
           />
           <TouchableOpacity onPress={() => setOpen(true)}>
-            <Text style={{color: '#666', marginLeft: 5, marginTop: 5}}>
+            <Text style={{ color: "#666", marginLeft: 5, marginTop: 5 }}>
               {dobLabel}
             </Text>
           </TouchableOpacity>
         </View>
-   
-   
 
-        <CustomButton label={"Register"} onPress={handleSignup} />
+        <CustomButton
+          label={"Register"}
+          onPress={handleSignup}
+          style={{
+            backgroundColor: COLORS.primary,
+            padding: 20,
+            borderRadius: 10,
+            marginBottom: 30,
+          }}
+        />
 
         <View
           style={{
@@ -196,7 +170,10 @@ export default function SignupScreen({ navigation }) {
         >
           <Text>Already registered?</Text>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={{ color: "#AD40AF", fontWeight: "700" }}> Login</Text>
+            <Text style={{ color: COLORS.primary, fontWeight: "700" }}>
+              {" "}
+              Login
+            </Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -215,9 +192,8 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     marginTop: 20,
   },
-  tinyLogo: (w, h) =>  ({
+  tinyLogo: (w, h) => ({
     width: w,
     height: h,
   }),
-  
 });

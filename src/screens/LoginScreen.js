@@ -25,6 +25,7 @@ import TwitterSVG from "../assets/images/misc/twitter.svg";
 import CustomButton from "../components/CustomButton";
 import InputField from "../components/InputField";
 
+import { COLORS } from "../constants/COLORS";
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
@@ -42,7 +43,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ paddingHorizontal: 25 }}>
         <View style={{ alignItems: "center" }}>
           <Image
@@ -63,38 +64,51 @@ export default function LoginScreen({ navigation }) {
         </Text>
 
         <InputField
-          label={'Enter Email'}
+          label={"Enter Email"}
           icon={
             <MaterialIcons
-            name="alternate-email"
-            size={20}
-            color="#666"
-            style={{ marginRight: 5 }}
-          />
+              name="alternate-email"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
           }
-          onChangeText={(text) => {setEmail(text); console.log("TẼ", text)}}
+          onChangeText={(text) => {
+            setEmail(text);
+            console.log("TẼ", text);
+          }}
           value={email}
           inputType="text"
           keyboardType="email-address"
         />
         <InputField
-          label={'Enter Password'}
+          label={"Enter Password"}
           icon={
             <Ionicons
-            name="ios-lock-closed-outline"
-            size={20}
-            color="#666"
-            style={{ marginRight: 5 }}
-          />
+              name="ios-lock-closed-outline"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
           }
-          onChangeText={(text) => {setPassword(text); console.log("TẼ", text)}}
+          onChangeText={(text) => {
+            setPassword(text);
+            console.log("TẼ", text);
+          }}
           value={password}
           inputType="password"
-          
         />
-    
 
-        <CustomButton label={"Login"} onPress={handleLogin} />
+        <CustomButton
+          label={"Login"}
+          onPress={handleLogin}
+          style={{
+            backgroundColor: COLORS.primary,
+            padding: 20,
+            borderRadius: 10,
+            marginBottom: 30,
+          }}
+        />
 
         <Text style={{ textAlign: "center", color: "#666", marginBottom: 30 }}>
           Or, login with ...
@@ -136,7 +150,7 @@ export default function LoginScreen({ navigation }) {
         >
           <Text>New to the app?</Text>
           <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-            <Text style={{ color: "#AD40AF", fontWeight: "700" }}>
+            <Text style={{ color: COLORS.primary, fontWeight: "700" }}>
               {" "}
               Register
             </Text>

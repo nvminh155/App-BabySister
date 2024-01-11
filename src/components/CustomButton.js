@@ -1,23 +1,18 @@
 import {Text, TouchableOpacity} from 'react-native';
 import React from 'react';
-
-export default function CustomButton({label, onPress}) {
+import { COLORS } from "../constants/COLORS";
+export default function CustomButton({label, onPress, style, styleText}) {
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={{
-        backgroundColor: '#AD40AF',
-        padding: 20,
-        borderRadius: 10,
-        marginBottom: 30,
-      }}>
+      style={style}>
       <Text
-        style={{
+        style={[{
           textAlign: 'center',
           fontWeight: '700',
-          fontSize: 16,
+          fontSize: 15,
           color: '#fff',
-        }}>
+        }, styleText]}>
         {label}
       </Text>
     </TouchableOpacity>
