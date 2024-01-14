@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Alert, Image, StyleSheet, Text, View } from "react-native";
+import { COLORS } from "../constants/COLORS";
 
 const AppText = ({ children, style }) => {
   return (
@@ -7,6 +8,7 @@ const AppText = ({ children, style }) => {
       style={[
         {
           fontSize: 16,
+          color: COLORS.text
         },
         style,
       ]}

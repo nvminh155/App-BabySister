@@ -16,10 +16,11 @@ export default function InputGroup({
   placeholder,
   multiline,
   row,
+  styleRoot,
   styleInput = "",
 }) {
   return (
-    <View style={[styles.group(row)]}>
+    <View style={[styles.group(row), styleRoot]}>
       {label}
       <View style={[styles.input, styleInput]}>
         {icon}
@@ -30,6 +31,7 @@ export default function InputGroup({
           secureTextEntry={inputType === "password"}
           multiline={multiline}
           scrollEnabled={multiline}
+          style={{flex: 1}}
         />
       </View>
     </View>
@@ -42,7 +44,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     borderRadius: 5,
     elevation: 3,
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
 
   group: (row) => ({
@@ -51,8 +53,7 @@ const styles = StyleSheet.create({
     columnGap: (row ? 10 : 0),
     rowGap: (row ? 0 : 10),
     borderBottomColor: "#ccc",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
     marginBottom: 10,
+    
   }),
 });
