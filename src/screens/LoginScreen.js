@@ -24,8 +24,10 @@ import TwitterSVG from "../assets/images/misc/twitter.svg";
 
 import CustomButton from "../components/CustomButton";
 import InputField from "../components/InputField";
+import AppImage from "../components/AppImage";
 
 import { COLORS } from "../constants/COLORS";
+
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
@@ -46,8 +48,9 @@ export default function LoginScreen({ navigation }) {
     <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
       <View style={{ paddingHorizontal: 25 }}>
         <View style={{ alignItems: "center" }}>
-          <Image
-            style={styles.tinyLogo(380, 250)}
+          <AppImage
+            width={380}
+            height={250}
             source={require("../assets/images/bbst-2.png")}
           />
         </View>
@@ -133,8 +136,9 @@ export default function LoginScreen({ navigation }) {
                 paddingVertical: 10,
               }}
             >
-              <Image
-                style={styles.tinyLogo(24, 24)}
+              <AppImage
+                width={24}
+                height={24}
                 source={require("../assets/icons/google-ic.png")}
               />
             </TouchableOpacity>

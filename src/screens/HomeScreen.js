@@ -8,6 +8,7 @@ import {
   Image,
   ScrollView,
   TextInput,
+  Dimensions,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
@@ -33,9 +34,12 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 import CustomButton from "../components/CustomButton";
 import CustomCard from "../components/CustomCard";
+import AppImage from "../components/AppImage";
 
 import { COLORS } from "../constants/COLORS";
 
+const wWidth = Dimensions.get("window").width;
+const wHeight = Dimensions.get("window").height;
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
@@ -84,8 +88,9 @@ export default function HomeScreen() {
         </View>
 
         <View style={{ borderWidth: 1, borderColor: "black", marginTop: 10 }}>
-          <Image
-            style={styles.tinyLogo(359, 153)}
+          <AppImage
+            width={359}
+            height={153}
             source={require("../assets/images/stay-home-take-care.png")}
           />
         </View>
@@ -158,52 +163,61 @@ export default function HomeScreen() {
           <ScrollView style={{ flexDirection: "row" }} horizontal={true}>
             {[1, 2, 3].map((v, i) => {
               const header = (
-                <View key={i} style={{ flexDirection: "row", alignItems: "center" }}>
-                  <Image
-                    style={[
-                      styles.tinyLogo(100, 50),
-                      { borderColor: "black", borderWidth: 1 },
-                    ]}
+                <View key={i}>
+                  <AppImage
+                    width={'100%'}
+                    height={50}
+                    options={{
+                      styles: { borderColor: "black", borderWidth: 1 },
+                    }}
                     source={require("../assets/images/stay-home-take-care.png")}
                   />
                 </View>
               );
 
               const body = (
-                <View>
+                <View style={{ maxWidth: wWidth / 2 }}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{fontWeight:'bold'}}>Họ và Tên: </Text>
+                    <Text style={{ fontWeight: "bold" }}>Họ và Tên: </Text>
                     <Text ellipsizeMode="tail" numberOfLines={1}>
                       Nguyễn Văn A{" "}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{fontWeight:'bold'}}>Địa chỉ: </Text>
+                    <Text style={{ fontWeight: "bold" }}>Địa chỉ: </Text>
                     <Text ellipsizeMode="tail" numberOfLines={1}>
                       322/9 Huỳnh Văn Lũy, Phú Lợi, Thủ Dầu Một, Bình Dương{" "}
                     </Text>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{fontWeight:'bold'}}>4.7 *****</Text>
+                    <Text style={{ fontWeight: "bold" }}>4.7 *****</Text>
                   </View>
                 </View>
               );
 
-              const footer = 
-                (<CustomButton
-                
-                    label={"Thông Tin"}
-                    onPress={() => {navigation.navigate('InfoSister')}}
-                    style={{
-                      backgroundColor: COLORS.primary,
-                      padding: 2,
-                      borderRadius: 7,
-                      paddingHorizontal: 7,
-                      marginLeft: 'auto'
-                    }}
-                  />
+              const footer = (
+                <CustomButton
+                  label={"Thông Tin"}
+                  onPress={() => {
+                    navigation.navigate("InfoSister");
+                  }}
+                  style={{
+                    backgroundColor: COLORS.primary,
+                    padding: 2,
+                    borderRadius: 7,
+                    paddingHorizontal: 7,
+                    marginLeft: "auto",
+                  }}
+                />
               );
-              return <CustomCard header={header} body={body} footer={footer} />;
+              return (
+                <CustomCard
+                  header={header}
+                  body={body}
+                  footer={footer}
+                  style={{ width: wWidth / 2, height: 200 }}
+                />
+              );
             })}
           </ScrollView>
         </View>
@@ -224,11 +238,16 @@ export default function HomeScreen() {
                 }}
                 onPress={() => navigation.navigate("Chat", f)}
               >
-                <Image
-                  style={[styles.tinyLogo(35, 35), { borderRadius: 17 }]}
-                  source={{
-                    uri: "https://png.pngtree.com/thumb_back/fw800/background/20230523/pngtree-sad-pictures-for-desktop-hd-backgrounds-image_2690576.jpg",
+              <Text></Text>
+                <AppImage
+                  width={35}
+                  height={35}
+                  options={{
+                    styles: { borderRadius: 17 },
                   }}
+                  source={
+                    {uri: "https://png.pngtree.com/thumb_back/fw800/background/20230523/pngtree-sad-pictures-for-desktop-hd-backgrounds-image_2690576.jpg"}
+                  }
                 />
                 <View
                   style={{

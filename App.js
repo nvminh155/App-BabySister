@@ -12,8 +12,8 @@ import Home from "./src/screens/HomeScreen";
 import Login from "./src/screens/LoginScreen";
 import Signup from "./src/screens/RegisterScreen";
 import Chat from "./src/screens/ChatScreen";
-import InfoSister from './src/screens/InfoSisterScreen'
-
+import InfoSister from "./src/screens/InfoSisterScreen";
+import ScheduleBabyScreen from "./src/screens/ScheduleBabyScreen";
 
 // context
 import AuthProvider from "./src/contexts/AuthProvider";
@@ -23,26 +23,33 @@ import FontAwesome5 from "react-native-vector-icons/FontAwesome5";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
+import AppImage from "./src/components/AppImage";
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
 
-
 function HomeStack() {
   return (
-    <Stack.Navigator initialRouteName="InfoSister" screenOptions={{headerShown: false}}>
+    <Stack.Navigator
+      initialRouteName="index"
+      screenOptions={{ headerShown: false }}
+    >
       <Stack.Screen name="index" component={Home} />
       <Stack.Screen name="InfoSister" component={InfoSister} />
-      <Stack.Screen name="PostSearch" component={InfoSister} />
+      <Stack.Screen name="ChatSister" component={Chat} />
     </Stack.Navigator>
-  )
+  );
 }
 
 function AppStack() {
   return (
     <Tab.Navigator
-      initialRouteName="Home"
-      screenOptions={{ headerShown: false, tabBarItemStyle: {paddingVertical: 5} }}
-      
+      initialRouteName="ScheduleBaby"
+      screenOptions={{
+        headerShown: false,
+        tabBarItemStyle: { paddingVertical: 5, },
+        
+      }}
     >
       <Tab.Screen
         name="Home"
@@ -63,7 +70,7 @@ function AppStack() {
         name="Chat"
         component={Chat}
         options={{
-          title: "Trang Chủ",
+          title: "CHat",
           tabBarIcon: () => (
             <Ionicons
               name="chatbox"
@@ -75,14 +82,15 @@ function AppStack() {
         }}
       />
       <Tab.Screen
-        name="Chat1"
-        component={Chat}
+        name="ScheduleBaby"
+        component={ScheduleBabyScreen}
         options={{
           title: "Lịch Biểu",
           tabBarIcon: () => (
-            <Image
-              style={styles.tinyLogo(24,24)}
-              source={require("./src/assets/images/task.png")} 
+            <AppImage
+              width={24}
+              height={24}
+              source={require("./src/assets/images/task.png")}
             />
           ),
         }}
@@ -93,9 +101,10 @@ function AppStack() {
         options={{
           title: "LS Giao dịch",
           tabBarIcon: () => (
-            <Image
-              style={styles.tinyLogo(24,24)}
-              source={require("./src/assets/icons/transaction.png")} 
+            <AppImage
+              width={24}
+              height={24}
+              source={require("./src/assets/icons/transaction.png")}
             />
           ),
         }}

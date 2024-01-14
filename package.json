@@ -29,7 +29,8 @@
     "react-native-svg": "13.9.0",
     "react-native-svg-transformer": "^0.14.3",
     "react-native-vector-icons": "^10.0.3",
-    "react-native-web": "~0.19.6"
+    "react-native-web": "~0.19.6",
+    "@react-native-community/datetimepicker": "7.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

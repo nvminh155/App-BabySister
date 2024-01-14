@@ -1,19 +1,14 @@
 import {
     StyleSheet,
-    Text,
-    TouchableOpacity,
     View,
-    Image,
-    ScrollView,
-    TextInput,
   } from "react-native";
 import React from 'react';
 import { COLORS } from "../constants/COLORS";
 
 
-export default function CustomCard({header, body, footer}) {
+export default function CustomCard({header, body, footer, style}) {
   return (
-    <View style={[styles.card]}>
+    <View style={[styles.card, style]}>
         {header}
         {body}
         {footer}

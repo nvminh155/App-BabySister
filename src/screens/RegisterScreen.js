@@ -18,14 +18,10 @@ import { addDoc, collection } from "firebase/firestore";
 
 import InputField from "../components/InputField";
 import CustomButton from "../components/CustomButton";
+import AppImage from "../components/AppImage";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
-
-import RegistrationSVG from "../assets/images/misc/registration.svg";
-import GoogleSVG from "../assets/images/misc/google.svg";
-import FacebookSVG from "../assets/images/misc/facebook.svg";
-import TwitterSVG from "../assets/images/misc/twitter.svg";
 
 import { COLORS } from "../constants/COLORS";
 
@@ -68,8 +64,9 @@ export default function SignupScreen({ navigation }) {
         style={{ paddingHorizontal: 15 }}
       >
         <View style={{ alignItems: "center" }}>
-          <Image
-            style={styles.tinyLogo(380, 250)}
+          <AppImage
+            width={380}
+            height={250}
             source={require("../assets/images/bbst-2.png")}
           />
         </View>

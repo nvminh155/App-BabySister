@@ -14,6 +14,7 @@ import {
   View,
   Image,
   ScrollView,
+  TouchableOpacity
 } from "react-native";
 
 import {
@@ -29,6 +30,10 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase/config";
 import { AuthContext } from "../contexts/AuthProvider";
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
+import { COLORS } from "../constants/COLORS";
 // import moment from "moment";
 // require("moment/locale/vi");
 
@@ -94,7 +99,26 @@ export default function ChatScreen({ navigation, route }) {
         paddingHorizontal: 10,
       }}
     >
-      <Text>Hello ChatApp</Text>
+    <View id="header" style={{ flexDirection: "row", alignItems: "center" }}>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Ionicons name="arrow-back" size={30} />
+        </TouchableOpacity>
+        <Text
+          style={{
+            marginLeft: 70,
+            fontWeight: 700,
+            color: COLORS.text,
+            fontSize: 20,
+          }}
+        >
+          Hello ChatApp
+        </Text>
+      </View>
+
       <ScrollView
         id="container-chat"
         ref={messagesEl}
