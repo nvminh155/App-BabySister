@@ -5,6 +5,7 @@ import AddSchedule from "../screens/ScheduleBabyScreen/addSchedule"
 import ViewSchudule from "../screens/ScheduleBabyScreen/ViewSchedule"
 
 const Stack = createStackNavigator();
+
 export default function ScheduleStack() {
   return (
     <Stack.Navigator

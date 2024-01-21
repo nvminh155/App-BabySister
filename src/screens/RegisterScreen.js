@@ -23,7 +23,7 @@ import { COLORS } from "../constants/COLORS";
 
 import { AppText, AppImage, InputField, CustomButton, AppSafeAreaView } from "../components";
 
-export default function SignupScreen({ navigation }) {
+export default function RegisterScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
   const [open, setOpen] = useState(false);
   const [dobLabel, setDobLabel] = useState("Date of Birth");

@@ -90,6 +90,7 @@ export default function ChatScreen({ navigation, route }) {
       <ScrollView contentContainerStyle={{ rowGap: 20 }}>
         {friends.map((f, i) => (
           <TouchableOpacity
+          key={i} 
             onPress={() => {
               navigation.navigate("ChatPrivate", {
                 uid: "rCxZsTbDlbNqrjYkSQ6hythJttt2",

@@ -14,7 +14,7 @@ import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
 
 // FIRE BASE
-import { auth, db} from "../../firebase/config";
+import { auth, db } from "../../firebase/config";
 import { signOut } from "firebase/auth";
 import {
   getDocs,
@@ -73,19 +73,19 @@ export default function HomeScreen() {
         height: "100%",
       }}
     >
-      <ScrollView>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View
-            style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
-          >
-            <Ionicons name="sunny-outline" size={24} color={"yellow"} />
-            <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
-          </View>
-          <View>
-            <Ionicons name="search" size={24} />
-          </View>
+      <View id="header" style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View
+          style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
+        >
+          <Ionicons name="sunny-outline" size={24} color={"yellow"} />
+          <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
         </View>
+        <View>
+          <Ionicons name="search" size={24} />
+        </View>
+      </View>
 
+      <ScrollView>
         <View style={{ borderWidth: 1, borderColor: "black", marginTop: 10 }}>
           <AppImage
             width={359}
@@ -94,7 +94,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View style={[styles.walletAndGift, {paddingHorizontal: 40}]}>
+        <View style={[styles.walletAndGift, { paddingHorizontal: 40 }]}>
           <View id="Vi BSPAY">
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
@@ -119,7 +119,9 @@ export default function HomeScreen() {
         </View>
 
         <View>
-          <AppText style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
+          <AppText
+            style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
+          >
             Đăng bài tìm kiếm
           </AppText>
           <TextInput
@@ -137,12 +139,14 @@ export default function HomeScreen() {
               paddingHorizontal: 10,
               fontSize: 15,
               backgroundColor: COLORS.secondary,
-              elevation: 10
+              elevation: 10,
             }}
           />
           <CustomButton
             label={"Đăng Ngay"}
-            onPress={() => {navigation.navigate("PostSearch")}}
+            onPress={() => {
+              navigation.navigate("PostSearch");
+            }}
             style={{
               backgroundColor: COLORS.accent,
               marginBottom: 30,
@@ -154,7 +158,9 @@ export default function HomeScreen() {
         </View>
 
         <View>
-          <AppText style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
+          <AppText
+            style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
+          >
             Gần nhà bạn
           </AppText>
 
@@ -163,7 +169,7 @@ export default function HomeScreen() {
               const header = (
                 <View key={i}>
                   <AppImage
-                    width={'100%'}
+                    width={"100%"}
                     height={50}
                     options={{
                       styles: { borderColor: "black", borderWidth: 1 },
@@ -176,7 +182,9 @@ export default function HomeScreen() {
               const body = (
                 <View style={{ maxWidth: wWidth / 2 }}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <AppText style={{ fontWeight: "bold" }}>Họ và Tên: </AppText>
+                    <AppText style={{ fontWeight: "bold" }}>
+                      Họ và Tên:{" "}
+                    </AppText>
                     <AppText ellipsizeMode="tail" numberOfLines={1}>
                       Nguyễn Văn A{" "}
                     </AppText>
@@ -239,9 +247,9 @@ export default function HomeScreen() {
                   options={{
                     styles: { borderRadius: 17 },
                   }}
-                  source={
-                    {uri: "https://png.pngtree.com/thumb_back/fw800/background/20230523/pngtree-sad-pictures-for-desktop-hd-backgrounds-image_2690576.jpg"}
-                  }
+                  source={{
+                    uri: "https://png.pngtree.com/thumb_back/fw800/background/20230523/pngtree-sad-pictures-for-desktop-hd-backgrounds-image_2690576.jpg",
+                  }}
                 />
                 <View
                   style={{
@@ -291,6 +299,6 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     marginTop: -15,
     marginBottom: 25,
-    paddingHorizoltal: 10
+    paddingHorizoltal: 10,
   },
 });
