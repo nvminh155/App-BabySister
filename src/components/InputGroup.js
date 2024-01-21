@@ -6,6 +6,7 @@ import {
   TextInput,
   StyleSheet,
 } from "react-native";
+import { COLORS } from "../constants/COLORS";
 
 export default function InputGroup({
   label,
@@ -18,12 +19,18 @@ export default function InputGroup({
   row,
   styleRoot,
   styleInput = "",
+  editableInput = true,
+  inputMode,
+  iconBefore,
+  iconAfter,
+  readOnly = false
 }) {
   return (
     <View style={[styles.group(row), styleRoot]}>
       {label}
       <View style={[styles.input, styleInput]}>
         {icon}
+        {iconBefore}
         <TextInput
           onChangeText={onChangeText}
           value={value}
@@ -32,7 +39,11 @@ export default function InputGroup({
           multiline={multiline}
           scrollEnabled={multiline}
           style={{flex: 1}}
+          editable={editableInput}
+          inputMode={inputMode}
+          readOnly={readOnly}
         />
+        {iconAfter}
       </View>
     </View>
   );
@@ -45,6 +56,8 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     elevation: 3,
     flexDirection: 'row',
+    flex: 1,
+    backgroundColor: COLORS.secondary
   },
 
   group: (row) => ({

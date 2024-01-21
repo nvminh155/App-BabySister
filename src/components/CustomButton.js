@@ -1,17 +1,19 @@
 import { Text, TouchableOpacity, StyleSheet } from "react-native";
 import React from "react";
 import { COLORS } from "../constants/COLORS";
+import AppText from "./AppText";
 export default function CustomButton({
   label,
   icon,
   onPress,
-  style,
+  style = {},
   styleText,
+  type = 'primary'
 }) {
   return (
     <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
       {icon}
-      <Text
+      <AppText
         style={[
           {
             textAlign: "center",
@@ -23,7 +25,7 @@ export default function CustomButton({
         ]}
       >
         {label}
-      </Text>
+      </AppText>
     </TouchableOpacity>
   );
 }
@@ -33,6 +35,7 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
     paddingHorizontal: 10,
     justifyContent: "center",
-    borderRadius: 7
+    borderRadius: 7,
+    marginTop: 10
   },
 });

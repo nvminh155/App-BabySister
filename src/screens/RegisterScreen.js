@@ -12,18 +12,16 @@ import DatePicker from "react-native-date-picker";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 import { auth, db } from "../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
 
-import InputField from "../components/InputField";
-import CustomButton from "../components/CustomButton";
-import AppImage from "../components/AppImage";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { COLORS } from "../constants/COLORS";
+
+import { AppText, AppImage, InputField, CustomButton, AppSafeAreaView } from "../components";
 
 export default function SignupScreen({ navigation }) {
   const [date, setDate] = useState(new Date());
@@ -58,7 +56,7 @@ export default function SignupScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <AppSafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={{ paddingHorizontal: 15 }}
@@ -70,7 +68,7 @@ export default function SignupScreen({ navigation }) {
             source={require("../assets/images/bbst-2.png")}
           />
         </View>
-        <Text
+        <AppText
           style={{
             fontFamily: "Roboto",
             fontSize: 28,
@@ -80,7 +78,7 @@ export default function SignupScreen({ navigation }) {
           }}
         >
           Register
-        </Text>
+        </AppText>
 
         <InputField
           label={"Enter FullName"}
@@ -141,9 +139,9 @@ export default function SignupScreen({ navigation }) {
             style={{ marginRight: 5 }}
           />
           <TouchableOpacity onPress={() => setOpen(true)}>
-            <Text style={{ color: "#666", marginLeft: 5, marginTop: 5 }}>
+            <AppText style={{ color: "#666", marginLeft: 5, marginTop: 5 }}>
               {dobLabel}
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
 
@@ -151,8 +149,8 @@ export default function SignupScreen({ navigation }) {
           label={"Register"}
           onPress={handleSignup}
           style={{
-            backgroundColor: COLORS.primary,
-            padding: 20,
+            backgroundColor: COLORS.accent,
+            paddingVertical: 15,
             borderRadius: 10,
             marginBottom: 30,
           }}
@@ -165,16 +163,16 @@ export default function SignupScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          <Text>Already registered?</Text>
+          <AppText>Already registered?</AppText>
           <TouchableOpacity onPress={() => navigation.goBack()}>
-            <Text style={{ color: COLORS.primary, fontWeight: "700" }}>
+            <AppText style={{ color: COLORS.accent, fontWeight: "700" }}>
               {" "}
               Login
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 

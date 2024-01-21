@@ -12,21 +12,13 @@ import {
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../firebase/config";
 import { useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import LoginSVG from "../assets/images/misc/login.svg";
-import GoogleSVG from "../assets/images/misc/google.svg";
-import FacebookSVG from "../assets/images/misc/facebook.svg";
-import TwitterSVG from "../assets/images/misc/twitter.svg";
-
-import CustomButton from "../components/CustomButton";
-import InputField from "../components/InputField";
-import AppImage from "../components/AppImage";
-
 import { COLORS } from "../constants/COLORS";
+
+import { AppText, CustomButton, InputField, AppImage, AppSafeAreaView} from "../components";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("minhnv@gmail.com");
@@ -45,7 +37,7 @@ export default function LoginScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
+    <AppSafeAreaView style={{ flex: 1, backgroundColor: COLORS.background }}>
       <View style={{ paddingHorizontal: 25 }}>
         <View style={{ alignItems: "center" }}>
           <AppImage
@@ -54,7 +46,7 @@ export default function LoginScreen({ navigation }) {
             source={require("../assets/images/bbst-2.png")}
           />
         </View>
-        <Text
+        <AppText
           style={{
             fontFamily: "Roboto",
             fontSize: 28,
@@ -64,7 +56,7 @@ export default function LoginScreen({ navigation }) {
           }}
         >
           Login
-        </Text>
+        </AppText>
 
         <InputField
           label={"Enter Email"}
@@ -106,16 +98,17 @@ export default function LoginScreen({ navigation }) {
           label={"Login"}
           onPress={handleLogin}
           style={{
-            backgroundColor: COLORS.primary,
-            padding: 20,
+            backgroundColor: COLORS.accent,
+            paddingVertical: 15,
             borderRadius: 10,
             marginBottom: 30,
           }}
+          styleText={{fontSize: 18}}
         />
 
-        <Text style={{ textAlign: "center", color: "#666", marginBottom: 30 }}>
+        <AppText style={{ textAlign: "center", color: "#666", marginBottom: 30 }}>
           Or, login with ...
-        </Text>
+        </AppText>
 
         <View
           style={{
@@ -152,16 +145,15 @@ export default function LoginScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          <Text>New to the app?</Text>
+          <AppText>New to the app?</AppText>
           <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
-            <Text style={{ color: COLORS.primary, fontWeight: "700" }}>
-              {" "}
+            <AppText style={{ color: COLORS.accent, fontWeight: "700" }}>
               Register
-            </Text>
+            </AppText>
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 

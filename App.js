@@ -8,12 +8,8 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { onSnapshot } from "firebase/firestore";
 
 // screens
-import Home from "./src/screens/HomeScreen";
 import Login from "./src/screens/LoginScreen";
 import Signup from "./src/screens/RegisterScreen";
-import Chat from "./src/screens/ChatScreen";
-import InfoSister from "./src/screens/InfoSisterScreen";
-import ScheduleBabyScreen from "./src/screens/ScheduleBabyScreen";
 
 // context
 import AuthProvider from "./src/contexts/AuthProvider";
@@ -25,30 +21,20 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 
 import AppImage from "./src/components/AppImage";
 
+import ScheduleStack from "./src/navigations/ScheduleStack";
+import HomeStack from "./src/navigations/HomeStack";
+import ChatStack from "./src/navigations/ChatStack";
+
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
-
-function HomeStack() {
-  return (
-    <Stack.Navigator
-      initialRouteName="index"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="index" component={Home} />
-      <Stack.Screen name="InfoSister" component={InfoSister} />
-      <Stack.Screen name="ChatSister" component={Chat} />
-    </Stack.Navigator>
-  );
-}
 
 function AppStack() {
   return (
     <Tab.Navigator
-      initialRouteName="ScheduleBaby"
+      initialRouteName="Chat"
       screenOptions={{
         headerShown: false,
-        tabBarItemStyle: { paddingVertical: 5, },
-        
+        tabBarItemStyle: { paddingVertical: 5 },
       }}
     >
       <Tab.Screen
@@ -68,7 +54,7 @@ function AppStack() {
       />
       <Tab.Screen
         name="Chat"
-        component={Chat}
+        component={ChatStack}
         options={{
           title: "CHat",
           tabBarIcon: () => (
@@ -83,7 +69,7 @@ function AppStack() {
       />
       <Tab.Screen
         name="ScheduleBaby"
-        component={ScheduleBabyScreen}
+        component={ScheduleStack}
         options={{
           title: "Lịch Biểu",
           tabBarIcon: () => (
@@ -97,7 +83,7 @@ function AppStack() {
       />
       <Tab.Screen
         name="Chat2"
-        component={Chat}
+        component={ChatStack}
         options={{
           title: "LS Giao dịch",
           tabBarIcon: () => (
@@ -111,7 +97,7 @@ function AppStack() {
       />
       <Tab.Screen
         name="Chat3"
-        component={Chat}
+        component={ChatStack}
         options={{
           title: "Người Dùng",
           tabBarIcon: () => (

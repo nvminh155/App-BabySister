@@ -12,11 +12,9 @@ import {
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
 
 // FIRE BASE
-import { auth } from "../firebase/config";
-import { db } from "../firebase/config";
+import { auth, db} from "../../firebase/config";
 import { signOut } from "firebase/auth";
 import {
   getDocs,
@@ -27,16 +25,17 @@ import {
 } from "firebase/firestore";
 
 // CONTEXT
-import { AuthContext } from "../contexts/AuthProvider";
+import { AuthContext } from "../../contexts/AuthProvider";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import Ionicons from "react-native-vector-icons/Ionicons";
 
-import CustomButton from "../components/CustomButton";
-import CustomCard from "../components/CustomCard";
-import AppImage from "../components/AppImage";
+import CustomButton from "../../components/CustomButton";
+import CustomCard from "../../components/CustomCard";
+import AppImage from "../../components/AppImage";
 
-import { COLORS } from "../constants/COLORS";
+import { COLORS } from "../../constants/COLORS";
+import { AppSafeAreaView, AppText } from "../../components";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
@@ -67,7 +66,7 @@ export default function HomeScreen() {
   }, []);
 
   return (
-    <SafeAreaView
+    <AppSafeAreaView
       style={{
         paddingHorizontal: 10,
         backgroundColor: COLORS.background,
@@ -80,7 +79,7 @@ export default function HomeScreen() {
             style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
           >
             <Ionicons name="sunny-outline" size={24} color={"yellow"} />
-            <Text style={{ fontWeight: "bold" }}>{user.displayName} !</Text>
+            <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
           </View>
           <View>
             <Ionicons name="search" size={24} />
@@ -91,19 +90,19 @@ export default function HomeScreen() {
           <AppImage
             width={359}
             height={153}
-            source={require("../assets/images/stay-home-take-care.png")}
+            source={require("../../assets/images/stay-home-take-care.png")}
           />
         </View>
 
-        <View style={styles.walletAndGift}>
+        <View style={[styles.walletAndGift, {paddingHorizontal: 40}]}>
           <View id="Vi BSPAY">
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
             >
               <Ionicons name="wallet" />
-              <Text style={{ fontSize: 15 }}>Ví BSPay</Text>
+              <AppText>Ví BSPay</AppText>
             </View>
-            <Text>800.000 VNĐ</Text>
+            <AppText>800.000 VNĐ</AppText>
           </View>
           <View
             style={{ width: 1, backgroundColor: "black", height: "100%" }}
@@ -113,16 +112,16 @@ export default function HomeScreen() {
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
             >
               <Ionicons name="gift" />
-              <Text style={{ fontSize: 15 }}>Ưu Đãi</Text>
+              <AppText style={{ fontSize: 15 }}>Ưu Đãi</AppText>
             </View>
-            <Text>Chưa có ưu đãi nào</Text>
+            <AppText>Chưa có ưu đãi nào</AppText>
           </View>
         </View>
 
         <View>
-          <Text style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
+          <AppText style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
             Đăng bài tìm kiếm
-          </Text>
+          </AppText>
           <TextInput
             value={text}
             multiline={true}
@@ -137,28 +136,27 @@ export default function HomeScreen() {
               borderRadius: 5,
               paddingHorizontal: 10,
               fontSize: 15,
+              backgroundColor: COLORS.secondary,
+              elevation: 10
             }}
           />
           <CustomButton
             label={"Đăng Ngay"}
-            onPress={() => {}}
+            onPress={() => {navigation.navigate("PostSearch")}}
             style={{
-              backgroundColor: COLORS.primary,
-              paddingVertical: 10,
-              borderRadius: 10,
+              backgroundColor: COLORS.accent,
               marginBottom: 30,
               width: 100,
               marginLeft: "auto",
               marginTop: 10,
-              paddingHorizontal: 10,
             }}
           />
         </View>
 
         <View>
-          <Text style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
+          <AppText style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}>
             Gần nhà bạn
-          </Text>
+          </AppText>
 
           <ScrollView style={{ flexDirection: "row" }} horizontal={true}>
             {[1, 2, 3].map((v, i) => {
@@ -170,7 +168,7 @@ export default function HomeScreen() {
                     options={{
                       styles: { borderColor: "black", borderWidth: 1 },
                     }}
-                    source={require("../assets/images/stay-home-take-care.png")}
+                    source={require("../../assets/images/stay-home-take-care.png")}
                   />
                 </View>
               );
@@ -178,19 +176,19 @@ export default function HomeScreen() {
               const body = (
                 <View style={{ maxWidth: wWidth / 2 }}>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ fontWeight: "bold" }}>Họ và Tên: </Text>
-                    <Text ellipsizeMode="tail" numberOfLines={1}>
+                    <AppText style={{ fontWeight: "bold" }}>Họ và Tên: </AppText>
+                    <AppText ellipsizeMode="tail" numberOfLines={1}>
                       Nguyễn Văn A{" "}
-                    </Text>
+                    </AppText>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ fontWeight: "bold" }}>Địa chỉ: </Text>
-                    <Text ellipsizeMode="tail" numberOfLines={1}>
+                    <AppText style={{ fontWeight: "bold" }}>Địa chỉ: </AppText>
+                    <AppText ellipsizeMode="tail" numberOfLines={1}>
                       322/9 Huỳnh Văn Lũy, Phú Lợi, Thủ Dầu Một, Bình Dương{" "}
-                    </Text>
+                    </AppText>
                   </View>
                   <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <Text style={{ fontWeight: "bold" }}>4.7 *****</Text>
+                    <AppText style={{ fontWeight: "bold" }}>4.7 *****</AppText>
                   </View>
                 </View>
               );
@@ -202,10 +200,7 @@ export default function HomeScreen() {
                     navigation.navigate("InfoSister");
                   }}
                   style={{
-                    backgroundColor: COLORS.primary,
-                    padding: 2,
-                    borderRadius: 7,
-                    paddingHorizontal: 7,
+                    backgroundColor: COLORS.accent,
                     marginLeft: "auto",
                   }}
                 />
@@ -238,7 +233,6 @@ export default function HomeScreen() {
                 }}
                 onPress={() => navigation.navigate("Chat", f)}
               >
-              <Text></Text>
                 <AppImage
                   width={35}
                   height={35}
@@ -254,26 +248,26 @@ export default function HomeScreen() {
                     rowGap: 5,
                   }}
                 >
-                  <Text style={{ color: "blue", fontWeight: "bold" }}>
+                  <AppText style={{ color: "blue", fontWeight: "bold" }}>
                     {f.displayName}
-                  </Text>
-                  <Text>Last Message</Text>
+                  </AppText>
+                  <AppText>Last Message</AppText>
                 </View>
               </TouchableOpacity>
             ))}
         </View>
         <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
-          <Text>GO TO CHAT</Text>
+          <AppText>GO TO CHAT</AppText>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={async () => {
             await signOut(auth).catch((err) => console.log(err));
           }}
         >
-          <Text>SIGN OUT</Text>
+          <AppText>SIGN OUT</AppText>
         </TouchableOpacity>
       </ScrollView>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 const styles = StyleSheet.create({
@@ -289,13 +283,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     columnGap: 40,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.secondary,
     paddingVertical: 10,
     borderRadius: 15,
     elevation: 10,
-    width: 320,
+    width: 330,
     alignSelf: "center",
     marginTop: -15,
     marginBottom: 25,
+    paddingHorizoltal: 10
   },
 });

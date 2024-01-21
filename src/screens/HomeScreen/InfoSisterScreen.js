@@ -29,9 +29,8 @@ import {
   getDocs,
   and,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { AuthContext } from "../contexts/AuthProvider";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { db } from "../../firebase/config";
+import { AuthContext } from "../../contexts/AuthProvider";
 // import moment from "moment";
 // require("moment/locale/vi");
 
@@ -39,11 +38,9 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 
-import { COLORS } from "../constants/COLORS";
+import { COLORS } from "../../constants/COLORS";
 
-import { CustomButton, AppImage } from "../components";
-import CustomModal from "../components/CustomModal";
-import InputField from "../components/InputField";
+import { CustomButton, AppImage, CustomModal, InputField, AppSafeAreaView } from "../../components";
 
 export default function InfoSisterScreen({ navigation }) {
   const [visiableRate, setVisiableRate] = useState(false);
@@ -125,7 +122,7 @@ export default function InfoSisterScreen({ navigation }) {
   );
 
   return (
-    <SafeAreaView
+    <AppSafeAreaView
       style={{
         backgroundColor: COLORS.background,
         paddingHorizontal: 10,
@@ -154,8 +151,8 @@ export default function InfoSisterScreen({ navigation }) {
                   height={24}
                   source={
                     i + 1 <= numStar
-                      ? require("../assets/images/star.png")
-                      : require("../assets/images/star_empty.png")
+                      ? require("../../assets/images/star.png")
+                      : require("../../assets/images/star_empty.png")
                   }
                 />
               </TouchableOpacity>
@@ -173,7 +170,7 @@ export default function InfoSisterScreen({ navigation }) {
           <AppImage
             width={60}
             height={60}
-            source={require("../assets/images/bbst_1.jpg")}
+            source={require("../../assets/images/bbst_1.jpg")}
             options={{ styles: { borderRadius: 30, marginRight: 10 } }}
           />
           <TextInput
@@ -366,7 +363,7 @@ export default function InfoSisterScreen({ navigation }) {
             options={{
               styles: { borderWidth: 1, borderColor: "grey" },
             }}
-            source={require("../assets/images/bbst_1.jpg")}
+            source={require("../../assets/images/bbst_1.jpg")}
           />
           <View style={{ width: 150, rowGap: 15 }}>
             <View style={{ flexDirection: "row", columnGap: 10 }}>
@@ -463,7 +460,7 @@ export default function InfoSisterScreen({ navigation }) {
                       borderColor: "black",
                     },
                   }}
-                  source={require("../assets/images/bbst_1.jpg")}
+                  source={require("../../assets/images/bbst_1.jpg")}
                 />
                 <View style={{ rowGap: 10, paddingRight: 100 }}>
                   <View
@@ -482,7 +479,7 @@ export default function InfoSisterScreen({ navigation }) {
                           <AppImage
                             width={10}
                             height={10}
-                            source={require("../assets/images/star.png")}
+                            source={require("../../assets/images/star.png")}
                           />
                         </View>
                       ))}
@@ -534,7 +531,7 @@ export default function InfoSisterScreen({ navigation }) {
           </View>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
 

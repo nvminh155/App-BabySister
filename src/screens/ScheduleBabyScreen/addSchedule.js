@@ -29,17 +29,12 @@ import {
   getDocs,
   and,
 } from "firebase/firestore";
-import { db } from "../firebase/config";
-import { AuthContext } from "../contexts/AuthProvider";
-import { SafeAreaView } from "react-native-safe-area-context";
-// import moment from "moment";
-// require("moment/locale/vi");
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { MaterialIcons, Ionicons } from "react-native-vector-icons";
 
-import { COLORS } from "../constants/COLORS";
+import { COLORS } from "../../constants/COLORS";
 
 import {
   CustomButton,
@@ -48,7 +43,8 @@ import {
   InputGroup,
   CustomModal,
   InputField,
-} from "../components";
+  AppSafeAreaView
+} from "../../components";
 
 export default function ScheduleBabyScreen({ navigation }) {
   const [visiableModalAdd, setVisiableModalAdd] = useState(false);
@@ -98,7 +94,7 @@ export default function ScheduleBabyScreen({ navigation }) {
     </View>
   );
   return (
-    <SafeAreaView
+    <AppSafeAreaView
       style={{
         backgroundColor: COLORS.background,
         paddingHorizontal: 10,
@@ -122,7 +118,7 @@ export default function ScheduleBabyScreen({ navigation }) {
             fontSize: 20,
           }}
         >
-          QUẢN LÝ LỊCH BIỂU
+          THÊM MỚI LỊCH BIỂU
         </Text>
       </View>
 
@@ -161,7 +157,7 @@ export default function ScheduleBabyScreen({ navigation }) {
             <Ionicons
               name="add"
               size={30}
-              style={{ backgroundColor: "blue", color: "white" }}
+              style={{ backgroundColor: COLORS.accent, color: "white" }}
             />
           </TouchableOpacity>
         </View>
@@ -225,7 +221,7 @@ export default function ScheduleBabyScreen({ navigation }) {
               <AppImage
                 width={40}
                 height={40}
-                source={require("../assets/images/gallery_add.png")}
+                source={require("../../assets/images/gallery_add.png")}
               />
             </TouchableOpacity>
             <ScrollView horizontal contentContainerStyle={{ columnGap: 10 }}>
@@ -234,7 +230,7 @@ export default function ScheduleBabyScreen({ navigation }) {
                   <AppImage
                     width={40}
                     height={40}
-                    source={require("../assets/images/bbst_1.jpg")}
+                    source={require("../../assets/images/bbst_1.jpg")}
                   />
                 </View>
               ))}
@@ -242,9 +238,9 @@ export default function ScheduleBabyScreen({ navigation }) {
           </View>
         </CustomModal>
 
-        <ScrollView style={{ rowGap: 15, marginTop: 10, maxHeight: 400 }}>
+        <ScrollView contentContainerStyle={{rowGap: 20}} style={{ marginTop: 20, maxHeight: 400}}>
           {Array.from({ length: 5 }).map((v, i) => (
-            <View key={i} style={{}}>
+            <View key={i} style={{backgroundColor: COLORS.secondary, borderRadius: 10, padding: 10, elevation: 3}}>
               <View
                 style={{
                   flexDirection: "row",
@@ -253,7 +249,7 @@ export default function ScheduleBabyScreen({ navigation }) {
                   position: "relative",
                 }}
               >
-                <AppText style={{ backgroundColor: "#f5f5f5", padding: 5 }}>
+                <AppText>
                   11:05
                 </AppText>
 
@@ -286,14 +282,14 @@ export default function ScheduleBabyScreen({ navigation }) {
                 />
 
                 <CustomButton
-                  label={"Xóa"}
                   style={{
-                    backgroundColor: COLORS.secondary,
                     flexDirection: "row",
                     alignItems: "center",
+                    borderColor: COLORS.accent,
+                    borderWidth: 1
                   }}
                   styleText={{ color: "black" }}
-                  icon={<Ionicons name="trash" size={24} color="white" />}
+                  icon={<Ionicons name="trash" size={24} color={COLORS.accent} />}
                   onPress={() => {}}
                 />
               </View>
@@ -333,6 +329,6 @@ export default function ScheduleBabyScreen({ navigation }) {
           />
         </View>
       </View>
-    </SafeAreaView>
+    </AppSafeAreaView>
   );
 }
