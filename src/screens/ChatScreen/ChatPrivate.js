@@ -27,7 +27,7 @@ import {
   where,
   getDocs,
   and,
-} from "firebase/firestore";
+} from "firebase/firestore"
 import { db } from "../../firebase/config";
 import { AuthContext } from "../../contexts/AuthProvider";
 
@@ -42,8 +42,8 @@ import {
   CustomModal,
   CustomCard,
   CustomButton,
+  InputCheckbox
 } from "../../components";
-import InputRadio from "../../components/InputRadio";
 
 export default function ChatScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
@@ -110,6 +110,7 @@ export default function ChatScreen({ navigation, route }) {
     );
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("SNAPPPPP SHOT UDATE COLLECTION")
       setMessages(
         snapshot.docs.map((doc) => ({
           ...doc.data(),
@@ -255,7 +256,7 @@ export default function ChatScreen({ navigation, route }) {
             {Array.from({ length: 3 }).map((v, i) => (
               <View key={i} style={{ rowGap: 15 }}>
                 <CustomCard
-                  header={<InputRadio edge={22} />}
+                  header={<InputCheckbox edge={22} />}
                   body={bodyCardSchedule(`Be Nguyen Van ${i}`)}
                   footer={footerCardSchedule()}
                   style={{

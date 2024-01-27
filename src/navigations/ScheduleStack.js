@@ -9,10 +9,10 @@ const Stack = createStackNavigator();
 export default function ScheduleStack() {
   return (
     <Stack.Navigator
-      initialRouteName="index"
+      initialRouteName="ScheduleBaby"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="index" component={ScheduleBabyScreen} />
+      <Stack.Screen name="ScheduleBaby" component={ScheduleBabyScreen} />
       <Stack.Screen name="addSchedule" component={AddSchedule} />
       <Stack.Screen name="ViewSchedule" component={ViewSchudule} />
     </Stack.Navigator>

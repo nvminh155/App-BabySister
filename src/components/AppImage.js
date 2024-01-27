@@ -2,13 +2,13 @@ import React, { useState } from "react";
 import { Alert, Image, StyleSheet, Text, View } from "react-native";
 
 
-const AppImage = ({width, height, source, options}) => {
+const AppImage = ({width, height, source, options, style}) => {
   return (
     <Image style={[{
       width,
       height,
       
-    }, options && options.styles]} source={source} />
+    }, options && options.styles, style]} source={source} />
   );
 };
 

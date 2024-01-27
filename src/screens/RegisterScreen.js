@@ -8,29 +8,44 @@ import {
   Image,
   Modal,
 } from "react-native";
-import DatePicker from "react-native-date-picker";
 
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { auth, db } from "../firebase/config";
 import { addDoc, collection } from "firebase/firestore";
 
+import { Ionicons, MaterialIcons, AntDesign } from "react-native-vector-icons";
 
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import DateTimePicker from "@react-native-community/datetimepicker";
 
 import { COLORS } from "../constants/COLORS";
 
-import { AppText, AppImage, InputField, CustomButton, AppSafeAreaView } from "../components";
+import {
+  AppText,
+  AppImage,
+  InputField,
+  CustomButton,
+  AppSafeAreaView,
+  InputGroup,
+  Row,
+  InputRadio,
+} from "../components";
 
 export default function RegisterScreen({ navigation }) {
-  const [date, setDate] = useState(new Date());
+  const [date, setDate] = useState(null);
   const [open, setOpen] = useState(false);
   const [dobLabel, setDobLabel] = useState("Date of Birth");
 
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
   const [fullName, setFullName] = useState("Nguyen Van Minh");
+  const [phone, setPhone] = useState("0921219640");
+  const [typeUser, setTypeUser] = useState(1);
+  
+
+  const returnDateTime = (timestamp) => {
+    return timestamp ? new Date(timestamp) : new Date();
+  };
 
   const handleSignup = () => {
     console.log(email, password);
@@ -44,12 +59,14 @@ export default function RegisterScreen({ navigation }) {
             displayName: fullName,
             email,
             password,
+            phone,
+            dob: date,
+            address: "",
+            typeUser,
             following: [],
             provider: "EmailPassword",
           });
-
-          navigation.navigate("Home");
-          console.log("SIGNUP SUCCESS", user);
+          console.log("SIGNUP SUCCESS", user, "docref", docRef);
         })
         .catch((err) => console.log(err));
     }
@@ -123,13 +140,28 @@ export default function RegisterScreen({ navigation }) {
           inputType={"password"}
         />
 
+        <InputField
+          label={"Số điện thoại"}
+          icon={
+            <AntDesign
+              name="phone"
+              size={20}
+              color="#666"
+              style={{ marginRight: 5 }}
+            />
+          }
+          onChangeText={(text) => setPhone(text)}
+          value={phone}
+        />
+
         <View
           style={{
             flexDirection: "row",
+            alignItems: 'center',
             borderBottomColor: "#ccc",
             borderBottomWidth: 1,
             paddingBottom: 8,
-            marginBottom: 30,
+            marginBottom: 10,
           }}
         >
           <Ionicons
@@ -139,12 +171,33 @@ export default function RegisterScreen({ navigation }) {
             style={{ marginRight: 5 }}
           />
           <TouchableOpacity onPress={() => setOpen(true)}>
-            <AppText style={{ color: "#666", marginLeft: 5, marginTop: 5 }}>
-              {dobLabel}
+            <AppText style={{ marginLeft: 5, marginTop: 5 }}>
+              {returnDateTime(date).toDateString()}
             </AppText>
           </TouchableOpacity>
         </View>
 
+        {open && (
+          <DateTimePicker
+            value={returnDateTime(date)}
+            mode="date"
+            is24Hour={true}
+            display="spinner"
+            onChange={({ nativeEvent }) => {
+              setOpen(false);
+              setDate(nativeEvent.timestamp);
+            }}
+          />
+        )}
+
+        <View>
+          <AppText fontWeight={'bold'}>Bạn đăng ký làm ? </AppText>
+          <Row style={{flexWrap: 'wrap'}}>
+            <InputRadio edge={20} label={<AppText>Bảo Mẫu</AppText>} id={1} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
+            <InputRadio edge={20} label={<AppText>Phụ Huynh</AppText>} id={2} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
+            <InputRadio edge={20} label={<AppText>Bên Thứ 3</AppText>} id={3} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
+          </Row>
+        </View>
         <CustomButton
           label={"Register"}
           onPress={handleSignup}

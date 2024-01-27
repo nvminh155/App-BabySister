@@ -23,7 +23,9 @@ export default function InputGroup({
   inputMode,
   iconBefore,
   iconAfter,
-  readOnly = false
+  colorTextInput,
+  readOnly = false,
+  autoFocus = false,
 }) {
   return (
     <View style={[styles.group(row), styleRoot]}>
@@ -38,10 +40,11 @@ export default function InputGroup({
           secureTextEntry={inputType === "password"}
           multiline={multiline}
           scrollEnabled={multiline}
-          style={{flex: 1}}
+          style={{flex: 1, color: colorTextInput || COLORS.text }}
           editable={editableInput}
           inputMode={inputMode}
           readOnly={readOnly}
+          autoFocus={autoFocus}
         />
         {iconAfter}
       </View>
@@ -57,7 +60,8 @@ const styles = StyleSheet.create({
     elevation: 3,
     flexDirection: 'row',
     flex: 1,
-    backgroundColor: COLORS.secondary
+    backgroundColor: COLORS.secondary,
+    
   },
 
   group: (row) => ({

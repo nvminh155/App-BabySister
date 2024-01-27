@@ -3,6 +3,7 @@ import React from "react";
 import { COLORS } from "../constants/COLORS";
 
 export default function CustomCard({
+  children,
   header,
   body,
   footer,
@@ -14,6 +15,7 @@ export default function CustomCard({
     <View style={[styles.card(width, height), style]}>
       {header}
       {body}
+      {children}
       {footer}
     </View>
   );

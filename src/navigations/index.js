@@ -17,7 +17,7 @@ export default function RootNavigator() {
   
     return (
       <NavigationContainer>
-        {user ? <CollabStack /> : <AuthStack />}
+        {user ? (user.typeUser === 1 ? <CollabStack /> : <AppStack />) : <AuthStack />}
       </NavigationContainer>
     );
   }

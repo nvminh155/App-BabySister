@@ -42,28 +42,11 @@ const wHeight = Dimensions.get("window").height;
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
-  const [listFollowing, setListFollowing] = useState(null);
 
   const [text, setText] = useState(
     "Bạn muốn nhờ người hỗ trợ ? Hãy gửi bài đăng kèm các yêu cầu của bạn ..."
   );
-  useEffect(() => {
-    const collectionRef = collection(db, "users");
-    const q = query(collectionRef, (ref) => ref.orderBy("uid", "desc"));
-    const unsubcribe = onSnapshot(q, (snapshot) => {
-      const snapshotMap = snapshot.docs.map((doc) => ({
-        displayName: doc.data().displayName,
-        uid: doc.data().uid,
-        _id: doc.id,
-      }));
-      setListFollowing(
-        snapshotMap.filter((doc) =>
-          user.following.find((uid) => uid === doc.uid)
-        )
-      );
-    });
-    return unsubcribe;
-  }, []);
+
 
   return (
     <AppSafeAreaView
@@ -73,7 +56,10 @@ export default function HomeScreen() {
         height: "100%",
       }}
     >
-      <View id="header" style={{ flexDirection: "row", justifyContent: "space-between" }}>
+      <View
+        id="header"
+        style={{ flexDirection: "row", justifyContent: "space-between" }}
+      >
         <View
           style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
         >
@@ -145,7 +131,7 @@ export default function HomeScreen() {
           <CustomButton
             label={"Đăng Ngay"}
             onPress={() => {
-              navigation.navigate("PostSearch");
+              navigation.navigate("PostSearch", { user });
             }}
             style={{
               backgroundColor: COLORS.accent,
@@ -225,48 +211,6 @@ export default function HomeScreen() {
           </ScrollView>
         </View>
 
-        <View id="list-followindg">
-          {listFollowing &&
-            listFollowing.map((f) => (
-              <TouchableOpacity
-                key={f.uid}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  columnGap: 10,
-                  borderBottomWidth: 1,
-                  borderBottomColor: "black",
-                  paddingVertical: 5,
-                  paddingHorizontal: 3,
-                }}
-                onPress={() => navigation.navigate("Chat", f)}
-              >
-                <AppImage
-                  width={35}
-                  height={35}
-                  options={{
-                    styles: { borderRadius: 17 },
-                  }}
-                  source={{
-                    uri: "https://png.pngtree.com/thumb_back/fw800/background/20230523/pngtree-sad-pictures-for-desktop-hd-backgrounds-image_2690576.jpg",
-                  }}
-                />
-                <View
-                  style={{
-                    rowGap: 5,
-                  }}
-                >
-                  <AppText style={{ color: "blue", fontWeight: "bold" }}>
-                    {f.displayName}
-                  </AppText>
-                  <AppText>Last Message</AppText>
-                </View>
-              </TouchableOpacity>
-            ))}
-        </View>
-        <TouchableOpacity onPress={() => navigation.navigate("Chat")}>
-          <AppText>GO TO CHAT</AppText>
-        </TouchableOpacity>
         <TouchableOpacity
           onPress={async () => {
             await signOut(auth).catch((err) => console.log(err));

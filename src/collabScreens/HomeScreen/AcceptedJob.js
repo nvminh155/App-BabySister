@@ -11,21 +11,9 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useState } from "react";
 
 // FIRE BASE
-import { db } from "../../firebase/config";
-import {
-  collection,
-  query,
-  where,
-  or,
-  and,
-  addDoc,
-  getDocs,
-  getDoc,
-  onSnapshot,
-} from "firebase/firestore";
 
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -43,65 +31,38 @@ import {
   CustomButton,
   Row,
 } from "../../components";
-import { formatDateTime, formatMoney } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
-  const [jobs, setJobs] = useState([]);
+  const [listFollowing, setListFollowing] = useState(null);
 
-  const fetchJobs = async () => {
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
-    const querySnap = await getDocs(q);
-    setJobs(querySnap.docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
-  };
-  useEffect(() => {
-    fetchJobs();
-  }, []);
-
-  useEffect(() => {
-
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
-
-    const unsubscribe = onSnapshot(q, (jobsSnap) => {
-      const jobs = [];
-      jobsSnap.forEach((doc) => {
-        jobs.push({ ...doc.data(), _id: doc.id });
-      });
-
-      setJobs(jobs);
-    });
-
-    return unsubscribe;
-  }, []);
-
-  const headerCardInfoJob = (title, startTimestamp) => {
+  const headerCardInfoJob = () => {
     return (
       <View>
-        <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-          {title.toUpperCase()}
-        </AppText>
-        <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
-          <AppText
-            style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
-          >
-            {formatDateTime(startTimestamp).DDMYTS}
+        <Row style={{marginTop: 0, marginBottom: 10, marginLeft: 'auto'}}>
+          <AppText color={COLORS.textDanger}  >Chưa Hoàn Thành</AppText>
+        </Row>
+        <View>
+          <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
+            DỌN DẸP NHÀ - QUẬN 7
           </AppText>
-        </AppText>
+          <AppText style={{ fontSize: 15 }}>
+            Bắt đầu vào lúc:{" "}
+            <AppText
+              style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
+            >
+              Ngày mai lúc 10:00
+            </AppText>
+          </AppText>
+        </View>
       </View>
     );
   };
 
-  const bodyCardInfoJob = (timeJob, money, address, textNote) => {
+  const bodyCardInfoJob = () => {
     return (
       <View style={{ rowGap: 5, paddingHorizontal: 10 }}>
         <View
@@ -118,68 +79,64 @@ export default function HomeScreen({ navigation }) {
           <View id="time" style={{ alignItems: "center" }}>
             <AppText>Làm trong</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              {timeJob}
+              2h
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
             <AppText>Số tiền(VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              {formatMoney(money)}
+              100,000
             </AppText>
           </View>
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
           <AppText>Tại: </AppText>
-          <AppText fontWeight={"bold"}>{address}</AppText>
+          <AppText fontWeight={"bold"}>
+            322/41 Huỳnh Văn Lũy, Phú Lợi, Thủ Dầu Một, Bình Dương
+          </AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
           <AppText>Ghi chú: </AppText>
-          <AppText style={{ fontWeight: "bold" }}>{textNote}</AppText>
+          <AppText style={{ fontWeight: "bold" }}>15b 03 sky garden 2</AppText>
         </View>
       </View>
     );
   };
 
-  const footerCardInfoJob = (job) => {
+  const footerCardInfoJob = () => {
     return (
       <View>
         <CustomButton
-          label={"XEM THÊM VỀ CÔNG VIỆC"}
+          label={"XEM LẠI CÔNG VIỆC"}
           style={{
             backgroundColor: COLORS.accent,
             alignSelf: "center",
             width: "max-content",
           }}
           onPress={() => {
-            navigation.navigate("ViewJob", { job });
+            navigation.navigate("ViewJob");
           }}
         />
       </View>
     );
   };
-
   return (
     <ScrollView
       style={{ paddingHorizontal: 10, marginTop: 20, marginBottom: 20 }}
       contentContainerStyle={{ rowGap: 15 }}
     >
-      {jobs.map((job, i) => (
+      {Array.from({ length: 5 }).map((v, i) => (
         <CustomCard
           key={i}
-          header={headerCardInfoJob(job.title, job.start)}
-          body={bodyCardInfoJob(
-            job.timeHire,
-            job.money,
-            job.address,
-            job.textNote
-          )}
-          footer={footerCardInfoJob(job)}
+          header={headerCardInfoJob()}
+          body={bodyCardInfoJob()}
+          footer={footerCardInfoJob()}
           style={{
             rowGap: 15,
             backgroundColor: "white",
-            paddingHorizontal: 30,
+            paddingHorizontal: 20,
             paddingVertical: 15,
           }}
         />

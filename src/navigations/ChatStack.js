@@ -10,10 +10,10 @@ const Stack = createStackNavigator();
 export default function ChatStack() {
   return (
     <Stack.Navigator
-      initialRouteName="index"
+      initialRouteName="ChatScreen"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="index" component={ChatScreen} />
+      <Stack.Screen name="ChatScreen" component={ChatScreen} />
       <Stack.Screen name="ChatPrivate" component={ChatPrivate} />
       <Stack.Screen name="ViewSchedule" component={ViewSchedule} />
     </Stack.Navigator>

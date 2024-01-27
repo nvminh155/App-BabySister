@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 
 // FIRE BASE
 import { db } from "../../firebase/config";
@@ -24,14 +24,9 @@ import {
   addDoc,
   getDocs,
   getDoc,
-  onSnapshot,
 } from "firebase/firestore";
-
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
-
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Ionicons from "react-native-vector-icons/Ionicons";
 
 import { COLORS } from "../../constants/COLORS";
 
@@ -42,68 +37,67 @@ import {
   CustomCard,
   CustomButton,
   Row,
+  InputCheckbox,
 } from "../../components";
 import { formatDateTime, formatMoney } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
-export default function HomeScreen({ navigation }) {
+export default function WaittingJobSreen({ navigation }) {
   const { user } = useContext(AuthContext);
+  const [listFollowing, setListFollowing] = useState(null);
+  const [acceptJob, setAcceptJob] = useState(false);
   const [jobs, setJobs] = useState([]);
 
   const fetchJobs = async () => {
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
+    const q = query(collection(db, "posts"), where("isDone", "==", 0));
     const querySnap = await getDocs(q);
-    setJobs(querySnap.docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+
+    setJobs(
+      querySnap.docs
+        .map((doc) => ({ ...doc.data(), _id: doc.id }))
+        .filter((docMap) => docMap.applies.some((uid) => user.uid === uid))
+    );
   };
   useEffect(() => {
     fetchJobs();
   }, []);
 
-  useEffect(() => {
-
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
-
-    const unsubscribe = onSnapshot(q, (jobsSnap) => {
-      const jobs = [];
-      jobsSnap.forEach((doc) => {
-        jobs.push({ ...doc.data(), _id: doc.id });
-      });
-
-      setJobs(jobs);
-    });
-
-    return unsubscribe;
-  }, []);
-
   const headerCardInfoJob = (title, startTimestamp) => {
     return (
-      <View>
-        <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-          {title.toUpperCase()}
-        </AppText>
-        <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
-          <AppText
-            style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
-          >
-            {formatDateTime(startTimestamp).DDMYTS}
+      <View style={{ justifyContent: "space-between" }}>
+      
+      <Row style={{marginLeft: 'auto', marginBottom: 10}}>
+      <AppImage
+          width={32}
+          height={32}
+          source={require("images/clock_wait.png")}
+          
+        />
+        <AppText fontWeight={"bold"}>Đang Chờ ...</AppText>
+      </Row>
+        <View>
+          <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
+            {title.toUpperCase()}
           </AppText>
-        </AppText>
+          <AppText style={{ fontSize: 15 }}>
+            Bắt đầu vào lúc:
+            <AppText
+              style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
+            >
+              {formatDateTime(startTimestamp).DDMYTS}
+            </AppText>
+          </AppText>
+        </View>
+
       </View>
     );
   };
 
   const bodyCardInfoJob = (timeJob, money, address, textNote) => {
     return (
-      <View style={{ rowGap: 5, paddingHorizontal: 10 }}>
+      <View style={{ rowGap: 5, paddingHorizontal: 10, flex: 1 }}>
         <View
           id="benifit"
           style={{
@@ -142,27 +136,32 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-  const footerCardInfoJob = (job) => {
+  const footerCardInfoJob = () => {
     return (
       <View>
-        <CustomButton
-          label={"XEM THÊM VỀ CÔNG VIỆC"}
-          style={{
-            backgroundColor: COLORS.accent,
-            alignSelf: "center",
-            width: "max-content",
-          }}
+        <AppText color={COLORS.accent}>alsdfjljasdfklajsdlfkj</AppText>
+        <TouchableOpacity
           onPress={() => {
-            navigation.navigate("ViewJob", { job });
+            console.log("SET VI TRI GPS");
           }}
-        />
+          id="address-map"
+          style={{
+            alignItems: "center",
+            justifyContent: "center",
+            borderTopColor: "black",
+            borderTopWidth: 0.2,
+            marginTop: 10,
+          }}
+        >
+          <AppImage width={32} height={32} source={require("images/map.png")} />
+          <AppText fontWeight={"bold"}>XEM VỊ TRÍ LÀM VIỆC</AppText>
+        </TouchableOpacity>
       </View>
     );
   };
-
-  return (
+  return ( 
     <ScrollView
-      style={{ paddingHorizontal: 10, marginTop: 20, marginBottom: 20 }}
+      style={{ paddingHorizontal: 10, marginVertical: 20 }}
       contentContainerStyle={{ rowGap: 15 }}
     >
       {jobs.map((job, i) => (
@@ -175,7 +174,7 @@ export default function HomeScreen({ navigation }) {
             job.address,
             job.textNote
           )}
-          footer={footerCardInfoJob(job)}
+          footer={footerCardInfoJob()}
           style={{
             rowGap: 15,
             backgroundColor: "white",

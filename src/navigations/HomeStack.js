@@ -11,10 +11,10 @@ const Stack = createStackNavigator();
 export default function HomeStack() {
   return (
     <Stack.Navigator
-      initialRouteName="index"
+      initialRouteName="Home"
       screenOptions={{ headerShown: false }}
     >
-      <Stack.Screen name="index" component={HomeScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="InfoSister" component={InfoSisterScreen} />
       <Stack.Screen name="ChatSister" component={ChatScreen} />
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />

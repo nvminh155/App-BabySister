@@ -43,45 +43,53 @@ import {
   CustomButton,
   Row,
 } from "../../components";
+
 import { formatDateTime, formatMoney } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
-export default function HomeScreen({ navigation }) {
+export default function PostedScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
+  console.log(jobs);
 
   const fetchJobs = async () => {
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
+    const q = query(collection(db, "posts"), where("uid", "==", user.uid));
     const querySnap = await getDocs(q);
-    setJobs(querySnap.docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+
+    setJobs(
+      querySnap.docs
+        .map((doc) => ({ ...doc.data(), _id: doc.id }))
+        .filter((docMap) => !docMap.applies.some((uid) => user.uid === uid))
+    );
   };
   useEffect(() => {
     fetchJobs();
+    
   }, []);
 
-  useEffect(() => {
-
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
-
-    const unsubscribe = onSnapshot(q, (jobsSnap) => {
-      const jobs = [];
-      jobsSnap.forEach((doc) => {
-        jobs.push({ ...doc.data(), _id: doc.id });
-      });
-
-      setJobs(jobs);
-    });
+  useEffect( () => {
+    const q = query(collection(db, "posts"), where("uid", "==", user.uid));
+    const unsubscribe = onSnapshot(q, (postSnap) => {
+      const posts = [];
+      postSnap.forEach(doc => {
+        console.log("SNAP POST" , doc.data())
+        posts.push({
+          ...doc.data(),
+          _id: doc.id,
+        })
+      })
+      setJobs(posts)
+      console.log("CHANGE VALUE POST")
+    })
 
     return unsubscribe;
-  }, []);
+  }, [])
+  const removePost = () => {
+
+  }
+  
 
   const headerCardInfoJob = (title, startTimestamp) => {
     return (
@@ -144,19 +152,33 @@ export default function HomeScreen({ navigation }) {
 
   const footerCardInfoJob = (job) => {
     return (
-      <View>
+      <Row style={{marginLeft: 'auto'}}>
         <CustomButton
-          label={"XEM THÊM VỀ CÔNG VIỆC"}
+          label={"XEM THÊM"}
           style={{
             backgroundColor: COLORS.accent,
             alignSelf: "center",
             width: "max-content",
           }}
           onPress={() => {
+            navigation.navigate("ViewPost", { job });
+          }}
+        />
+        <CustomButton
+          label={"HỦY ĐĂNG"}
+          style={{
+            backgroundColor: COLORS.secondary,
+            alignSelf: "center",
+            width: "max-content",
+            borderColor: COLORS.accent,
+            borderWidth: 1
+          }}
+          styleText={{color: COLORS.accent}}
+          onPress={() => {
             navigation.navigate("ViewJob", { job });
           }}
         />
-      </View>
+      </Row>
     );
   };
 
@@ -180,7 +202,11 @@ export default function HomeScreen({ navigation }) {
             rowGap: 15,
             backgroundColor: "white",
             paddingHorizontal: 30,
-            paddingVertical: 15,
+            paddingVertical: 20,
+            borderTopLeftRadius: 15,
+            borderBottomLeftRaidus: 15,
+            borderLeftColor: COLORS.accent, // red: end, green: done, blue: wait
+            borderLeftWidth: 4,
           }}
         />
       ))}

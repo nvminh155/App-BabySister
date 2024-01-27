@@ -17,19 +17,10 @@ import {
   TouchableOpacity,
 } from "react-native";
 
-import {
-  addDoc,
-  orderBy,
-  collection,
-  query,
-  onSnapshot,
-  or,
-  where,
-  getDocs,
-  and,
-} from "firebase/firestore";
+import { updateDoc, doc, getDocs, and, onSnapshot, query,  } from "firebase/firestore";
 
 import { db } from "../../firebase/config";
+
 import { AuthContext } from "../../contexts/AuthProvider";
 
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -49,11 +40,12 @@ import {
 
 import { formatDateTime } from "../../utils";
 
-export default function PostSearchScreen({ navigation, route }) {
-  const user = route.params.user;
-  const [numOfChilds, setNumOfChilds] = useState(0);
+export default function EditPostScreen({ navigation, route }) {
+  const { user } = useContext(AuthContext);
+  const [numOfChilds, setNumOfChilds] = useState("0");
   const [textNote, setTextNote] = useState("");
   const [address, setAddress] = useState("");
+  const [job, setJob] = useState(route.params.job);
   const [startDate, setStartDate] = useState({
     timestamp: Date.now(),
     showDate: false,
@@ -65,10 +57,70 @@ export default function PostSearchScreen({ navigation, route }) {
     showDate: false,
     showTime: false,
   });
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [timeHire, setTimeHire] = useState("0");
   const [money, setMoney] = useState(0);
 
+  useLayoutEffect(() => {
+    setAddress(job.address);
+    setEndDate((prev) => ({ ...prev, timestamp: job.end }));
+    setStartDate((prev) => ({ ...prev, timestamp: job.start }));
+    setTitle(job.title);
+    setMoney(job.money);
+    setNumOfChilds(job.numOfChilds);
+    setTextNote(job.textNote);
+
+    async function saveEditPost() {
+      const docData = {
+        uid: user.uid,
+        title,
+        numOfChilds,
+        textNote,
+        address,
+        start: startDate.timestamp,
+        end: endDate.timestamp,
+        timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
+        money,
+        createdAt: Date.now(),
+        updatedAt: Date.now()
+      };
+
+      const postRef = doc(db, "posts", job._id);
+      const update = await updateDoc(postRef, { ...docData })
+        .then(() => {
+          console.log(`UPDATE EDIT POST ${job._id} SUCCESS `);
+        })
+        .catch((err) => console.log("UPDATE POST ERR"));
+    }
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 10 }}
+          onPress={() => {
+            saveEditPost();
+          }}
+        >
+          <Row style={{ columnGap: 5 }}>
+            <AppImage
+              width={24}
+              height={24}
+              source={require("images/save_doc.png")}
+            />
+            <AppText fontWeight={"bold"} color={COLORS.accent}>
+              Lưu
+            </AppText>
+          </Row>
+        </TouchableOpacity>
+      ),
+    });
+  }, []);
+  useEffect( () => {
+    const unsubPost = onSnapshot(doc(db, "posts", job._id), doc => {
+        setJob(prev => ({...prev, ...doc.data()}))
+    })
+
+    return unsubPost;
+  }, [])
   const returnDateTime = (timestamp) => {
     return timestamp ? new Date(timestamp) : new Date();
   };
@@ -85,37 +137,6 @@ export default function PostSearchScreen({ navigation, route }) {
     return Math.ceil(hours);
   };
 
-  const handlePost = async () => {
-    // console.log({
-    //   user,
-    //   numOfChilds,
-    //   textNote,
-    //   start: startDate.timestamp,
-    //   end: endDate.timestamp,
-    //   timeHire,
-    //   money,
-    // });
-
-    const docData = {
-      uid: user.uid,
-      title,
-      numOfChilds,
-      textNote,
-      address,
-      start: startDate.timestamp,
-      end: endDate.timestamp,
-      timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
-      money,
-      applies: [],
-      isDone: 0, // 1 choosed sister // 2 done
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-    };
-    // console.log(docData)
-    const docRef = await addDoc(collection(db, "posts"), docData); 
-    // console.log(docRef);
-  };
-
   const formatCurrency = (amount) => {
     const val = parseInt(amount)
       ? parseInt(amount).toLocaleString("vi-VN")
@@ -124,30 +145,7 @@ export default function PostSearchScreen({ navigation, route }) {
   };
 
   return (
-    <AppSafeAreaView style={{ paddingHorizontal: 10 }}>
-      <View
-        id="header"
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <TouchableOpacity
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Ionicons name="arrow-back" size={30} />
-        </TouchableOpacity>
-        <Text
-          style={{
-            marginLeft: 70,
-            fontWeight: 700,
-            color: COLORS.text,
-            fontSize: 20,
-          }}
-        >
-          ĐĂNG BÀI
-        </Text>
-      </View>
-
+    <View style={{ paddingHorizontal: 10, marginTop: 20 }}>
       <ScrollView style={{ marginBottom: 10 }}>
         <InputGroup
           label={
@@ -169,7 +167,7 @@ export default function PostSearchScreen({ navigation, route }) {
           row={true}
           inputMode={"numeric"}
           placeholder={"Nhập số lượng ..."}
-          value={numOfChilds.toString()}
+          value={numOfChilds}
           onChangeText={(num) => {
             setNumOfChilds(num);
           }}
@@ -382,24 +380,8 @@ export default function PostSearchScreen({ navigation, route }) {
             />
           }
         />
-
-        <View
-          style={{ flexDirection: "row", columnGap: 15, marginLeft: "auto" }}
-        >
-          <CustomButton
-            label={"Đăng bài"}
-            style={{ backgroundColor: COLORS.accent }}
-            onPress={handlePost}
-          />
-          <CustomButton
-            label={"Hủy"}
-            style={{ borderColor: COLORS.accent, borderWidth: 1 }}
-            styleText={{ color: COLORS.accent }}
-            onPress={() => {}}
-          />
-        </View>
       </ScrollView>
-    </AppSafeAreaView>
+    </View>
   );
 }
 

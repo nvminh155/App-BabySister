@@ -9,20 +9,23 @@ import AppImage from "../components/AppImage";
 import ScheduleStack from "../navigations/ScheduleStack";
 import HomeStack from "../navigations/HomeStack";
 import ChatStack from "../navigations/ChatStack";
+import UserScreen from "../screens/UserScreen";
+import PostedScreen from "../screens/PostScreen/Posted";
+import PostStack from "./PostStack";
 
 const Tab = createBottomTabNavigator();
 
 export default function AppStack() {
     return (
       <Tab.Navigator
-        initialRouteName="Chat"
+        initialRouteName="HomeStack"
         screenOptions={{
           headerShown: false,
           tabBarItemStyle: { paddingVertical: 5 },
         }}
       >
         <Tab.Screen
-          name="Home"
+          name="HomeStack"
           component={HomeStack}
           options={{
             title: "Trang Chủ",
@@ -66,10 +69,10 @@ export default function AppStack() {
           }}
         />
         <Tab.Screen
-          name="Chat2"
-          component={ChatStack}
+          name="PostedScreen"
+          component={PostStack}
           options={{
-            title: "LS Giao dịch",
+            title: "Lịch sử đăng",
             tabBarIcon: () => (
               <AppImage
                 width={24}
@@ -80,8 +83,8 @@ export default function AppStack() {
           }}
         />
         <Tab.Screen
-          name="Chat3"
-          component={ChatStack}
+          name="UserScreen"
+          component={UserScreen}
           options={{
             title: "Người Dùng",
             tabBarIcon: () => (
@@ -92,6 +95,7 @@ export default function AppStack() {
                 style={{ marginRight: 5 }}
               />
             ),
+            headerShown: true
           }}
         />
       </Tab.Navigator>
