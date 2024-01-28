@@ -49,27 +49,13 @@ export default function HomeScreen() {
 
 
   return (
-    <AppSafeAreaView
+    <View
       style={{
         paddingHorizontal: 10,
         backgroundColor: COLORS.background,
         height: "100%",
       }}
     >
-      <View
-        id="header"
-        style={{ flexDirection: "row", justifyContent: "space-between" }}
-      >
-        <View
-          style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
-        >
-          <Ionicons name="sunny-outline" size={24} color={"yellow"} />
-          <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
-        </View>
-        <View>
-          <Ionicons name="search" size={24} />
-        </View>
-      </View>
 
       <ScrollView>
         <View style={{ borderWidth: 1, borderColor: "black", marginTop: 10 }}>
@@ -219,7 +205,7 @@ export default function HomeScreen() {
           <AppText>SIGN OUT</AppText>
         </TouchableOpacity>
       </ScrollView>
-    </AppSafeAreaView>
+    </View>
   );
 }
 const styles = StyleSheet.create({

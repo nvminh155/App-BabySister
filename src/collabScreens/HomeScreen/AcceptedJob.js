@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 
 // FIRE BASE
 
@@ -31,6 +31,9 @@ import {
   CustomButton,
   Row,
 } from "../../components";
+import { and, collection, onSnapshot, query, where } from "firebase/firestore";
+import { db } from "../../firebase/config";
+import { formatDateTime, formatMoney } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
@@ -39,22 +42,46 @@ export default function HomeScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const [listFollowing, setListFollowing] = useState(null);
 
-  const headerCardInfoJob = () => {
+  const [jobs, setJobs] = useState([]);
+  const fetchJobsAccepted = async () => {};
+  useEffect(() => {
+    const q = query(
+      collection(db, "posts"),
+      and(where("isDone", ">=", 1), where("userChoosed", "==", user.uid))
+    );
+
+    const unsubscribe = onSnapshot(q, (jobSnap) => {
+      const jobs = [];
+      jobSnap.forEach((doc) => {
+        jobs.push({
+          ...doc.data(),
+          _id: doc.id,
+        });
+      });
+
+      setJobs(jobs);
+    });
+
+    return unsubscribe;
+  }, []);
+  const headerCardInfoJob = (title, startTimestamp, isDone) => {
     return (
       <View>
-        <Row style={{marginTop: 0, marginBottom: 10, marginLeft: 'auto'}}>
-          <AppText color={COLORS.textDanger}  >Chưa Hoàn Thành</AppText>
+        <Row style={{ marginTop: 0, marginBottom: 10, marginLeft: "auto" }}>
+          <AppText color={isDone == 1 ? COLORS.textDanger : COLORS.textSuccess}>
+            {isDone ? "Chưa Hoàn Thành" : "Đã Hoàn Thành"}
+          </AppText>
         </Row>
         <View>
           <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-            DỌN DẸP NHÀ - QUẬN 7
+            {title.toUpperCase()}
           </AppText>
           <AppText style={{ fontSize: 15 }}>
-            Bắt đầu vào lúc:{" "}
+            Bắt đầu vào lúc:
             <AppText
               style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
             >
-              Ngày mai lúc 10:00
+              {formatDateTime(startTimestamp).DDMYTS}
             </AppText>
           </AppText>
         </View>
@@ -62,9 +89,9 @@ export default function HomeScreen({ navigation }) {
     );
   };
 
-  const bodyCardInfoJob = () => {
+  const bodyCardInfoJob = (timeJob, money, address, textNote) => {
     return (
-      <View style={{ rowGap: 5, paddingHorizontal: 10 }}>
+      <View style={{ rowGap: 5, paddingHorizontal: 10, flex: 1 }}>
         <View
           id="benifit"
           style={{
@@ -77,35 +104,33 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong</AppText>
+            <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              2h
+              {timeJob}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
             <AppText>Số tiền(VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              100,000
+              {formatMoney(money)}
             </AppText>
           </View>
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
           <AppText>Tại: </AppText>
-          <AppText fontWeight={"bold"}>
-            322/41 Huỳnh Văn Lũy, Phú Lợi, Thủ Dầu Một, Bình Dương
-          </AppText>
+          <AppText fontWeight={"bold"}>{address}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
           <AppText>Ghi chú: </AppText>
-          <AppText style={{ fontWeight: "bold" }}>15b 03 sky garden 2</AppText>
+          <AppText style={{ fontWeight: "bold" }}>{textNote}</AppText>
         </View>
       </View>
     );
   };
 
-  const footerCardInfoJob = () => {
+  const footerCardInfoJob = (job) => {
     return (
       <View>
         <CustomButton
@@ -116,7 +141,7 @@ export default function HomeScreen({ navigation }) {
             width: "max-content",
           }}
           onPress={() => {
-            navigation.navigate("ViewJob");
+            navigation.navigate("ViewJob", {job});
           }}
         />
       </View>
@@ -127,16 +152,21 @@ export default function HomeScreen({ navigation }) {
       style={{ paddingHorizontal: 10, marginTop: 20, marginBottom: 20 }}
       contentContainerStyle={{ rowGap: 15 }}
     >
-      {Array.from({ length: 5 }).map((v, i) => (
+      {jobs.map((job, i) => (
         <CustomCard
           key={i}
-          header={headerCardInfoJob()}
-          body={bodyCardInfoJob()}
-          footer={footerCardInfoJob()}
+          header={headerCardInfoJob(job.title, job.start, job.isDone)}
+          body={bodyCardInfoJob(
+            job.timeHire,
+            job.money,
+            job.address,
+            job.textNote
+          )}
+          footer={footerCardInfoJob(job)}
           style={{
             rowGap: 15,
             backgroundColor: "white",
-            paddingHorizontal: 20,
+            paddingHorizontal: 30,
             paddingVertical: 15,
           }}
         />

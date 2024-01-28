@@ -26,11 +26,10 @@ export default function LoginScreen({ navigation }) {
 
   const [test, setTest] = useState(null);
   useEffect(() => {}, [test]);
-  const handleLogin = () => {
-    console.log(email, password);
+  const handleLogin = async () => {
     // return;
     if (email !== "" && password !== "") {
-      signInWithEmailAndPassword(auth, email, password).catch((err) =>
+      await signInWithEmailAndPassword(auth, email, password).then(() => console.log("LONGIN SUCCESSFULL",email, password)).catch((err) =>
         Alert.alert(err.message)
       );
     }

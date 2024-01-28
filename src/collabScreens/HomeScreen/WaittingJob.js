@@ -24,6 +24,7 @@ import {
   addDoc,
   getDocs,
   getDoc,
+  onSnapshot,
 } from "firebase/firestore";
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -51,32 +52,57 @@ export default function WaittingJobSreen({ navigation }) {
   const [jobs, setJobs] = useState([]);
 
   const fetchJobs = async () => {
-    const q = query(collection(db, "posts"), where("isDone", "==", 0));
+    const q = query(
+      collection(db, "posts"),
+      and(
+        where("isDone", "==", 0),
+        where("applies", "array-contains-any", [user])
+      )
+    );
     const querySnap = await getDocs(q);
 
     setJobs(
       querySnap.docs
         .map((doc) => ({ ...doc.data(), _id: doc.id }))
-        .filter((docMap) => docMap.applies.some((uid) => user.uid === uid))
+        .filter((docMap) =>
+          docMap.applies.some((apply) => user.uid === apply.uid)
+        )
     );
   };
   useEffect(() => {
-    fetchJobs();
+    // fetchJobs();
   }, []);
 
+  useEffect(() => {
+    const q = query(
+      collection(db, "posts"),
+      and(
+        where("isDone", "==", 0),
+        where("applies", "array-contains-any", [user])
+      )
+    );
+    const unsubscribe = onSnapshot(q, (jobSnap) => {
+      const jobs = [];
+      jobSnap.forEach((doc) => {
+        jobs.push({ ...doc.data(), _id: doc.id });
+      });
+
+      setJobs(jobs)
+    });
+
+    return unsubscribe;
+  }, []);
   const headerCardInfoJob = (title, startTimestamp) => {
     return (
       <View style={{ justifyContent: "space-between" }}>
-      
-      <Row style={{marginLeft: 'auto', marginBottom: 10}}>
-      <AppImage
-          width={32}
-          height={32}
-          source={require("images/clock_wait.png")}
-          
-        />
-        <AppText fontWeight={"bold"}>Đang Chờ ...</AppText>
-      </Row>
+        <Row style={{ marginLeft: "auto", marginBottom: 10 }}>
+          <AppImage
+            width={32}
+            height={32}
+            source={require("images/clock_wait.png")}
+          />
+          <AppText fontWeight={"bold"}>Đang Chờ ...</AppText>
+        </Row>
         <View>
           <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
             {title.toUpperCase()}
@@ -90,7 +116,6 @@ export default function WaittingJobSreen({ navigation }) {
             </AppText>
           </AppText>
         </View>
-
       </View>
     );
   };
@@ -110,7 +135,7 @@ export default function WaittingJobSreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong</AppText>
+            <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
@@ -159,7 +184,7 @@ export default function WaittingJobSreen({ navigation }) {
       </View>
     );
   };
-  return ( 
+  return (
     <ScrollView
       style={{ paddingHorizontal: 10, marginVertical: 20 }}
       contentContainerStyle={{ rowGap: 15 }}

@@ -64,6 +64,7 @@ export default function RegisterScreen({ navigation }) {
             address: "",
             typeUser,
             following: [],
+            hitoryBooking: [],
             provider: "EmailPassword",
           });
           console.log("SIGNUP SUCCESS", user, "docref", docRef);

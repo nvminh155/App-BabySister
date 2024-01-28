@@ -28,6 +28,7 @@ import {
   CustomButton,
 } from "../components";
 import { COLORS } from "../constants/COLORS";
+import NoticeScreen from "../collabScreens/NoticeScreen";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -71,8 +72,8 @@ function CustomTabHeader(props) {
         <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
       </View>
 
-      <TouchableOpacity>
-        <AppImage width={24} height={24} source={require("images/gift.png")} />
+      <TouchableOpacity onPress={() => {navigation.navigate("Notice")}}>
+        <AppImage width={24} height={24} source={require("images/notice.png")} />
       </TouchableOpacity>
     </AppSafeAreaView>
   );
@@ -183,6 +184,14 @@ export default function CollabStack() {
         component={UserScreen}
         options={{
           title: "Thông Tin Cá Nhân",
+          
+        }}
+      />
+      <Stack.Screen
+        name="Notice"
+        component={NoticeScreen}
+        options={{
+          title: "Thông Báo",
           
         }}
       />

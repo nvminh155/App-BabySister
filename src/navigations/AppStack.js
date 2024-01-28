@@ -15,6 +15,8 @@ import PostStack from "./PostStack";
 
 const Tab = createBottomTabNavigator();
 
+
+
 export default function AppStack() {
     return (
       <Tab.Navigator

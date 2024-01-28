@@ -53,23 +53,22 @@ export default function HomeScreen({ navigation }) {
   const [jobs, setJobs] = useState([]);
 
   const fetchJobs = async () => {
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
+    const q = query(collection(db, "posts"), where("isDone", "==", 0));
     const querySnap = await getDocs(q);
-    setJobs(querySnap.docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+    setJobs(
+      querySnap.docs
+        .map((doc) => ({ ...doc.data(), _id: doc.id }))
+        .filter((apply) =>
+          !apply.applies.some((sister) => sister.uid === user.uid)
+        )
+    );
   };
   useEffect(() => {
     fetchJobs();
   }, []);
 
   useEffect(() => {
-
-    const q = query(
-      collection(db, "posts"),
-      and(where("isDone", "==", 0), where("applies", "not-in", [user.uid]))
-    );
+    const q = query(collection(db, "posts"), where("isDone", "==", 0));
 
     const unsubscribe = onSnapshot(q, (jobsSnap) => {
       const jobs = [];
@@ -77,7 +76,11 @@ export default function HomeScreen({ navigation }) {
         jobs.push({ ...doc.data(), _id: doc.id });
       });
 
-      setJobs(jobs);
+      setJobs(
+        jobs.filter((apply) =>
+          !apply.applies.some((sister) => sister.uid === user.uid)
+        )
+      );
     });
 
     return unsubscribe;
@@ -116,7 +119,7 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong</AppText>
+            <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>

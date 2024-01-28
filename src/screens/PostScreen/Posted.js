@@ -65,7 +65,7 @@ export default function PostedScreen({ navigation }) {
     );
   };
   useEffect(() => {
-    fetchJobs();
+    // fetchJobs();
     
   }, []);
 
@@ -124,7 +124,7 @@ export default function PostedScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong</AppText>
+            <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>

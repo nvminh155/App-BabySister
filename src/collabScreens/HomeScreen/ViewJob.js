@@ -82,7 +82,7 @@ export default function ViewJobScreen({ navigation, route }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong</AppText>
+            <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
@@ -149,12 +149,12 @@ export default function ViewJobScreen({ navigation, route }) {
     }
     const postRef = doc(db, "posts", job._id);
     const update = await updateDoc(postRef, {
-      applies: arrayUnion(user.uid),
-    }).then(() => {
-      console.log("YOU ACCEPTED JOB");
-
-
-    }).catch(err => console.log(err));
+      applies: arrayUnion(user),
+    })
+      .then(() => {
+        console.log("YOU ACCEPTED JOB");
+      })
+      .catch((err) => console.log(err));
   };
   return (
     <AppSafeAreaView style={{ paddingHorizontal: 10 }}>
@@ -175,51 +175,56 @@ export default function ViewJobScreen({ navigation, route }) {
         }}
       />
 
-      <Row>
-        <InputCheckbox
-          edge={20}
-          onToggle={(val) => {
-            setAcceptJob(val);
-          }}
-        />
-        <AppText>Bạn đã đọc kỹ thông tin và muốn nhận việc ? </AppText>
-      </Row>
+      {job.isDone === 0 && (
+        <View>
+          <Row>
+            <InputCheckbox
+              edge={20}
+              onToggle={(val) => {
+                setAcceptJob(val);
+              }}
+            />
+            <AppText>Bạn đã đọc kỹ thông tin và muốn nhận việc ? </AppText>
+          </Row>
 
-      <Row
-        style={{
-          width: wWidth,
-          columnGap: 0,
-          position: "absolute",
-          bottom: 0,
-          left: 0,
-        }}
-      >
-        <CustomButton
-          label={"NHẬN VIỆC"}
-          style={{
-            backgroundColor: COLORS.accent,
-            borderRadius: 0,
-            flex: 1,
-            paddingVertical: 15,
-          }}
-          styleText={{ fontSize: 20 }}
-          onPress={() => {
-            handleAcceptJob();
-          }}
-        />
-        <CustomButton
-          label={"BỎ QUA"}
-          style={{
-            backgroundColor: COLORS.secondary,
-            borderRadius: 0,
-            borderColor: COLORS.accent,
-            borderWidth: 0.5,
-            flex: 1,
-            paddingVertical: 15,
-          }}
-          styleText={{ color: COLORS.accent, fontSize: 20 }}
-        />
-      </Row>
+          <Row
+            style={{
+              width: wWidth,
+              columnGap: 0,
+              position: "absolute",
+              bottom: 0,
+              left: 0,
+            }}
+          >
+            <CustomButton
+              label={"NHẬN VIỆC"}
+              style={{
+                backgroundColor: COLORS.accent,
+                borderRadius: 0,
+                flex: 1,
+                paddingVertical: 15,
+              }}
+              styleText={{ fontSize: 20 }}
+              onPress={() => {
+                handleAcceptJob();
+              }}
+            />
+            <CustomButton
+              label={"BỎ QUA"}
+              style={{
+                backgroundColor: COLORS.secondary,
+                borderRadius: 0,
+                borderColor: COLORS.accent,
+                borderWidth: 0.5,
+                flex: 1,
+                paddingVertical: 15,
+              }}
+              styleText={{ color: COLORS.accent, fontSize: 20 }}
+            />
+          </Row>
+        </View>
+      )}
+      
     </AppSafeAreaView>
   );
 }

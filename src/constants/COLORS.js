@@ -5,6 +5,7 @@ const COLORS = {
   secondary: "#fefefe",
   accent: "#18A558",
   textDanger: "red",
+  textSuccess: "#04AA6D"
 };
 
 export { COLORS };

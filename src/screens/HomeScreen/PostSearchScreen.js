@@ -107,6 +107,7 @@ export default function PostSearchScreen({ navigation, route }) {
       timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
       money,
       applies: [],
+      userChoosed: null,
       isDone: 0, // 1 choosed sister // 2 done
       createdAt: Date.now(),
       updatedAt: Date.now(),
