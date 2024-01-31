@@ -29,6 +29,7 @@ import {
 } from "../components";
 import { COLORS } from "../constants/COLORS";
 import NoticeScreen from "../collabScreens/NoticeScreen";
+import ChatStack from "./ChatStack";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -72,8 +73,16 @@ function CustomTabHeader(props) {
         <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
       </View>
 
-      <TouchableOpacity onPress={() => {navigation.navigate("Notice")}}>
-        <AppImage width={24} height={24} source={require("images/notice.png")} />
+      <TouchableOpacity
+        onPress={() => {
+          navigation.navigate("Notice");
+        }}
+      >
+        <AppImage
+          width={24}
+          height={24}
+          source={require("images/notice.png")}
+        />
       </TouchableOpacity>
     </AppSafeAreaView>
   );
@@ -98,12 +107,21 @@ function ContentDrawerHome(props) {
       <DrawerItemList {...props} />
       <DrawerItem
         {...props}
-        
         label={"Thông Tin Cá Nhân"}
         icon={() => <AntDesign name="user" size={24} />}
         onPress={() => {
           navigation.closeDrawer();
           navigation.navigate("UserScreen");
+        }}
+      />
+ 
+      <DrawerItem
+        {...props}
+        label={"Tin Nhắn"}
+        icon={({focused, size}) => <Ionicons name="chatbox-outline" size={size} />}
+        onPress={() => {
+          navigation.closeDrawer();
+          navigation.navigate("ChatStack");
         }}
       />
 
@@ -154,17 +172,6 @@ function DrawerHome() {
           ),
         }}
       />
-
-      <Drawer.Screen
-        name="Notifications"
-        component={NotificationsScreen}
-        options={{
-          title: "Thông Báo",
-          drawerIcon: ({ focused, size }) => (
-            <Ionicons name="notifications" size={size} />
-          ),
-        }}
-      />
     </Drawer.Navigator>
   );
 }
@@ -178,13 +185,16 @@ export default function CollabStack() {
         component={DrawerHome}
         options={{ headerShown: false }}
       />
-      <Stack.Screen name="ViewJob" component={ViewJobScreen} options={{title: "Xem công việc"}} />
+      <Stack.Screen
+        name="ViewJob"
+        component={ViewJobScreen}
+        options={{ title: "Xem công việc" }}
+      />
       <Stack.Screen
         name="UserScreen"
         component={UserScreen}
         options={{
           title: "Thông Tin Cá Nhân",
-          
         }}
       />
       <Stack.Screen
@@ -192,8 +202,13 @@ export default function CollabStack() {
         component={NoticeScreen}
         options={{
           title: "Thông Báo",
-          
         }}
+      />
+      <Stack.Screen
+        name="ChatStack"
+        component={ChatStack}
+        options={{ title: "Tin Nhắn", headerShown: false }}
+        
       />
     </Stack.Navigator>
   );

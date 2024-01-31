@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useLayoutEffect, useState } from "react";
 import { useNavigation } from "@react-navigation/native";
 
 import { onAuthStateChanged } from "firebase/auth";
@@ -29,7 +29,7 @@ export default function AuthProvider({ children }) {
         );
         const querySnapshot = await getDocs(q).then((qr) => {
           qr.forEach((doc) => {
-            setUser(doc.data());
+            setUser({...doc.data(), _id: doc.id});
           });
         });
 

@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -28,6 +29,8 @@ import {
   where,
   getDocs,
   and,
+  doc,
+  setDoc,
 } from "firebase/firestore";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -43,56 +46,59 @@ import {
   InputGroup,
   CustomModal,
   InputField,
-  AppSafeAreaView
+  AppSafeAreaView,
+  Row,
 } from "../../components";
+import { db } from "../../firebase/config";
+
+import { formatDateTime, genShortId } from "../../utils";
+
+import { AuthContext } from "../../contexts/AuthProvider";
+
+import ListSchedule from "./ListSchedule";
 
 export default function ScheduleBabyScreen({ navigation }) {
-  const [visiableModalAdd, setVisiableModalAdd] = useState(false);
-  const [showTimeModalAdd, setShowTimeModalAdd] = useState(false);
-  const [timeModalAdd, setTimeModalAdd] = useState(new Date());
-  const [textNote, setTextNote] = useState("");
+  const { user } = useContext(AuthContext);
+  const [title, setTitle] = useState("");
+  const [numOfChilds, setNumOfChilds] = useState("0");
+  const [childs, setChilds] = useState([]);
+  const [timeSchedules, setTimeSchedules] = useState([]);
+  console.log("🚀 ~ ScheduleBabyScreen ~ timeSchedules:", timeSchedules);
+  const [page, setPage] = useState(0);
 
-  const headerModalAdd = (
-    <View>
-      <AppText style={{ fontWeight: "bold" }}>Thêm mới mốc thời gian</AppText>
-    </View>
-  );
+  const handleAddTimeSchedule = useCallback((data) => {
+    setTimeSchedules((prev) => [...prev, data]);
+  }, []);
 
-  const footerModalAdd = (
-    <View
-      style={{
-        flexDirection: "row",
-        columnGap: 10,
-        marginLeft: "auto",
-        marginTop: 10,
-      }}
-    >
-      <CustomButton
-        label={"Thêm"}
-        style={{
-          backgroundColor: COLORS.accent,
+  const handleEditTimeSchedule = useCallback((data) => {
+    setTimeSchedules((prev) =>
+      prev.map((v, i) => {
+        if (v.scheduleID === data.scheduleID) {
+          return { ...v, ...data };
+        } else return v;
+      })
+    );
+  }, []);
 
-          paddingHorizontal: 10,
-          paddingVertical: 5,
-          borderRadius: 5,
-        }}
-        onPress={() => {}}
-      />
-      <CustomButton
-        label={"Hủy"}
-        style={{
-          backgroundColor: COLORS.secondary,
-          paddingHorizontal: 10,
-          paddingVertical: 5,
-          borderRadius: 5,
-        }}
-        styleText={{ color: "black" }}
-        onPress={() => {
-          setVisiableModalAdd(false);
-        }}
-      />
-    </View>
-  );
+  const handleRemoveTimeSchedule = useCallback((scheduleID) => {
+    setTimeSchedules((prev) =>
+      prev.filter((v, i) => v.scheduleID !== scheduleID)
+    );
+  }, []);
+
+  const handleAddSchedule = async () => {
+    const data = {
+      scheduleID: genShortId(),
+      title,
+      numOfChilds,
+      childs,
+      timeSchedules,
+    };
+    await setDoc(doc(db, `users/${user._id}/schedules`, `${data.scheduleID}`), {
+      ...data
+    });
+  };
+
   return (
     <AppSafeAreaView
       style={{
@@ -125,209 +131,151 @@ export default function ScheduleBabyScreen({ navigation }) {
       <InputGroup
         label={
           <AppText id="label" style={{ fontWeight: "bold" }}>
-            Họ và Tên :
+            Tên lịch biểu :
           </AppText>
         }
         row={true}
-        placeholder="Nhập tên ..."
+        placeholder={"Nhập tên lịch biểu ...."}
         styleInput={{ backgroundColor: "white", flex: 1 }}
+        value={title}
+        onChangeText={(text) => {
+          setTitle(text);
+        }}
       />
-
       <InputGroup
         label={
           <AppText id="label" style={{ fontWeight: "bold" }}>
-            Tuổi :
+            Số bé :
           </AppText>
         }
         row={true}
-        placeholder="Nhập tuổi ..."
+        placeholder={"Nhập số bé ...."}
         styleInput={{ backgroundColor: "white", flex: 1 }}
+        value={numOfChilds}
+        onChangeText={(text) => {
+          setNumOfChilds(text);
+          const childs = Array.from({ length: parseInt(text) }).map((v, i) => ({
+            fullName: "",
+            age: "",
+            image: "",
+          }));
+          setChilds(childs);
+        }}
       />
 
-      <View>
-        <View
-          style={{ flexDirection: "row", alignItems: "center", columnGap: 10 }}
-        >
-          <AppText style={{ fontWeight: "bold" }}>Các Khung giờ</AppText>
-          <TouchableOpacity
-            onPress={() => {
-              setVisiableModalAdd(true);
-            }}
-          >
-            <Ionicons
-              name="add"
-              size={30}
-              style={{ backgroundColor: COLORS.accent, color: "white" }}
+      {childs.length > 0 && (
+        <View id="list-child">
+          <View>
+            <AppImage
+              width={64}
+              height={64}
+              source={require("images/upload_image.png")}
             />
-          </TouchableOpacity>
-        </View>
-        <AppText style={{ color: "grey", fontStyle: "italic" }}>
-          Chưa có khung giờ nào !!!
-        </AppText>
-        <CustomModal
-          header={headerModalAdd}
-          footer={footerModalAdd}
-          modalVisible={visiableModalAdd}
-        >
-          <View
-            style={{
-              paddingVertical: 0,
-              flexDirection: "row",
-              alignItems: "center",
-              columnGap: 10,
-              marginVertical: 10,
-            }}
-          >
-            <AppText style={{ fontWeight: "bold" }}>Thời Gian :</AppText>
-            <CustomButton
-              label={timeModalAdd.toTimeString().split(" ")[0]}
-              style={{
-                backgroundColor: "#f5f5f5",
-                paddingVertical: 4,
-                paddingHorizontal: 5,
-              }}
-              styleText={{ color: "black" }}
-              onPress={() => {
-                setShowTimeModalAdd(true);
-              }}
-            />
-            {showTimeModalAdd && (
-              <DateTimePicker
-                value={timeModalAdd}
-                mode="time"
-                is24Hour={true}
-                onChange={({ nativeEvent }) => {
-                  setShowTimeModalAdd(false);
-                  setTimeModalAdd(new Date(nativeEvent.timestamp));
-                }}
-              />
-            )}
-          </View>
 
-          <InputGroup
-            label={<AppText style={{ fontWeight: "bold" }}>Ghi Chú :</AppText>}
-            row={true}
-            styleInput={{ flex: 1, maxHeight: 100, backgroundColor: "white" }}
-            multiline={true}
-            placeholder={"Điền ghi chú ..."}
-            value={textNote}
-            onChangeText={(text) => {
-              setTextNote(text);
-            }}
-          />
-
-          <View style={{ flexDirection: "row", columnGap: 10 }}>
-            <TouchableOpacity>
-              <AppImage
-                width={40}
-                height={40}
-                source={require("../../assets/images/gallery_add.png")}
-              />
-            </TouchableOpacity>
-            <ScrollView horizontal contentContainerStyle={{ columnGap: 10 }}>
-              {Array.from({ length: 8 }).map((v, i) => (
-                <View key={i}>
-                  <AppImage
-                    width={40}
-                    height={40}
-                    source={require("../../assets/images/bbst_1.jpg")}
-                  />
-                </View>
-              ))}
-            </ScrollView>
-          </View>
-        </CustomModal>
-
-        <ScrollView contentContainerStyle={{rowGap: 20}} style={{ marginTop: 20, maxHeight: 400}}>
-          {Array.from({ length: 5 }).map((v, i) => (
-            <View key={i} style={{backgroundColor: COLORS.secondary, borderRadius: 10, padding: 10, elevation: 3}}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "flex-start",
-                  columnGap: 10,
-                  position: "relative",
-                }}
-              >
-                <AppText>
-                  11:05
+            <InputGroup
+              label={
+                <AppText id="label" style={{ fontWeight: "bold" }}>
+                  Họ và Tên :
                 </AppText>
+              }
+              row={true}
+              placeholder={"Nhập tên ...."}
+              styleInput={{ backgroundColor: "white", flex: 1 }}
+              value={childs[page].fullName}
+              onChangeText={(text) => {
+                setChilds((prev) =>
+                  prev.map((v, indexMp) => ({
+                    ...v,
+                    fullName: indexMp === page ? text : v.fullName,
+                  }))
+                );
+              }}
+            />
 
-                <InputGroup
-                  label={
-                    <AppText style={{ fontWeight: "bold" }}>Ghi Chú :</AppText>
-                  }
-                  styleInput={{ backgroundColor: "white" }}
-                  styleRoot={{ flex: 1 }}
-                  multiline={true}
-                  value={"Data Text note"}
-                />
-              </View>
+            <InputGroup
+              label={
+                <AppText id="label" style={{ fontWeight: "bold" }}>
+                  Tuổi :
+                </AppText>
+              }
+              row={true}
+              placeholder="Nhập tuổi ..."
+              styleInput={{ backgroundColor: "white", flex: 1 }}
+              value={childs[page].age}
+              onChangeText={(text) => {
+                setChilds((prev) =>
+                  prev.map((v, indexMp) => ({
+                    ...v,
+                    age: indexMp === page ? text : v.age,
+                  }))
+                );
+              }}
+            />
+          </View>
 
-              <View
-                id="actions"
-                style={{
-                  flexDirection: "row",
-                  columnGap: 10,
-                  marginLeft: "auto",
-                }}
-              >
-                <CustomButton
-                  label={"Xem / Chỉnh Sửa"}
-                  style={{
-                    backgroundColor: COLORS.accent,
-                  }}
-                  styleText={{}}
-                  onPress={() => {}}
-                />
-
-                <CustomButton
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    borderColor: COLORS.accent,
-                    borderWidth: 1
-                  }}
-                  styleText={{ color: "black" }}
-                  icon={<Ionicons name="trash" size={24} color={COLORS.accent} />}
-                  onPress={() => {}}
-                />
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-
-        <View
-          style={{
-            flexDirection: "row",
-            columnGap: 10,
-            marginTop: 20,
-            marginLeft: "auto",
-          }}
-        >
-          <CustomButton
-            label={"Thêm lịch biểu"}
-            style={{
-              backgroundColor: COLORS.accent,
-              paddingVertical: 5,
-              paddingHorizontal: 10,
-              justifyContent: "center",
-            }}
-            onPress={() => {}}
-          />
-
-          <CustomButton
-            label={"Hủy"}
-            style={{
-              backgroundColor: COLORS.secondary,
-              paddingVertical: 5,
-              paddingHorizontal: 10,
-              justifyContent: "center",
-            }}
-            styleText={{ color: "black" }}
-            onPress={() => {}}
-          />
+          <Row style={{ marginTop: 5, marginBottom: 15, marginLeft: "auto" }}>
+            <CustomButton
+              disable={page === 0 ? true : false}
+              label={"Trước đó"}
+              style={{ backgroundColor: page === 0 ? "grey" : COLORS.accent }}
+              onPress={() => {
+                setPage((prev) => prev - 1);
+              }}
+            />
+            <AppText fontWeight={"bold"}>{page + 1}</AppText>
+            <CustomButton
+              disable={page === childs.length - 1 ? true : false}
+              label={"Tiếp theo"}
+              style={{
+                backgroundColor:
+                  page === childs.length - 1 ? "grey" : COLORS.accent,
+              }}
+              onPress={() => {
+                setPage((prev) => prev + 1);
+              }}
+            />
+          </Row>
         </View>
+      )}
+
+      <ListSchedule
+        onAddTimeSchedule={handleAddTimeSchedule}
+        onRemoveTimeSchedule={handleRemoveTimeSchedule}
+        timeSchedules={timeSchedules}
+        onEditTimeSchedule={handleEditTimeSchedule}
+      />
+      <View
+        style={{
+          flexDirection: "row",
+          columnGap: 10,
+          marginVertical: 15,
+          marginLeft: "auto",
+        }}
+      >
+        <CustomButton
+          label={"Thêm lịch biểu"}
+          style={{
+            backgroundColor: COLORS.accent,
+            paddingVertical: 5,
+            paddingHorizontal: 10,
+            justifyContent: "center",
+          }}
+          onPress={() => {
+            handleAddSchedule();
+          }}
+        />
+
+        <CustomButton
+          label={"Hủy"}
+          style={{
+            backgroundColor: COLORS.secondary,
+            paddingVertical: 5,
+            paddingHorizontal: 10,
+            justifyContent: "center",
+          }}
+          styleText={{ color: "black" }}
+          onPress={() => {}}
+        />
       </View>
     </AppSafeAreaView>
   );

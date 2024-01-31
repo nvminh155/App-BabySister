@@ -1,27 +1,41 @@
 import React, { useState } from "react";
-import { Alert, Modal, StyleSheet, Text, Pressable, View } from "react-native";
+import { Alert, Modal, StyleSheet, Text, Pressable, View, TouchableOpacity } from "react-native";
+import CustomButton from "./CustomButton";
+
+import AppImage from "./AppImage";
 const CustomModal = ({
   modalVisible,
   setModalVisible,
   style,
   header,
   footer,
-  children
+  children,
+  headerClose = false,
 }) => {
-  
   return (
     <View>
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-        
       >
         <View style={[styles.centeredView, style]}>
           <View style={styles.modalView}>
+   
+            {headerClose && (
+              <TouchableOpacity
+                onPress={() => {
+                  setModalVisible(false);
+                }}
+                style={{marginLeft: 'auto'}}
+              >
+                <AppImage
+                  width={24}
+                  height={24}
+                  source={require("images/close_x.png")}
+                />
+              </TouchableOpacity>
+            )}
             {header}
             {children}
             {footer}
@@ -51,7 +65,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    width: '90%',
+    width: "90%",
   },
 });
 

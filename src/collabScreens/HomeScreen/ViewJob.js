@@ -157,7 +157,7 @@ export default function ViewJobScreen({ navigation, route }) {
       .catch((err) => console.log(err));
   };
   return (
-    <AppSafeAreaView style={{ paddingHorizontal: 10 }}>
+    <View style={{ paddingHorizontal: 10, flex: 1}}>
       <CustomCard
         header={headerCardInfoJob(job.title, job.start)}
         body={bodyCardInfoJob(
@@ -176,7 +176,7 @@ export default function ViewJobScreen({ navigation, route }) {
       />
 
       {job.isDone === 0 && (
-        <View>
+        <View style={{flex: 1}}>
           <Row>
             <InputCheckbox
               edge={20}
@@ -225,6 +225,6 @@ export default function ViewJobScreen({ navigation, route }) {
         </View>
       )}
       
-    </AppSafeAreaView>
+    </View>
   );
 }

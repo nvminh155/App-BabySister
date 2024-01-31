@@ -27,6 +27,8 @@ import {
   where,
   getDocs,
   and,
+  getDoc,
+  doc,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -41,87 +43,137 @@ import {
   AppText,
   CustomCard,
 } from "../../components";
+import Spin from "../../components/Spin";
 
 export default function ChatScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
 
   const [friends, setFriends] = useState([]);
+  const [loadingData, setLoadingData] = useState(true);
+
 
   useEffect(() => {
-    const friends = [];
-    for (var i = 0; i < 5; i++) {
-      friends.push(`Nguyen Van ${i}`);
-    }
-    setFriends(friends);
+    // setFriends({ ...user.following });
+    const unsubscribe = setTimeout(() => {
+      setLoadingData(false);
+    }, 1000);
+    return () => {
+      clearTimeout(unsubscribe);
+    };
   }, []);
 
-  return (
-    <AppSafeAreaView
-      style={{
-        width: "100%",
-        height: "100%",
-        paddingVertical: 20,
-        paddingHorizontal: 10,
-      }}
-    >
-      <View
-        id="header"
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <TouchableOpacity
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Ionicons name="arrow-back" size={30} />
-        </TouchableOpacity>
-        <Text
-          style={{
-            marginLeft: 70,
-            fontWeight: 700,
-            color: COLORS.text,
-            fontSize: 20,
-          }}
-        >
-          Hello ChatApp
-        </Text>
-      </View>
+  const fetchFriends = async () => {
+    const collectionRef = collection(db, "chats");
+    let q = query(
+      collectionRef,
+      where("members", "array-contains-any", [user.uid])
+    );
+    const docs = (await getDocs(q)).docs;
+    const friends = [];
+    docs.forEach(async (doc) => {
+      const data = { ...doc.data() };
+      console.log("DSSSA", data);
 
-      <ScrollView contentContainerStyle={{ rowGap: 20 }}>
-        {friends.map((f, i) => (
-          <TouchableOpacity
-          key={i} 
-            onPress={() => {
-              navigation.navigate("ChatPrivate", {
-                uid: "rCxZsTbDlbNqrjYkSQ6hythJttt2",
-              });
-            }}
-          >
-            <CustomCard
-              header={
-                <AppImage
-                  width={50}
-                  height={50}
-                  source={require("../../assets/images/bbst_1.jpg")}
-                  options={{ styles: { borderRadius: 25 } }}
-                />
-              }
-              body={
-                <View style={{}}>
-                  <AppText style={{ fontWeight: "bold" }}>{f}</AppText>
-                  <AppText style={{ color: "grey" }}>last message {i} </AppText>
-                </View>
-              }
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                columnGap: 15,
-              }}
-            ></CustomCard>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </AppSafeAreaView>
+      const uid =
+        data.members[0] !== user.uid ? data.members[0] : data.members[1];
+
+      const userRef = query(collection(db, "users"), where("uid", "==", uid));
+      const users = await getDocs(userRef);
+
+      users.forEach((docUser) => {
+        setFriends((prev) => [...prev, docUser.data()]);
+
+        console.log("AA", docUser.data());
+      });
+    });
+    console.log("F", friends);
+    setFriends(friends);
+  };
+
+  useEffect(() => {
+    fetchFriends();
+  }, []);
+  useEffect(() => {
+    const collectionRef = collection(db, "chats");
+    let q = query(
+      collectionRef,
+      where("members", "array-contains-any", [user])
+    );
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      console.log("SNAPPPPP SHOT UDATE COLLECTION", snapshot.docs);
+      const friends = [];
+      snapshot.docs.forEach(async (doc) => {
+        const data = { ...doc.data() };
+        console.log("DSSSA", data);
+
+        const friend =
+          data.members[0].uid !== user.uid ? data.members[0] : data.members[1];
+
+        friends.push(friend);
+      });
+
+      setFriends(friends);
+      console.log("ASF", friends);
+    });
+
+    return unsubscribe;
+  }, []);
+  return (
+    <>
+      {loadingData ? (
+        <Spin />
+      ) : (
+        <View
+          style={{
+            flex: 1,
+            paddingVertical: 20,
+            paddingHorizontal: 10,
+          }}
+        >
+          <ScrollView contentContainerStyle={{ rowGap: 20 }}>
+            {friends
+              .filter((v, i, self) => self.indexOf(v) === i)
+              .map((f, i) => (
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => {
+                    navigation.navigate("ChatPrivate", {
+                      receiverID: f.uid,
+                    });
+                  }}
+                >
+                  <CustomCard
+                    header={
+                      <AppImage
+                        width={50}
+                        height={50}
+                        source={require("images/bbst_1.jpg")}
+                        options={{ styles: { borderRadius: 25 } }}
+                      />
+                    }
+                    body={
+                      <View style={{}}>
+                        <AppText style={{ fontWeight: "bold" }}>
+                          {f.displayName}
+                        </AppText>
+                        <AppText style={{ color: "grey" }}>
+                          last message {i}{" "}
+                        </AppText>
+                      </View>
+                    }
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      columnGap: 15,
+                    }}
+                  ></CustomCard>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        </View>
+      )}
+    </>
   );
 }
 

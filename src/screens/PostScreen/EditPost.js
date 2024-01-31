@@ -376,7 +376,7 @@ export default function EditPostScreen({ navigation, route }) {
             <AppImage
               width={24}
               height={24}
-              source={require("../../assets/images/money.png")}
+              source={require("images/money.png")}
             />
           }
         />

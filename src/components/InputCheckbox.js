@@ -6,8 +6,14 @@ import { useEffect, useState } from "react";
 
 import { COLORS } from "../constants/COLORS";
 
-export default function InputCheckbox({ children, style, edge, onToggle }) {
-  const [isTick, setIsTick] = useState(false);
+export default function InputCheckbox({ children, style, edge, initTick = false, onToggle }) {
+  const [isTick, setIsTick] = useState(initTick);
+
+  
+  useEffect( () => {  
+    setIsTick(initTick)
+    if(onToggle) onToggle(initTick);
+  }, [initTick] )
 
   useEffect( () => {  
     if(onToggle) onToggle(isTick)

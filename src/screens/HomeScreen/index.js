@@ -47,7 +47,6 @@ export default function HomeScreen() {
     "Bạn muốn nhờ người hỗ trợ ? Hãy gửi bài đăng kèm các yêu cầu của bạn ..."
   );
 
-
   return (
     <View
       style={{
@@ -56,13 +55,12 @@ export default function HomeScreen() {
         height: "100%",
       }}
     >
-
       <ScrollView>
         <View style={{ borderWidth: 1, borderColor: "black", marginTop: 10 }}>
           <AppImage
             width={359}
             height={153}
-            source={require("../../assets/images/stay-home-take-care.png")}
+            source={require("images/stay-home-take-care.png")}
           />
         </View>
 
@@ -139,14 +137,14 @@ export default function HomeScreen() {
           <ScrollView style={{ flexDirection: "row" }} horizontal={true}>
             {[1, 2, 3].map((v, i) => {
               const header = (
-                <View key={i}>
+                <View>
                   <AppImage
                     width={"100%"}
                     height={50}
                     options={{
                       styles: { borderColor: "black", borderWidth: 1 },
                     }}
-                    source={require("../../assets/images/stay-home-take-care.png")}
+                    source={require("images/stay-home-take-care.png")}
                   />
                 </View>
               );
@@ -187,6 +185,7 @@ export default function HomeScreen() {
               );
               return (
                 <CustomCard
+                key={i}
                   header={header}
                   body={body}
                   footer={footer}
@@ -230,5 +229,18 @@ const styles = StyleSheet.create({
     marginTop: -15,
     marginBottom: 25,
     paddingHorizoltal: 10,
+  },linearGradient: {
+    flex: 1,
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderRadius: 5
+  },
+  buttonText: {
+    fontSize: 18,
+    fontFamily: 'Gill Sans',
+    textAlign: 'center',
+    margin: 10,
+    color: '#ffffff',
+    backgroundColor: 'transparent',
   },
 });

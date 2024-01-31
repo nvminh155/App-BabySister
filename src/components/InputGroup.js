@@ -34,6 +34,7 @@ export default function InputGroup({
         {icon}
         {iconBefore}
         <TextInput
+        
           onChangeText={onChangeText}
           value={value}
           placeholder={placeholder}

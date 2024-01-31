@@ -28,6 +28,8 @@ import {
   arrayUnion,
   collection,
   getDocs,
+  query,
+  onSnapshot,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
@@ -50,31 +52,62 @@ import {
 import { formatDateTime, formatMoney } from "../../utils";
 
 import InfoSisterScreen from "./InfoSisterScreen";
+import Spin from "../../components/Spin";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function ViewPostScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
-  const [job, setJob] = useState(route.params.job);
+  const { docIdJob } = route.params;
+  const [job, setJob] = useState(null);
   const [editAble, setEditAble] = useState(false);
   const [infoSister, setInfoSister] = useState(null);
-  const [choosed, setChoosed] = useState(null);
+  const [choosed, setChoosed] = useState(true);
   const [sisterChoosed, setSisterChoosed] = useState(null);
-  useEffect(() => {}, []);
-  useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <CustomButton
-          label={editAble ? "Hủy chỉnh sửa" : "Chỉnh Sửa"}
-          style={{ marginTop: 0 }}
-          styleText={{ color: COLORS.accent }}
-          onPress={() => {
-            navigation.navigate("EditPost", { job });
-          }}
-        />
-      ),
+  const [loadingData, setLoadingData] = useState(true);
+
+  useEffect(() => {
+    const q = doc(db, "posts", docIdJob);
+    const unsubscribe = onSnapshot(q, (snap) => {
+      const data = { ...snap.data() };
+      setJob({ ...data, _id: docIdJob });
+      setSisterChoosed(
+        data.applies.find((apply) => apply.uid === data.userChoosed)
+      );
+      setChoosed(data.userChoosed ? true : false);
     });
+
+    return unsubscribe;
+  }, [docIdJob]);
+
+  useLayoutEffect(() => {
+    const unsubscribeTimeout = setTimeout(() => {
+      setLoadingData(false);
+      console.log("STOP");
+    }, 1000);
+
+    return () => {
+      clearTimeout(unsubscribeTimeout);
+    };
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!choosed) {
+      console.log("HELLO CHOOSED")
+      navigation.setOptions({
+        headerRight: () => (
+          <CustomButton
+            label={editAble ? "Hủy chỉnh sửa" : "Chỉnh Sửa"}
+            style={{ marginTop: 0 }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              navigation.navigate("EditPost", { job });
+            }}
+          />
+        ),
+      });
+    }
   }, [editAble]);
 
   const headerCardInfoJob = (title, startTimestamp) => {
@@ -153,13 +186,13 @@ export default function ViewPostScreen({ navigation, route }) {
     const noticeRef = collection(db, `notices/${uid}/${type}`);
     await addDoc(noticeRef, { ...data });
   };
-  
+
   const handleChoosedUser = async (sister) => {
     const jobRef = doc(db, "posts", job._id);
     const update = await updateDoc(jobRef, {
       ...job,
       userChoosed: sister.uid,
-      isDone: 1
+      isDone: 1,
     });
     console.log("UPDATE USERCHOOSED SUCCESS FULL");
 
@@ -184,7 +217,6 @@ export default function ViewPostScreen({ navigation, route }) {
     });
 
     console.log("SEND NOTICE FOR SESSTERAPPLYED SUCCESS FULL");
-
   };
   const onChooseSister = async (uid, sister) => {
     console.log("CHOSSED SISTER", uid, choosed);
@@ -213,110 +245,130 @@ export default function ViewPostScreen({ navigation, route }) {
   };
 
   return (
-    <View
-      style={{
-        paddingHorizontal: 10,
-        backgroundColor: COLORS.secondary,
-        flex: 1,
-      }}
-    >
-      <CustomModal
-        modalVisible={infoSister ? true : false}
-        header={
-          <TouchableOpacity
-            onPress={() => {
-              setInfoSister(null);
-            }}
-          >
-            <AppImage
-              width={24}
-              height={24}
-              source={require("images/close_x.png")}
-            />
-          </TouchableOpacity>
-        }
-      >
-        <InfoSisterScreen
-          sister={infoSister}
-          onChooseSister={onChooseSister}
-          choosedUid={choosed}
-        />
-      </CustomModal>
-      <CustomCard
-        header={headerCardInfoJob(job.title, job.start)}
-        body={bodyCardInfoJob(
-          job.timeHire,
-          job.money,
-          job.address,
-          job.textNote
-        )}
-        footer={footerCardInfoJob()}
-        style={{
-          rowGap: 15,
-          backgroundColor: "white",
-          paddingHorizontal: 30,
-          paddingVertical: 15,
-        }}
-      />
-
-      {!choosed && (
-        <View id="list-applies" style={{ flex: 1 }}>
-          <AppText
-            style={{ marginLeft: "auto", marginBottom: 20 }}
-            fontSize={20}
-            fontWeight={"bold"}
-          >
-            Đã có{" "}
-            <AppText color={COLORS.accent} fontSize={20} fontWeight={"bold"}>
-              {job.applies.length}
-            </AppText>{" "}
-            người nộp đơn
-          </AppText>
-
-          <ScrollView
-            style={{ flex: 1 }}
-            contentContainerStyle={{ rowGap: 10 }}
-          >
-            {Array.from({ length: 7 }).map((sister = job.applies[0], i) => (
-              <CustomCard
-                key={i}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  columnGap: 15,
+    <>
+      {loadingData ? (
+        <Spin />
+      ) : (
+        <ScrollView
+          style={{
+            paddingHorizontal: 10,
+            backgroundColor: COLORS.secondary,
+            flex: 1,
+          }}
+        >
+          <CustomModal
+            modalVisible={infoSister ? true : false}
+            header={
+              <TouchableOpacity
+                onPress={() => {
+                  setInfoSister(null);
                 }}
-                header={
-                  <AppImage
-                    width={50}
-                    height={50}
-                    source={require("images/bbst_1.jpg")}
+              >
+                <AppImage
+                  width={24}
+                  height={24}
+                  source={require("images/close_x.png")}
+                />
+              </TouchableOpacity>
+            }
+          >
+            <InfoSisterScreen
+              sister={infoSister}
+              onChooseSister={onChooseSister}
+              choosedUid={choosed}
+            />
+          </CustomModal>
+          <CustomCard
+            header={headerCardInfoJob(job.title, job.start)}
+            body={bodyCardInfoJob(
+              job.timeHire,
+              job.money,
+              job.address,
+              job.textNote
+            )}
+            footer={footerCardInfoJob()}
+            style={{
+              rowGap: 15,
+              backgroundColor: "white",
+              paddingHorizontal: 30,
+              paddingVertical: 15,
+            }}
+          />
+
+          {!sisterChoosed && (
+            <View id="list-applies" style={{ flex: 1 }}>
+              <AppText
+                style={{ marginLeft: "auto", marginBottom: 20 }}
+                fontSize={20}
+                fontWeight={"bold"}
+              >
+                Đã có{" "}
+                <AppText
+                  color={COLORS.accent}
+                  fontSize={20}
+                  fontWeight={"bold"}
+                >
+                  {job.applies.length}
+                </AppText>{" "}
+                người nộp đơn
+              </AppText>
+
+              <ScrollView
+                style={{ flex: 1 }}
+                contentContainerStyle={{ rowGap: 10 }}
+              >
+                {job.applies.map((sister, i) => (
+                  <CustomCard
+                    key={i}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      columnGap: 15,
+                    }}
+                    header={
+                      <AppImage
+                        width={50}
+                        height={50}
+                        source={require("images/bbst_1.jpg")}
+                      />
+                    }
+                    body={
+                      <View style={{ flex: 1 }}>
+                        <AppText fontWeight={"bold"}>
+                          {sister.displayName}
+                        </AppText>
+                        <AppText style={{ fontStyle: "italic", opacity: 0.5 }}>
+                          Chưa từng thuê trước đây
+                        </AppText>
+                      </View>
+                    }
+                    footer={
+                      <View>
+                        <CustomButton
+                          label={"Xem"}
+                          style={{ backgroundColor: COLORS.accent }}
+                          onPress={() => {
+                            console.log(123);
+                            setInfoSister(sister);
+                          }}
+                        />
+                      </View>
+                    }
                   />
-                }
-                body={
-                  <View style={{ flex: 1 }}>
-                    <AppText fontWeight={"bold"}>{sister.displayName}</AppText>
-                    <AppText style={{ fontStyle: "italic", opacity: 0.5 }}>
-                      Chưa từng thuê trước đây
-                    </AppText>
-                  </View>
-                }
-                footer={
-                  <View>
-                    <CustomButton
-                      label={"Xem"}
-                      style={{ backgroundColor: COLORS.accent }}
-                      onPress={() => {
-                        console.log(123);
-                        setInfoSister(sister);
-                      }}
-                    />
-                  </View>
-                }
-              />
-            ))}
-          </ScrollView>
-        </View>
+                ))}
+              </ScrollView>
+            </View>
+          )}
+          {sisterChoosed && (
+            <View>
+              <AppText fontWeight={"bold"}>
+                {"Bạn đã chọn".toUpperCase()}
+              </AppText>
+              <InfoSisterScreen sister={sisterChoosed} choosed={true} navigation={navigation} />
+            </View>
+          )}
+        </ScrollView>
       )}
-    </View>
+    </>
   );
 }

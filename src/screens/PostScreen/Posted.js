@@ -52,7 +52,7 @@ const wHeight = Dimensions.get("window").height;
 export default function PostedScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
-  console.log(jobs);
+  const [test, setTest] = useState([]);
 
   const fetchJobs = async () => {
     const q = query(collection(db, "posts"), where("uid", "==", user.uid));
@@ -66,7 +66,20 @@ export default function PostedScreen({ navigation }) {
   };
   useEffect(() => {
     // fetchJobs();
-    
+    const q = query(collection(db, "posts"));
+    const unsubscribe = onSnapshot(q, (postSnap) => {
+      const posts = [];
+      postSnap.forEach(doc => {
+        // console.log("SNAP POST IN POSTED" , doc.data())
+        posts.push({
+          ...doc.data(),
+          _id: doc.id,
+        })
+      })
+      setTest(posts)
+      console.log("CHANGE VALUE POST POSTED")
+    })
+    return unsubscribe
   }, []);
 
   useEffect( () => {
@@ -74,7 +87,7 @@ export default function PostedScreen({ navigation }) {
     const unsubscribe = onSnapshot(q, (postSnap) => {
       const posts = [];
       postSnap.forEach(doc => {
-        console.log("SNAP POST" , doc.data())
+        // console.log("SNAP POST" , doc.data())
         posts.push({
           ...doc.data(),
           _id: doc.id,
@@ -161,7 +174,7 @@ export default function PostedScreen({ navigation }) {
             width: "max-content",
           }}
           onPress={() => {
-            navigation.navigate("ViewPost", { job });
+            navigation.navigate("ViewPost", { docIdJob: job._id, job });
           }}
         />
         <CustomButton

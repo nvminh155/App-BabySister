@@ -40,8 +40,7 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 function NoticeJobAccepted({ data }) {
-  const colorNotice =
-    data.type === "accepted" ? COLORS.textSuccess : COLORS.textDanger;
+  const colorNotice = COLORS.textInfo;
   return (
     <TouchableOpacity
       style={{
@@ -68,23 +67,19 @@ function NoticeJobAccepted({ data }) {
         }}
         body={
           <View>
-            <Row style={{flexWrap: 'wrap', columnGap: 0}}>
+            <Row style={{ columnGap: 0 }}>
               <AppText
                 style={{ marginBottom: 5 }}
                 color={colorNotice}
                 fontWeight={"bold"}
               >
-                {data.text}
+                {data.text}{" "}
+                <AppImage
+                  width={24}
+                  height={24}
+                  source={require("images/noticeInfo.png")}
+                />
               </AppText>
-              <AppImage
-                width={24}
-                height={24}
-                source={
-                  data.type === "accepted"
-                    ? require("images/tick.png")
-                    : require("images/untick.png")
-                }
-              />
             </Row>
             <AppText>
               Tại: <AppText fontWeight={"bold"}>{data.address}</AppText>
@@ -104,18 +99,18 @@ function NoticeJobAccepted({ data }) {
 
 export default function NoticeScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
-  const [noticeJobs, setNoticeJobs] = useState([]);
+  const [noticePosts, setNoticePosts] = useState([]);
 
   const fetchNotice = async () => {
-    const q = query(collection(db, `notices/${user.uid}/jobs`));
+    const q = query(collection(db, `notices/${user.uid}/posts`));
     const docs = (await getDocs(q)).docs;
 
-    setNoticeJobs(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+    setNoticePosts(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
   };
 
   useEffect(() => {
     fetchNotice();
-    console.log("MOUTED INDEX NOTICE");
+    console.log("MOUTED INDEX NOTICE PHU HUYNH");
   }, []);
 
   return (
@@ -126,10 +121,11 @@ export default function NoticeScreen({ navigation, route }) {
         flex: 1,
       }}
     >
-      {noticeJobs.map((notice, i) => (
+      {noticePosts.map((notice, i) => (
         <NoticeJobAccepted key={i} data={notice} />
       ))}
 
+      <View></View>
     </View>
   );
 }

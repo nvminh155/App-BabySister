@@ -3,7 +3,7 @@ import { createStackNavigator } from "@react-navigation/stack";
 
 import { Dimensions, TouchableOpacity, View } from "react-native";
 
-import {Ionicons} from "react-native-vector-icons";
+import { Ionicons } from "react-native-vector-icons";
 
 import HomeScreen from "../screens/HomeScreen";
 import InfoSisterScreen from "../screens/HomeScreen/InfoSisterScreen";
@@ -11,7 +11,7 @@ import ChatScreen from "../screens/ChatScreen";
 import PostSearchScreen from "../screens/HomeScreen/PostSearchScreen";
 import { AuthContext } from "../contexts/AuthProvider";
 import { AppImage, AppSafeAreaView, AppText } from "../components";
-
+import NoticeScreen from "../screens/NoticeScreen";
 
 const Stack = createStackNavigator();
 
@@ -35,7 +35,6 @@ function CustomTabHeader(props) {
         paddingVertical: 15,
       }}
     >
-
       <View
         style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
       >
@@ -72,6 +71,7 @@ export default function HomeStack() {
       <Stack.Screen name="InfoSister" component={InfoSisterScreen} />
       <Stack.Screen name="ChatSister" component={ChatScreen} />
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />
+      <Stack.Screen name="Notice" component={NoticeScreen} />
     </Stack.Navigator>
   );
 }

@@ -52,7 +52,7 @@ import { AuthContext } from "../../contexts/AuthProvider";
 import ListSchedule from "./ListSchedule";
 import Spin from "../../components/Spin";
 
-export default function ViewSchedule({ navigation, route }) {
+export default function ActiveSchedule({ navigation, route }) {
   const { user } = useContext(AuthContext);
 
   const [editAble, setEditAble] = useState(false);
@@ -87,7 +87,7 @@ export default function ViewSchedule({ navigation, route }) {
           />
         );
       },
-      headerTitle: `Xem Lịch Biểu`,
+      headerTitle: `Lịch Trình Hiện Tại`,
       // headerLeft: () => (
       //   <TouchableOpacity
       //     onPress={() => {
@@ -349,6 +349,7 @@ export default function ViewSchedule({ navigation, route }) {
             timeSchedules={timeSchedules}
             onEditTimeSchedule={handleEditTimeSchedule}
             readOnly={!editAble}
+            startActive={true}
           />
 
           {editAble && (

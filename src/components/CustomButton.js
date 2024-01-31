@@ -8,10 +8,11 @@ export default function CustomButton({
   onPress,
   style = {},
   styleText,
-  type = 'primary'
+  type = 'primary',
+  disable
 }) {
   return (
-    <TouchableOpacity onPress={onPress} style={[styles.button, style]}>
+    <TouchableOpacity disabled={disable} onPress={onPress} style={[styles.button, style]}>
       {icon}
       <AppText
         style={[

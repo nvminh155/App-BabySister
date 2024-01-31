@@ -14,7 +14,7 @@ export default function ScheduleStack() {
     >
       <Stack.Screen name="ScheduleBaby" component={ScheduleBabyScreen} />
       <Stack.Screen name="addSchedule" component={AddSchedule} />
-      <Stack.Screen name="ViewSchedule" component={ViewSchudule} />
+      <Stack.Screen name="ViewSchedule" component={ViewSchudule} options={{headerShown:  true}} />
     </Stack.Navigator>
   );
 }

@@ -10,6 +10,8 @@ import AppSafeAreaView from "./AppSafeAreaView";
 import CircleItem from "./CircleItem";
 import Row from "./Row";
 import InputRadio from "./InputRadio";
+import ChooseDatetime from "./ChooseDatetime";
+
 export {
   InputRadio,
   AppImage,
@@ -23,4 +25,5 @@ export {
   CircleItem,
   Row,
   InputCheckbox,
+  ChooseDatetime,
 };

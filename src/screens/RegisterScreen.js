@@ -12,7 +12,7 @@ import {
 import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { auth, db } from "../firebase/config";
-import { addDoc, collection } from "firebase/firestore";
+import { addDoc, collection, doc, setDoc } from "firebase/firestore";
 
 import { Ionicons, MaterialIcons, AntDesign } from "react-native-vector-icons";
 
@@ -32,9 +32,8 @@ import {
 } from "../components";
 
 export default function RegisterScreen({ navigation }) {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(Date.now());
   const [open, setOpen] = useState(false);
-  const [dobLabel, setDobLabel] = useState("Date of Birth");
 
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
@@ -54,7 +53,7 @@ export default function RegisterScreen({ navigation }) {
       createUserWithEmailAndPassword(auth, email, password)
         .then(async (res) => {
           const { user } = res;
-          const docRef = await addDoc(collection(db, "users"), {
+          const docRef = await setDoc(doc(db, "users", user.uid), {
             uid: user.uid,
             displayName: fullName,
             email,
@@ -83,7 +82,7 @@ export default function RegisterScreen({ navigation }) {
           <AppImage
             width={380}
             height={250}
-            source={require("../assets/images/bbst-2.png")}
+            source={require("images/bbst-2.png")}
           />
         </View>
         <AppText

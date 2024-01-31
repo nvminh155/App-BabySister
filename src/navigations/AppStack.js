@@ -24,11 +24,13 @@ export default function AppStack() {
         screenOptions={{
           headerShown: false,
           tabBarItemStyle: { paddingVertical: 5 },
+          
         }}
       >
         <Tab.Screen
           name="HomeStack"
           component={HomeStack}
+          
           options={{
             title: "Trang Chủ",
             tabBarIcon: () => (
@@ -39,13 +41,14 @@ export default function AppStack() {
                 style={{ marginRight: 5 }}
               />
             ),
+            
           }}
         />
         <Tab.Screen
           name="Chat"
           component={ChatStack}
           options={{
-            title: "CHat",
+            title: "Tin nhắn",
             tabBarIcon: () => (
               <Ionicons
                 name="chatbox"
@@ -65,7 +68,7 @@ export default function AppStack() {
               <AppImage
                 width={24}
                 height={24}
-                source={require("../assets/images/task.png")}
+                source={require("images/task.png")}
               />
             ),
           }}
@@ -79,7 +82,7 @@ export default function AppStack() {
               <AppImage
                 width={24}
                 height={24}
-                source={require("../assets/icons/transaction.png")}
+                source={require("icons/transaction.png")}
               />
             ),
           }}

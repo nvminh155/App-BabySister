@@ -151,8 +151,8 @@ export default function InfoSisterScreen({ navigation }) {
                   height={24}
                   source={
                     i + 1 <= numStar
-                      ? require("../../assets/images/star.png")
-                      : require("../../assets/images/star_empty.png")
+                      ? require("images/star.png")
+                      : require("images/star_empty.png")
                   }
                 />
               </TouchableOpacity>
@@ -170,7 +170,7 @@ export default function InfoSisterScreen({ navigation }) {
           <AppImage
             width={60}
             height={60}
-            source={require("../../assets/images/bbst_1.jpg")}
+            source={require("images/bbst_1.jpg")}
             options={{ styles: { borderRadius: 30, marginRight: 10 } }}
           />
           <TextInput
@@ -363,7 +363,7 @@ export default function InfoSisterScreen({ navigation }) {
             options={{
               styles: { borderWidth: 1, borderColor: "grey" },
             }}
-            source={require("../../assets/images/bbst_1.jpg")}
+            source={require("images/bbst_1.jpg")}
           />
           <View style={{ width: 150, rowGap: 15 }}>
             <View style={{ flexDirection: "row", columnGap: 10 }}>
@@ -460,7 +460,7 @@ export default function InfoSisterScreen({ navigation }) {
                       borderColor: "black",
                     },
                   }}
-                  source={require("../../assets/images/bbst_1.jpg")}
+                  source={require("images/bbst_1.jpg")}
                 />
                 <View style={{ rowGap: 10, paddingRight: 100 }}>
                   <View
@@ -479,7 +479,7 @@ export default function InfoSisterScreen({ navigation }) {
                           <AppImage
                             width={10}
                             height={10}
-                            source={require("../../assets/images/star.png")}
+                            source={require("images/star.png")}
                           />
                         </View>
                       ))}

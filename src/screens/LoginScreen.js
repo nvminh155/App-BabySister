@@ -24,8 +24,7 @@ export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
 
-  const [test, setTest] = useState(null);
-  useEffect(() => {}, [test]);
+
   const handleLogin = async () => {
     // return;
     if (email !== "" && password !== "") {
@@ -42,7 +41,7 @@ export default function LoginScreen({ navigation }) {
           <AppImage
             width={380}
             height={250}
-            source={require("../assets/images/bbst-2.png")}
+            source={require("images/bbst-2.png")}
           />
         </View>
         <AppText
@@ -131,7 +130,7 @@ export default function LoginScreen({ navigation }) {
               <AppImage
                 width={24}
                 height={24}
-                source={require("../assets/icons/google-ic.png")}
+                source={require("icons/google-ic.png")}
               />
             </TouchableOpacity>
           ))}

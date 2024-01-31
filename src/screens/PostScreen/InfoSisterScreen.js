@@ -50,13 +50,14 @@ import {
 } from "../../components";
 
 export default function InfoSisterScreen({
+  navigation,
   route,
   onChooseSister,
   style,
   sister,
-  choosedUid
+  choosedUid,
+  choosed = false,
 }) {
-  console.log(route)
   const [visiableRate, setVisiableRate] = useState(false);
   const [numStar, setNumStar] = useState(0);
   const [textRate, setTextRate] = useState("");
@@ -120,8 +121,8 @@ export default function InfoSisterScreen({
                   height={24}
                   source={
                     i + 1 <= numStar
-                      ? require("../../assets/images/star.png")
-                      : require("../../assets/images/star_empty.png")
+                      ? require("images/star.png")
+                      : require("images/star_empty.png")
                   }
                 />
               </TouchableOpacity>
@@ -139,7 +140,7 @@ export default function InfoSisterScreen({
           <AppImage
             width={60}
             height={60}
-            source={require("../../assets/images/bbst_1.jpg")}
+            source={require("images/bbst_1.jpg")}
             options={{ styles: { borderRadius: 30, marginRight: 10 } }}
           />
           <TextInput
@@ -266,7 +267,7 @@ export default function InfoSisterScreen({
                       borderColor: "black",
                     },
                   }}
-                  source={require("../../assets/images/bbst_1.jpg")}
+                  source={require("images/bbst_1.jpg")}
                 />
                 <View style={{ rowGap: 10, paddingRight: 100 }}>
                   <View
@@ -285,7 +286,7 @@ export default function InfoSisterScreen({
                           <AppImage
                             width={10}
                             height={10}
-                            source={require("../../assets/images/star.png")}
+                            source={require("images/star.png")}
                           />
                         </View>
                       ))}
@@ -302,24 +303,31 @@ export default function InfoSisterScreen({
         </View>
       </ScrollView>
 
-      <CustomButton
-        label={choosedUid === sister.uid ? "Hủy Chọn" : "Chọn"}
-        style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
-        onPress={() => {
-          if(choosedUid === sister.uid) {
-            onChooseSister(null);
-            return;
-          }
-          onChooseSister(sister.uid, sister)
-        }}
-      />
+      {!choosed ? (
+        <CustomButton
+          label={"Chọn"}
+          style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
+          onPress={() => {
+            if (choosedUid === sister.uid) {
+              onChooseSister(null);
+              return;
+            }
+            onChooseSister(sister.uid, sister);
+          }}
+        />
+      ) : (
+        <CustomButton
+          label={"Liên hệ ngay"}
+          style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
+          onPress={() => {
+            navigation.navigate("ChatPrivate", {receiverID: sister.uid});
+          }}
+        />
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  whImg: (w, h) => ({
-    width: w,
-    height: h,
-  }),
+
 });
