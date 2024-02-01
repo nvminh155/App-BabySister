@@ -82,7 +82,7 @@ export default function ChatScreen({ navigation, route }) {
 
       users.forEach((docUser) => {
         setFriends((prev) => [...prev, docUser.data()]);
-
+        
         console.log("AA", docUser.data());
       });
     });
@@ -138,7 +138,7 @@ export default function ChatScreen({ navigation, route }) {
                 <TouchableOpacity
                   key={i}
                   onPress={() => {
-                    navigation.navigate("ChatPrivate", {
+                    navigation.navigate("ChatPrivateStack", {
                       receiverID: f.uid,
                     });
                   }}

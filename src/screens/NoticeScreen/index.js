@@ -73,7 +73,7 @@ function NoticeJobAccepted({ data }) {
                 color={colorNotice}
                 fontWeight={"bold"}
               >
-                {data.text}{" "}
+                {data.text}
                 <AppImage
                   width={24}
                   height={24}

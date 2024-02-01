@@ -11,6 +11,7 @@ import CircleItem from "./CircleItem";
 import Row from "./Row";
 import InputRadio from "./InputRadio";
 import ChooseDatetime from "./ChooseDatetime";
+import Group from "./Group";
 
 export {
   InputRadio,
@@ -26,4 +27,5 @@ export {
   Row,
   InputCheckbox,
   ChooseDatetime,
+  Group
 };

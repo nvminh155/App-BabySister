@@ -32,6 +32,8 @@ import {
   and,
   doc,
   updateDoc,
+  arrayUnion,
+  arrayRemove,
 } from "firebase/firestore";
 
 import { Ionicons } from "react-native-vector-icons";
@@ -46,15 +48,17 @@ import {
   InputField,
   AppSafeAreaView,
   Row,
+  InputCheckbox,
 } from "../../components";
 import { db } from "../../firebase/config";
 import { AuthContext } from "../../contexts/AuthProvider";
 import ListSchedule from "./ListSchedule";
 import Spin from "../../components/Spin";
+import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 
-export default function ActiveSchedule({ navigation, route }) {
+export default function ActiveSchedule({ navigation, route, isDone }) {
   const { user } = useContext(AuthContext);
-
+  const { receiver, dataChat } = useContext(ChatPrivateContext);
   const [editAble, setEditAble] = useState(false);
   const [page, setPage] = useState(0);
   const [title, setTitle] = useState("");
@@ -66,6 +70,7 @@ export default function ActiveSchedule({ navigation, route }) {
   const [schedule, setSchedule] = useState({});
   console.log("🚀 ~ ViewSchedule ~ schedule:", schedule);
   const [loadingData, setLoadingData] = useState(true);
+  const [finishTimeSchedule, setFinishTimeSchedule] = useState([]);
 
   useLayoutEffect(() => {
     if (!editAble) {
@@ -78,13 +83,17 @@ export default function ActiveSchedule({ navigation, route }) {
     navigation.setOptions({
       headerRight: () => {
         return (
-          <CustomButton
-            label={editAble ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
-            styleText={{ color: COLORS.accent }}
-            onPress={() => {
-              setEditAble(!editAble);
-            }}
-          />
+          <>
+            {user.typeUser === 2 && (
+              <CustomButton
+                label={editAble ? "Hủy chỉnh sửa" : "Chỉnh sửa"}
+                styleText={{ color: COLORS.accent }}
+                onPress={() => {
+                  setEditAble(!editAble);
+                }}
+              />
+            )}
+          </>
         );
       },
       headerTitle: `Lịch Trình Hiện Tại`,
@@ -115,10 +124,23 @@ export default function ActiveSchedule({ navigation, route }) {
   }, [editAble]);
 
   useLayoutEffect(() => {
+    const messageDoc = doc(
+      db,
+      `chats/${dataChat._id}/messages/${route.params.messageID}`
+    );
+    const unsubcribe = onSnapshot(messageDoc, (message) => {
+      const data = { ...message.data() };
+      setFinishTimeSchedule(data.finishTimeSchedule);
+    });
+
+    return unsubcribe;
+  }, []);
+  useLayoutEffect(() => {
     console.log(route);
-    const q = doc(db, `users/${user._id}/schedules/${route.params.scheduleID}`);
+    const uid = user.typeUser === 2 ? user._id : receiver._id;
+    const q = doc(db, `users/${uid}/schedules/${route.params.scheduleID}`);
     const unsubcribe = onSnapshot(q, (snap) => {
-      console.log("🚀 ~ unsubcribe ~ snap:", snap);
+      console.log("🚀 ~ unsubcribe ~ snap: ABCDEFGHK", snap);
       const data = { ...snap.data() };
 
       console.log("🚀 ~ unsubcribe ~ data:", data);
@@ -172,6 +194,28 @@ export default function ActiveSchedule({ navigation, route }) {
     );
   }, []);
 
+  const handleMarkFishTimeSchedule = useCallback(async (tick, timeSche) => {
+    console.log("🚀 ~ handleMarkFishTimeSchedule ~ tick:", tick);
+    const messageDoc = doc(
+      db,
+      `chats/${dataChat._id}/messages/${route.params.messageID}`
+    );
+    await updateDoc(messageDoc, {
+      finishTimeSchedule: tick
+        ? arrayUnion(timeSche.scheduleID)
+        : arrayRemove(timeSche.scheduleID),
+    });
+  }, []);
+
+    const handleFinishSchedule = async () => {
+      const messageDoc = doc(
+        db,
+        `chats/${dataChat._id}/messages/${route.params.messageID}`
+      );
+      await updateDoc(messageDoc, {
+        isDone: true,
+      });
+    }
   return (
     <>
       {loadingData ? (
@@ -347,9 +391,12 @@ export default function ActiveSchedule({ navigation, route }) {
             onAddTimeSchedule={handleAddTimeSchedule}
             onRemoveTimeSchedule={handleRemoveTimeSchedule}
             timeSchedules={timeSchedules}
+            finishTimeSchedule={finishTimeSchedule}
             onEditTimeSchedule={handleEditTimeSchedule}
             readOnly={!editAble}
+            isDone={isDone}
             startActive={true}
+            onMarkFinishTimeSchedule={handleMarkFishTimeSchedule}
           />
 
           {editAble && (
@@ -375,6 +422,22 @@ export default function ActiveSchedule({ navigation, route }) {
                 styleText={{ color: COLORS.accent }}
               />
             </Row>
+          )}
+
+          {user.typeUser === 2 && !editAble && (
+            <View style={{marginVertical: 10}}>
+              <Row>
+                <InputCheckbox edge={15} />
+                <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
+              </Row>
+              <CustomButton
+                label={"Cập nhật"}
+                style={{ backgroundColor: COLORS.accent }}
+                onPress={() => {
+                  handleFinishSchedule()
+                }}
+              />
+            </View>
           )}
         </View>
       )}

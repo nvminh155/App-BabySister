@@ -60,24 +60,6 @@ export default function UserApply({ navigation, route }) {
   const [infoSister, setInfoSister] = useState(null);
 
 
-  const handleSameChoose = (uid) => {
-    Alert.alert(
-      "Oops ! Có lỗi nhỏ !",
-      "Bạn đang chọn người nào đó chăm sóc cho bé. Nếu muốn thay đổi vui lòng nhấn vào CÓ để thay đổi lựa chọn !",
-      [
-        {
-          text: "Có, Tôi muốn thay đổi !",
-          onPress: () => setChoosed(uid),
-          style: "destructive",
-        },
-        {
-          text: "Không",
-          onPress: () => {},
-          style: "cancel",
-        },
-      ]
-    );
-  }
   const onChooseSister = async (uid) => {
     console.log("CHOSSED SISTER", uid, choosed);
 

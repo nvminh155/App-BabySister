@@ -54,6 +54,7 @@ import { db } from "../../firebase/config";
 import { formatDateTime, genShortId } from "../../utils";
 import EditTimeSchedule from "./EditTimeSchedule";
 import { AuthContext } from "../../contexts/AuthProvider";
+import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 
 function ListSchedule({
   onAddTimeSchedule,
@@ -62,25 +63,23 @@ function ListSchedule({
   timeSchedules,
   readOnly,
   startActive,
+  isDone,
+  onMarkFinishTimeSchedule,
+  finishTimeSchedule,
 }) {
   const { user } = useContext(AuthContext);
-
   const [visiable, setVisiable] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [time, setTime] = useState(Date.now());
   const [textNote, setTextNote] = useState("");
   const [images, setImages] = useState([]);
+  const [schedule, setSchedule] = useState({});
   const [infoTimeSchedule, setInfoTimeSchedule] = useState(null);
-  const finishTimeSchedule = useRef([]);
 
   console.log("render add time");
 
-  const handleChangeTick = useCallback( (tick, schedule) => {
-    if(tick) finishTimeSchedule.push("a");
-    else {
-
-    }
-  })
+  useLayoutEffect(() => {
+  }, []);
   const header = (
     <View>
       <AppText style={{ fontWeight: "bold" }}>Thêm mới mốc thời gian</AppText>
@@ -245,7 +244,7 @@ function ListSchedule({
         contentContainerStyle={{ rowGap: 20 }}
         style={{ marginTop: 20, flex: 1 }}
       >
-        {timeSchedules.map((v, i) => (
+        {timeSchedules.map((timeSche, i) => (
           <View
             key={i}
             style={{
@@ -255,10 +254,27 @@ function ListSchedule({
               elevation: 3,
             }}
           >
-            {startActive && user.typeUser === 2 && <Row style={{marginBottom: 10}}>
-              <InputCheckbox edge={20} />
-              <AppText>Đánh dấu đã hoàn thành</AppText>
-            </Row>}
+            {startActive && (
+              <Row style={{ marginBottom: 10 }}>
+                <InputCheckbox
+                  edge={20}
+                  disable={isDone || user.typeUser === 2}
+                  initTick={finishTimeSchedule.some(
+                    (timeID) => timeID === timeSche.scheduleID
+                  )}
+                  onToggle={(tick) => {
+                    onMarkFinishTimeSchedule(tick, timeSche);
+                  }}
+                />
+                <AppText style={{ fontStyle: "italic" }}>
+                  {user.typeUser === 2
+                    ? isDone
+                      ? "Bảo mẫu chưa hoàn thành"
+                      : "BM đã hoàn thành"
+                    : "Đánh dấu đã hoàn thành"}
+                </AppText>
+              </Row>
+            )}
             <View
               style={{
                 flexDirection: "row",
@@ -267,7 +283,9 @@ function ListSchedule({
                 position: "relative",
               }}
             >
-              <AppText fontWeight={"bold"} color={COLORS.accent}>{formatDateTime(v.time).T}</AppText>
+              <AppText fontWeight={"bold"} color={COLORS.accent}>
+                {formatDateTime(timeSche.time).T}
+              </AppText>
 
               <InputGroup
                 label={
@@ -276,7 +294,7 @@ function ListSchedule({
                 styleInput={{ backgroundColor: "white" }}
                 styleRoot={{ flex: 1 }}
                 multiline={true}
-                value={v.textNote}
+                value={timeSche.textNote}
                 onChangeText={(text) => {
                   setTextNote(text);
                 }}
@@ -298,7 +316,7 @@ function ListSchedule({
                   backgroundColor: COLORS.accent,
                 }}
                 onPress={() => {
-                  setInfoTimeSchedule(v);
+                  setInfoTimeSchedule(timeSche);
                 }}
               />
 
@@ -315,7 +333,7 @@ function ListSchedule({
                     <Ionicons name="trash" size={24} color={COLORS.accent} />
                   }
                   onPress={() => {
-                    onRemoveTimeSchedule(v.scheduleID);
+                    onRemoveTimeSchedule(timeSche.scheduleID);
                   }}
                 />
               )}
@@ -323,8 +341,6 @@ function ListSchedule({
           </View>
         ))}
       </ScrollView>
-
-      <CustomButton label={"Xác Nhận"} style={{backgroundColor: COLORS.accent, marginLeft: 'auto', marginVertical: 10}} />
     </View>
   );
 }

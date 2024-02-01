@@ -53,21 +53,21 @@ import {
   ChooseDatetime,
 } from "../../components";
 import { formatDateTime, genShortId } from "../../utils";
+import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 
 export default function ChatPrivateScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
+  const { dataChat, messages, receiver, schedules } =
+    useContext(ChatPrivateContext);
 
   const messagesEl = useRef();
-  const [dataChat, setDataChat] = useState(null);
   console.log("🚀 ~ ChatPrivateScreen ~ dataChat:", dataChat);
-  const [messages, setMessages] = useState([]);
+
   const [textMessage, setTextMessage] = useState("");
   const [isStartSchedule, setIsStartSchedule] = useState(false);
   const [showMenuChatBar, setShowMenuChatBar] = useState(false);
   const [showListSchedule, setShowListSchedule] = useState(false);
-  const [receiver, setReceiver] = useState(null);
-  const [schedules, setSchedules] = useState([]);
-  const [fetchingData, setFetchingData] = useState(true);
+  const [fetchingData, setFetchingData] = useState(false);
   const [isSelectAll, setIsSellectAll] = useState(false);
   const [startSchedule, setStartSchedule] = useState({
     timestamp: Date.now(),
@@ -80,23 +80,6 @@ export default function ChatPrivateScreen({ navigation, route }) {
     showTime: false,
   });
   const schedulesRef = useRef([]);
-
-  const fetchReceiver = async () => {
-    const q = query(
-      collection(db, "users"),
-      where("uid", "==", route.params.receiverID)
-    );
-    const docs = (await getDocs(q)).docs;
-
-    docs.forEach((doc) => {
-      console.log("DOCS", doc.data());
-      setReceiver({ ...doc.data(), _id: doc.id });
-    });
-  };
-
-  useLayoutEffect(() => {
-    fetchReceiver();
-  }, []);
 
   useLayoutEffect(() => {
     if (receiver) {
@@ -114,25 +97,21 @@ export default function ChatPrivateScreen({ navigation, route }) {
             </AppText>
           </Row>
         ),
+        headerRight: () => (
+          <TouchableOpacity
+            style={{ paddingRight: 10 }}
+            onPress={() => {
+              navigation.navigate("MenuChatPrivate");
+            }}
+          >
+            <AppImage
+              width={24}
+              height={24}
+              source={require("images/menu_bar.png")}
+            />
+          </TouchableOpacity>
+        ),
       });
-    }
-  }, [receiver]);
-
-  useLayoutEffect(() => {
-    if (receiver) {
-      const uid = user.typeUser === 2 ? user._id : receiver._id;
-      const docsRef = collection(db, `users/${uid}/schedules`);
-      const unsubscribe = onSnapshot(docsRef, (snap) => {
-        const schedules = [];
-        snap.docs.forEach((doc) => {
-          // console.log(doc.data())
-          schedules.push({ ...doc.data(), _id: doc.id });
-        });
-        console.log("🚀 ~ unsubscribe ~ schedules:", schedules);
-        setSchedules(schedules);
-      });
-
-      return unsubscribe;
     }
   }, [receiver]);
 
@@ -150,60 +129,6 @@ export default function ChatPrivateScreen({ navigation, route }) {
 
     console.log(schedulesRef.current);
   };
-  useEffect(() => {
-    const unsubscribeTimeout = setTimeout(async () => {
-      setFetchingData(false);
-    }, 2000);
-
-    return () => {
-      clearTimeout(unsubscribeTimeout);
-    };
-  }, []);
-
-  const fetchChatRef = async () => {
-    const collectionRef = collection(db, "chats");
-    let q = query(
-      collectionRef,
-      where("members", "in", [
-        [user.uid, receiver.uid],
-        [receiver.uid, user.uid],
-      ])
-    );
-
-    const docs = await getDocs(q);
-    docs.forEach((doc) => {
-      setDataChat({ ...doc.data(), _id: doc.id });
-    });
-  };
-  useLayoutEffect(() => {
-    console.log("ASD", receiver);
-    if (receiver) {
-      fetchChatRef();
-    }
-  }, [receiver]);
-
-  useLayoutEffect(() => {
-    if (dataChat) {
-      const q = query(
-        collection(db, `chats/${dataChat._id}/messages`),
-        orderBy("createdAt", "asc")
-      );
-      const unsubcribe = onSnapshot(q, (snapshot) => {
-        const messages = [];
-        console.log("?", snapshot);
-        snapshot.forEach((doc) => {
-          const data = { ...doc.data() };
-          messages.push({ ...data, _id: doc.id });
-
-          if (data.type === "schedule") {
-          }
-          console.log("SNAPPPPP SHOT MESSAGES", doc.data());
-        });
-        setMessages(messages);
-      });
-      return unsubcribe;
-    }
-  }, [dataChat]);
 
   const onSendMessage = async () => {
     if (textMessage === "") return;
@@ -241,6 +166,7 @@ export default function ChatPrivateScreen({ navigation, route }) {
         end: endSchedule.timestamp,
         createdAt: Date.now(),
         updatedAt: Date.now(),
+        isDone: false,
       };
       await setDoc(
         doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`),
@@ -415,28 +341,30 @@ export default function ChatPrivateScreen({ navigation, route }) {
                   borderRadius: 15,
                 }}
               >
-                <TouchableOpacity
-                  onPress={() => {
-                    setShowListSchedule(true);
-                  }}
-                >
-                  <CircleItem
-                    edge={90}
-                    style={{
-                      backgroundColor: COLORS.accent,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      padding: 10,
+                {user.typeUser === 2 && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowListSchedule(true);
                     }}
                   >
-                    <AppImage
-                      width={24}
-                      height={24}
-                      source={require("images/task.png")}
-                    />
-                    <AppText style={{ color: "white" }}>Lịch biểu</AppText>
-                  </CircleItem>
-                </TouchableOpacity>
+                    <CircleItem
+                      edge={90}
+                      style={{
+                        backgroundColor: COLORS.accent,
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 10,
+                      }}
+                    >
+                      <AppImage
+                        width={24}
+                        height={24}
+                        source={require("images/task.png")}
+                      />
+                      <AppText style={{ color: "white" }}>Lịch biểu</AppText>
+                    </CircleItem>
+                  </TouchableOpacity>
+                )}
               </View>
             )}
 

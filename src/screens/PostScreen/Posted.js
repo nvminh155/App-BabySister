@@ -99,30 +99,43 @@ export default function PostedScreen({ navigation }) {
 
     return unsubscribe;
   }, [])
+
   const removePost = () => {
 
   }
   
 
-  const headerCardInfoJob = (title, startTimestamp) => {
+  const headerCardInfoJob = (job) => {
+
+    const isJobDone = () => {
+      if(job.isDone === 0) return "Đang đợi bảo mẫu";
+      else if(job.isDone === 1) return "Đang diễn ra";
+      return "Đã kết thúc - Bảo mẫu hoàn thành công việc";
+    }
+    const colorStatus = () => {
+      if(job.isDone === 0) return 'yellow';
+      else if(job.isDone === 1) return "blue";
+      return COLORS.accent;
+    }
     return (
       <View>
+        <AppText style={{fontStyle: 'italic', marginBottom: 10}} color={colorStatus()}>{isJobDone()}</AppText>
         <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-          {title.toUpperCase()}
+          {job.title.toUpperCase()}
         </AppText>
         <AppText style={{ fontSize: 15 }}>
           Bắt đầu vào lúc:
           <AppText
             style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
           >
-            {formatDateTime(startTimestamp).DDMYTS}
+            {formatDateTime(job.start).DDMYTS}
           </AppText>
         </AppText>
       </View>
     );
   };
 
-  const bodyCardInfoJob = (timeJob, money, address, textNote) => {
+  const bodyCardInfoJob = (job) => {
     return (
       <View style={{ rowGap: 5, paddingHorizontal: 10 }}>
         <View
@@ -139,25 +152,25 @@ export default function PostedScreen({ navigation }) {
           <View id="time" style={{ alignItems: "center" }}>
             <AppText>Làm trong (giờ)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              {timeJob}
+              {job.timeHire}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
             <AppText>Số tiền(VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
-              {formatMoney(money)}
+              {formatMoney(job.money)}
             </AppText>
           </View>
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
           <AppText>Tại: </AppText>
-          <AppText fontWeight={"bold"}>{address}</AppText>
+          <AppText fontWeight={"bold"}>{job.address}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
           <AppText>Ghi chú: </AppText>
-          <AppText style={{ fontWeight: "bold" }}>{textNote}</AppText>
+          <AppText style={{ fontWeight: "bold" }}>{job.textNote}</AppText>
         </View>
       </View>
     );
@@ -203,12 +216,9 @@ export default function PostedScreen({ navigation }) {
       {jobs.map((job, i) => (
         <CustomCard
           key={i}
-          header={headerCardInfoJob(job.title, job.start)}
+          header={headerCardInfoJob(job)}
           body={bodyCardInfoJob(
-            job.timeHire,
-            job.money,
-            job.address,
-            job.textNote
+            job
           )}
           footer={footerCardInfoJob(job)}
           style={{

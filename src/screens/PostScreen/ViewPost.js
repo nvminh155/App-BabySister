@@ -94,7 +94,7 @@ export default function ViewPostScreen({ navigation, route }) {
 
   useLayoutEffect(() => {
     if (!choosed) {
-      console.log("HELLO CHOOSED")
+      console.log("HELLO CHOOSED");
       navigation.setOptions({
         headerRight: () => (
           <CustomButton
@@ -244,130 +244,174 @@ export default function ViewPostScreen({ navigation, route }) {
     );
   };
 
+  const handleFinishJob = async () => {
+    const jobRef = doc(db, `posts/${docIdJob}`);
+    await updateDoc(jobRef, {isDone: 2})
+
+    await handleSendNotice(job.userChoosed, 'jobs', {
+      type: 'donejob',
+      text: `Chúc mừng ! Bạn đã được xác nhận hoàn thành công việc ${job.title}`,
+      createdAt: Date.now(),
+      address: job.address,
+      time: job.start,
+    });
+
+    await handleSendNotice(user.uid, 'posts', {
+      type: 'donejob',
+      text: `Chúc mừng ! Bạn và SISTER đã hợp tác vui vẻ !`,
+      createdAt: Date.now(),
+      address: job.address,
+      time: job.start,
+    });
+  }
   return (
     <>
       {loadingData ? (
         <Spin />
       ) : (
-        <ScrollView
-          style={{
-            paddingHorizontal: 10,
-            backgroundColor: COLORS.secondary,
-            flex: 1,
-          }}
-        >
-          <CustomModal
-            modalVisible={infoSister ? true : false}
-            header={
-              <TouchableOpacity
-                onPress={() => {
-                  setInfoSister(null);
-                }}
-              >
-                <AppImage
-                  width={24}
-                  height={24}
-                  source={require("images/close_x.png")}
-                />
-              </TouchableOpacity>
-            }
-          >
-            <InfoSisterScreen
-              sister={infoSister}
-              onChooseSister={onChooseSister}
-              choosedUid={choosed}
-            />
-          </CustomModal>
-          <CustomCard
-            header={headerCardInfoJob(job.title, job.start)}
-            body={bodyCardInfoJob(
-              job.timeHire,
-              job.money,
-              job.address,
-              job.textNote
-            )}
-            footer={footerCardInfoJob()}
+        <View style={{ flex: 1 }}>
+          <ScrollView
             style={{
-              rowGap: 15,
-              backgroundColor: "white",
-              paddingHorizontal: 30,
-              paddingVertical: 15,
+              paddingHorizontal: 10,
+              backgroundColor: COLORS.secondary,
+              flex: 1,
             }}
-          />
+          >
+            <CustomModal
+              modalVisible={infoSister ? true : false}
+              header={
+                <TouchableOpacity
+                  onPress={() => {
+                    setInfoSister(null);
+                  }}
+                >
+                  <AppImage
+                    width={24}
+                    height={24}
+                    source={require("images/close_x.png")}
+                  />
+                </TouchableOpacity>
+              }
+            >
+              <InfoSisterScreen
+                sister={infoSister}
+                onChooseSister={onChooseSister}
+                choosedUid={choosed}
+              />
+            </CustomModal>
+            <CustomCard
+              header={headerCardInfoJob(job.title, job.start)}
+              body={bodyCardInfoJob(
+                job.timeHire,
+                job.money,
+                job.address,
+                job.textNote
+              )}
+              footer={footerCardInfoJob()}
+              style={{
+                rowGap: 15,
+                backgroundColor: "white",
+                paddingHorizontal: 30,
+                paddingVertical: 15,
+              }}
+            />
 
-          {!sisterChoosed && (
-            <View id="list-applies" style={{ flex: 1 }}>
-              <AppText
-                style={{ marginLeft: "auto", marginBottom: 20 }}
-                fontSize={20}
-                fontWeight={"bold"}
-              >
-                Đã có{" "}
+            {!sisterChoosed && (
+              <View id="list-applies" style={{ flex: 1 }}>
                 <AppText
-                  color={COLORS.accent}
+                  style={{ marginLeft: "auto", marginBottom: 20 }}
                   fontSize={20}
                   fontWeight={"bold"}
                 >
-                  {job.applies.length}
-                </AppText>{" "}
-                người nộp đơn
-              </AppText>
+                  Đã có{" "}
+                  <AppText
+                    color={COLORS.accent}
+                    fontSize={20}
+                    fontWeight={"bold"}
+                  >
+                    {job.applies.length}
+                  </AppText>{" "}
+                  người nộp đơn
+                </AppText>
 
-              <ScrollView
-                style={{ flex: 1 }}
-                contentContainerStyle={{ rowGap: 10 }}
-              >
-                {job.applies.map((sister, i) => (
-                  <CustomCard
-                    key={i}
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      columnGap: 15,
-                    }}
-                    header={
-                      <AppImage
-                        width={50}
-                        height={50}
-                        source={require("images/bbst_1.jpg")}
-                      />
-                    }
-                    body={
-                      <View style={{ flex: 1 }}>
-                        <AppText fontWeight={"bold"}>
-                          {sister.displayName}
-                        </AppText>
-                        <AppText style={{ fontStyle: "italic", opacity: 0.5 }}>
-                          Chưa từng thuê trước đây
-                        </AppText>
-                      </View>
-                    }
-                    footer={
-                      <View>
-                        <CustomButton
-                          label={"Xem"}
-                          style={{ backgroundColor: COLORS.accent }}
-                          onPress={() => {
-                            console.log(123);
-                            setInfoSister(sister);
-                          }}
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{ rowGap: 10 }}
+                >
+                  {job.applies.map((sister, i) => (
+                    <CustomCard
+                      key={i}
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        columnGap: 15,
+                      }}
+                      header={
+                        <AppImage
+                          width={50}
+                          height={50}
+                          source={require("images/bbst_1.jpg")}
                         />
-                      </View>
-                    }
-                  />
-                ))}
-              </ScrollView>
+                      }
+                      body={
+                        <View style={{ flex: 1 }}>
+                          <AppText fontWeight={"bold"}>
+                            {sister.displayName}
+                          </AppText>
+                          <AppText
+                            style={{ fontStyle: "italic", opacity: 0.5 }}
+                          >
+                            Chưa từng thuê trước đây
+                          </AppText>
+                        </View>
+                      }
+                      footer={
+                        <View>
+                          <CustomButton
+                            label={"Xem"}
+                            style={{ backgroundColor: COLORS.accent }}
+                            onPress={() => {
+                              console.log(123);
+                              setInfoSister(sister);
+                            }}
+                          />
+                        </View>
+                      }
+                    />
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+            {sisterChoosed && (
+              <View>
+                <AppText fontWeight={"bold"}>
+                  {"Bạn đã chọn".toUpperCase()}
+                </AppText>
+                <InfoSisterScreen
+                  sister={sisterChoosed}
+                  choosed={true}
+                  navigation={navigation}
+                />
+              </View>
+            )}
+          </ScrollView>
+
+          {user.typeUser === 2 && !editAble && (
+            <View style={{marginVertical: 10, marginHorizontal: 15}}>
+              <Row>
+                <InputCheckbox edge={15} />
+                <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
+              </Row>
+              <CustomButton
+                label={"Cập nhật"}
+                style={{ backgroundColor: COLORS.accent }}
+                onPress={() => {
+                  handleFinishJob()
+                }}
+              />
             </View>
           )}
-          {sisterChoosed && (
-            <View>
-              <AppText fontWeight={"bold"}>
-                {"Bạn đã chọn".toUpperCase()}
-              </AppText>
-              <InfoSisterScreen sister={sisterChoosed} choosed={true} navigation={navigation} />
-            </View>
-          )}
-        </ScrollView>
+        </View>
       )}
     </>
   );

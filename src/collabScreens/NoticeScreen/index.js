@@ -40,12 +40,18 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 function NoticeJobAccepted({ data }) {
-  const colorNotice =
-    data.type === "accepted" ? COLORS.textSuccess : COLORS.textDanger;
+  const colorNotice = () => {
+    const type = data.type;
+    if(type === "accepted") return COLORS.textInfo
+    else if(type === "donejob") return COLORS.accent
+    return COLORS.textDanger
+  }
+    
+
   return (
     <TouchableOpacity
       style={{
-        borderLeftColor: colorNotice,
+        borderLeftColor: colorNotice(),
         borderLeftWidth: 5,
         borderRadius: 5,
         borderTopLeftRadius: 3,
@@ -59,33 +65,34 @@ function NoticeJobAccepted({ data }) {
     >
       <CustomCard
         style={{
-          flexDirection: "row",
           alignItems: "center",
           columnGap: 10,
           paddingRight: 25,
           justifyContent: "center",
           marginLeft: 5,
         }}
+        header={
+          <Row style={{ flexWrap: "wrap", columnGap: 0,marginBottom: 10 }}>
+            <AppText
+              style={{ marginBottom: 5 }}
+              color={colorNotice()}
+              fontWeight={"bold"}
+            >
+              {data.text}
+            </AppText>
+            <AppImage
+              width={24}
+              height={24}
+              source={
+                data.type === "accepted" || data.type === "donejob"
+                  ? require("images/tick.png")
+                  : require("images/untick.png")
+              }
+            />
+          </Row>
+        }
         body={
           <View>
-            <Row style={{flexWrap: 'wrap', columnGap: 0}}>
-              <AppText
-                style={{ marginBottom: 5 }}
-                color={colorNotice}
-                fontWeight={"bold"}
-              >
-                {data.text}
-              </AppText>
-              <AppImage
-                width={24}
-                height={24}
-                source={
-                  data.type === "accepted"
-                    ? require("images/tick.png")
-                    : require("images/untick.png")
-                }
-              />
-            </Row>
             <AppText>
               Tại: <AppText fontWeight={"bold"}>{data.address}</AppText>
             </AppText>
@@ -129,7 +136,6 @@ export default function NoticeScreen({ navigation, route }) {
       {noticeJobs.map((notice, i) => (
         <NoticeJobAccepted key={i} data={notice} />
       ))}
-
     </View>
   );
 }

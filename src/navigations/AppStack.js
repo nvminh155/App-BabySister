@@ -20,7 +20,7 @@ const Tab = createBottomTabNavigator();
 export default function AppStack() {
     return (
       <Tab.Navigator
-        initialRouteName="HomeStack"
+        initialRouteName="Home"
         screenOptions={{
           headerShown: false,
           tabBarItemStyle: { paddingVertical: 5 },
