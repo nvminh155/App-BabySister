@@ -13,7 +13,6 @@ import { AuthContext } from "../contexts/AuthProvider";
 export default function RootNavigator() {
     const { user } = useContext(AuthContext);
   
-    console.log("A1SDASD", user);
   
     return (
       <NavigationContainer>

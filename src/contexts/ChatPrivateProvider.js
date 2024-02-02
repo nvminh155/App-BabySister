@@ -37,7 +37,6 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
   const [receiver, setReceiver] = useState(null);
   const [schedules, setSchedules] = useState(null);
   const [schedulesInChat, setSchedulesInChat] = useState([]);
-  console.log("🚀 ~ ChatPrivateProvider ~ schedulesInChat:", schedulesInChat);
   const [loading, setLoading] = useState(true);
 
   const fetchReceiver = async () => {
@@ -48,7 +47,6 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
     const docs = (await getDocs(q)).docs;
 
     docs.forEach((doc) => {
-      console.log("DOCS", doc.data());
       setReceiver({ ...doc.data(), _id: doc.id });
     });
   };
@@ -64,10 +62,8 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
       const unsubscribe = onSnapshot(docsRef, (snap) => {
         const schedules = [];
         snap.docs.forEach((doc) => {
-          // console.log(doc.data())
           schedules.push({ ...doc.data(), _id: doc.id });
         });
-        console.log("🚀 ~ unsubscribe ~ schedules:", schedules);
         setSchedules(schedules);
       });
 
@@ -92,7 +88,6 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
   };
 
   useLayoutEffect(() => {
-    console.log("ASD", receiver);
     if (receiver) {
       fetchChatRef();
     }
@@ -108,7 +103,6 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
         const messages = [];
         const schedulesInChat = [];
 
-        console.log("?", snapshot);
         snapshot.forEach((doc) => {
           const data = { ...doc.data() };
           messages.push({ ...data, _id: doc.id });
@@ -120,7 +114,6 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
               sendedAt: data.createdAt,
             });
           }
-          console.log("SNAPPPPP SHOT MESSAGES", doc.data());
         });
         setSchedulesInChat(schedulesInChat);
         setMessages(messages);

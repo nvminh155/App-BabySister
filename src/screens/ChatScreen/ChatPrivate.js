@@ -61,7 +61,6 @@ export default function ChatPrivateScreen({ navigation, route }) {
     useContext(ChatPrivateContext);
 
   const messagesEl = useRef();
-  console.log("🚀 ~ ChatPrivateScreen ~ dataChat:", dataChat);
 
   const [textMessage, setTextMessage] = useState("");
   const [isStartSchedule, setIsStartSchedule] = useState(false);
@@ -83,7 +82,6 @@ export default function ChatPrivateScreen({ navigation, route }) {
 
   useLayoutEffect(() => {
     if (receiver) {
-      console.log("ADJALSKDJ");
       navigation.setOptions({
         headerTitle: () => (
           <Row style={{ alignSelf: "center", marginTop: 0 }}>
@@ -127,13 +125,11 @@ export default function ChatPrivateScreen({ navigation, route }) {
       );
     }
 
-    console.log(schedulesRef.current);
   };
 
   const onSendMessage = async () => {
     if (textMessage === "") return;
 
-    console.log(textMessage);
 
     const dataMessage = {
       messageID: genShortId(),
@@ -204,265 +200,256 @@ export default function ChatPrivateScreen({ navigation, route }) {
   );
 
   return (
-    <View style={{ flex: 1 }}>
-      {fetchingData ? (
-        <Spin />
-      ) : (
+    <View
+      style={{
+        flex: 1,
+      }}
+    >
+      <ScrollView
+        id="container-chat"
+        ref={messagesEl}
+        onContentSizeChange={() =>
+          messagesEl.current.scrollToEnd({ animated: true })
+        }
+        style={{ flex: 1 }}
+      >
+        {messages.map((m, i) => {
+          return (
+            <View key={m.messageID}>
+              {m.type === "text" ? (
+                <View
+                  style={styles.message(m.senderID === user.uid)}
+                  key={m.messageID}
+                >
+                  <Text style={styles.textMessage(m.senderID === user.uid)}>
+                    {m.text}
+                  </Text>
+                </View>
+              ) : (
+                <View
+                  key={m.messageID}
+                  style={{
+                    backgroundColor: COLORS.accent,
+                    marginHorizontal: 40,
+                    marginTop: 15,
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <AppImage
+                    width={64}
+                    height={64}
+                    source={require("images/list_task.png")}
+                    style={{ alignSelf: "center" }}
+                  />
+                  <AppText
+                    fontSize={22}
+                    fontWeight={"bold"}
+                    color={COLORS.secondary}
+                    style={{ marginVertical: 15, alignSelf: "center" }}
+                  >
+                    LỊCH TRÌNH ĐÃ ĐƯỢC BẬT
+                  </AppText>
+
+                  <View id="time">
+                    <View>
+                      <AppText color={COLORS.secondary} fontWeight={"bold"}>
+                        Bắt đầu lúc :{" "}
+                      </AppText>
+                      <AppText color={COLORS.secondary}>
+                        {formatDateTime(m.start).DDMYTS}
+                      </AppText>
+                    </View>
+                    <View style={{ marginVertical: 10 }}>
+                      <AppText color={COLORS.secondary} fontWeight={"bold"}>
+                        Kết thúc lúc :{" "}
+                      </AppText>
+                      <AppText color={COLORS.secondary}>
+                        {formatDateTime(m.end).DDMYTS}
+                      </AppText>
+                    </View>
+                  </View>
+                </View>
+              )}
+            </View>
+          );
+        })}
+      </ScrollView>
+
+      <View
+        style={{
+          position: "relative",
+          bottom: 0,
+          marginVertical: 10,
+        }}
+      >
         <View
           style={{
-            flex: 1,
+            flexDirection: "row",
+            columnGap: 15,
+            paddingHorizontal: 10,
+            justifyContent: "center",
           }}
         >
-          <ScrollView
-            id="container-chat"
-            ref={messagesEl}
-            onContentSizeChange={() =>
-              messagesEl.current.scrollToEnd({ animated: true })
-            }
-            style={{ flex: 1 }}
-          >
-            {messages.map((m, i) => {
-              return (
-                <View key={m.messageID}>
-                  {m.type === "text" ? (
-                    <View
-                      style={styles.message(m.senderID === user.uid)}
-                      key={m.messageID}
-                    >
-                      <Text style={styles.textMessage(m.senderID === user.uid)}>
-                        {m.text}
-                      </Text>
-                    </View>
-                  ) : (
-                    <View
-                      key={m.messageID}
-                      style={{
-                        backgroundColor: COLORS.accent,
-                        marginHorizontal: 40,
-                        marginTop: 15,
-                        padding: 10,
-                        borderRadius: 10,
-                      }}
-                    >
-                      <AppImage
-                        width={64}
-                        height={64}
-                        source={require("images/list_task.png")}
-                        style={{ alignSelf: "center" }}
-                      />
-                      <AppText
-                        fontSize={22}
-                        fontWeight={"bold"}
-                        color={COLORS.secondary}
-                        style={{ marginVertical: 15, alignSelf: "center" }}
-                      >
-                        LỊCH TRÌNH ĐÃ ĐƯỢC BẬT
-                      </AppText>
-
-                      <View id="time">
-                        <View>
-                          <AppText color={COLORS.secondary} fontWeight={"bold"}>
-                            Bắt đầu lúc :{" "}
-                          </AppText>
-                          <AppText color={COLORS.secondary}>
-                            {formatDateTime(m.start).DDMYTS}
-                          </AppText>
-                        </View>
-                        <View style={{ marginVertical: 10 }}>
-                          <AppText color={COLORS.secondary} fontWeight={"bold"}>
-                            Kết thúc lúc :{" "}
-                          </AppText>
-                          <AppText color={COLORS.secondary}>
-                            {formatDateTime(m.end).DDMYTS}
-                          </AppText>
-                        </View>
-                      </View>
-                    </View>
-                  )}
-                </View>
-              );
-            })}
-          </ScrollView>
-
-          <View
-            style={{
-              position: "relative",
-              bottom: 0,
-              marginVertical: 10,
+          <TouchableOpacity
+            onPress={() => {
+              setShowMenuChatBar(!showMenuChatBar);
+              messagesEl.current.scrollToEnd({ animated: true });
             }}
           >
-            <View
-              style={{
-                flexDirection: "row",
-                columnGap: 15,
-                paddingHorizontal: 10,
-                justifyContent: "center",
-              }}
-            >
+            <AppImage
+              width={30}
+              height={30}
+              source={require("images/menu_bar_4dot.png")}
+            />
+          </TouchableOpacity>
+          <TextInput
+            onFocus={() => {
+              messagesEl.current.scrollToEnd({ animated: true });
+            }}
+            style={{
+              borderBottomWidth: 2,
+              borderBottomColor: "black",
+              flex: 1,
+            }}
+            value={textMessage}
+            placeholder="Enter Text"
+            onChangeText={(text) => setTextMessage(text)}
+          ></TextInput>
+          <Button
+            onPress={() => onSendMessage()}
+            title="SEND"
+            style={{ marginRight: 10 }}
+          />
+        </View>
+
+        {showMenuChatBar && (
+          <View
+            id="menu-chat-bar"
+            style={{
+              backgroundColor: "white",
+              height: 200,
+              padding: 10,
+              borderRadius: 15,
+            }}
+          >
+            {user.typeUser === 2 && (
               <TouchableOpacity
                 onPress={() => {
-                  setShowMenuChatBar(!showMenuChatBar);
-                  messagesEl.current.scrollToEnd({ animated: true });
+                  setShowListSchedule(true);
                 }}
               >
-                <AppImage
-                  width={30}
-                  height={30}
-                  source={require("images/menu_bar_4dot.png")}
-                />
-              </TouchableOpacity>
-              <TextInput
-                onFocus={() => {
-                  messagesEl.current.scrollToEnd({ animated: true });
-                }}
-                style={{
-                  borderBottomWidth: 2,
-                  borderBottomColor: "black",
-                  flex: 1,
-                }}
-                value={textMessage}
-                placeholder="Enter Text"
-                onChangeText={(text) => setTextMessage(text)}
-              ></TextInput>
-              <Button
-                onPress={() => onSendMessage()}
-                title="SEND"
-                style={{ marginRight: 10 }}
-              />
-            </View>
-
-            {showMenuChatBar && (
-              <View
-                id="menu-chat-bar"
-                style={{
-                  backgroundColor: "white",
-                  height: 200,
-                  padding: 10,
-                  borderRadius: 15,
-                }}
-              >
-                {user.typeUser === 2 && (
-                  <TouchableOpacity
-                    onPress={() => {
-                      setShowListSchedule(true);
-                    }}
-                  >
-                    <CircleItem
-                      edge={90}
-                      style={{
-                        backgroundColor: COLORS.accent,
-                        alignItems: "center",
-                        justifyContent: "center",
-                        padding: 10,
-                      }}
-                    >
-                      <AppImage
-                        width={24}
-                        height={24}
-                        source={require("images/task.png")}
-                      />
-                      <AppText style={{ color: "white" }}>Lịch biểu</AppText>
-                    </CircleItem>
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
-
-            {showMenuChatBar && (
-              <CustomModal
-                modalVisible={showListSchedule}
-                setModalVisible={setShowListSchedule}
-                header={
-                  <Row style={{ marginTop: 0 }}>
-                    <InputCheckbox
-                      edge={22}
-                      onToggle={(tick) => {
-                        setIsSellectAll(tick);
-                      }}
-                    />
-                    <AppText>Chọn tất cả</AppText>
-                  </Row>
-                }
-                footer={
-                  <Row>
-                    <CustomButton
-                      label={"Gửi"}
-                      style={{
-                        backgroundColor: COLORS.accent,
-                      }}
-                      onPress={() => {
-                        handleSendSchedules();
-                      }}
-                    />
-                    <CustomButton
-                      label={"Thoát"}
-                      style={{
-                        backgroundColor: COLORS.secondary,
-                        borderColor: COLORS.accent,
-                        borderWidth: 1,
-                      }}
-                      styleText={{ color: COLORS.accent }}
-                      onPress={() => {
-                        setShowListSchedule(false);
-                      }}
-                    />
-                  </Row>
-                }
-              >
-                <View
-                  id="contains-schedules"
-                  style={{ marginTop: 30, rowGap: 20 }}
+                <CircleItem
+                  edge={90}
+                  style={{
+                    backgroundColor: COLORS.accent,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    padding: 10,
+                  }}
                 >
-                  {schedules.map((schedule, i) => (
-                    <View key={i} style={{ rowGap: 15 }}>
-                      <CustomCard
-                        header={
-                          <InputCheckbox
-                            initTick={isSelectAll}
-                            edge={22}
-                            onToggle={(tick) => {
-                              handleChangeSelectSchedule(tick, schedule);
-                            }}
-                          />
-                        }
-                        body={bodyCardSchedule(schedule)}
-                        footer={footerCardSchedule(schedule)}
-                        style={{
-                          flexDirection: "row",
-                          alignItems: "center",
-                          columnGap: 15,
-                        }}
-                      />
-                    </View>
-                  ))}
-                </View>
-
-                <View style={{ marginTop: 10 }}>
-                  <ChooseDatetime
-                    label={
-                      <AppText fontWeight={"bold"}>
-                        Thời gian bắt đầu lịch trình
-                      </AppText>
-                    }
-                    setDatetime={setStartSchedule}
-                    datetime={startSchedule}
+                  <AppImage
+                    width={24}
+                    height={24}
+                    source={require("images/task.png")}
                   />
-
-                  <ChooseDatetime
-                    label={
-                      <AppText fontWeight={"bold"}>
-                        Thời gian kết thúc lịch trình
-                      </AppText>
-                    }
-                    setDatetime={setEndSchedule}
-                    datetime={endSchedule}
-                  />
-                </View>
-              </CustomModal>
+                  <AppText style={{ color: "white" }}>Lịch biểu</AppText>
+                </CircleItem>
+              </TouchableOpacity>
             )}
           </View>
-        </View>
-      )}
+        )}
+
+        {showMenuChatBar && (
+          <CustomModal
+            modalVisible={showListSchedule}
+            setModalVisible={setShowListSchedule}
+            header={
+              <Row style={{ marginTop: 0 }}>
+                <InputCheckbox
+                  edge={22}
+                  onToggle={(tick) => {
+                    setIsSellectAll(tick);
+                  }}
+                />
+                <AppText>Chọn tất cả</AppText>
+              </Row>
+            }
+            footer={
+              <Row>
+                <CustomButton
+                  label={"Gửi"}
+                  style={{
+                    backgroundColor: COLORS.accent,
+                  }}
+                  onPress={() => {
+                    handleSendSchedules();
+                  }}
+                />
+                <CustomButton
+                  label={"Thoát"}
+                  style={{
+                    backgroundColor: COLORS.secondary,
+                    borderColor: COLORS.accent,
+                    borderWidth: 1,
+                  }}
+                  styleText={{ color: COLORS.accent }}
+                  onPress={() => {
+                    setShowListSchedule(false);
+                  }}
+                />
+              </Row>
+            }
+          >
+            <View id="contains-schedules" style={{ marginTop: 30, rowGap: 20 }}>
+              {schedules.map((schedule, i) => (
+                <View key={i} style={{ rowGap: 15 }}>
+                  <CustomCard
+                    header={
+                      <InputCheckbox
+                        initTick={isSelectAll}
+                        edge={22}
+                        onToggle={(tick) => {
+                          handleChangeSelectSchedule(tick, schedule);
+                        }}
+                      />
+                    }
+                    body={bodyCardSchedule(schedule)}
+                    footer={footerCardSchedule(schedule)}
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      columnGap: 15,
+                    }}
+                  />
+                </View>
+              ))}
+            </View>
+
+            <View style={{ marginTop: 10 }}>
+              <ChooseDatetime
+                label={
+                  <AppText fontWeight={"bold"}>
+                    Thời gian bắt đầu lịch trình
+                  </AppText>
+                }
+                setDatetime={setStartSchedule}
+                datetime={startSchedule}
+              />
+
+              <ChooseDatetime
+                label={
+                  <AppText fontWeight={"bold"}>
+                    Thời gian kết thúc lịch trình
+                  </AppText>
+                }
+                setDatetime={setEndSchedule}
+                datetime={endSchedule}
+              />
+            </View>
+          </CustomModal>
+        )}
+      </View>
     </View>
   );
 }

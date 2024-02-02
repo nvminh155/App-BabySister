@@ -72,7 +72,6 @@ export default function ChatScreen({ navigation, route }) {
     const friends = [];
     docs.forEach(async (doc) => {
       const data = { ...doc.data() };
-      console.log("DSSSA", data);
 
       const uid =
         data.members[0] !== user.uid ? data.members[0] : data.members[1];

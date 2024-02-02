@@ -53,7 +53,6 @@ export default function ChooseDatetime({ datetime, setDatetime, label }) {
           is24Hour={true}
           display="clock"
           onChange={({ nativeEvent }) => {
-            console.log(nativeEvent);
             setDatetime((prev) => ({
               ...prev,
               timestamp: nativeEvent.timestamp,

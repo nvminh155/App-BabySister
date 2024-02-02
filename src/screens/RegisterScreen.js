@@ -66,7 +66,6 @@ export default function RegisterScreen({ navigation }) {
             hitoryBooking: [],
             provider: "EmailPassword",
           });
-          console.log("SIGNUP SUCCESS", user, "docref", docRef);
         })
         .catch((err) => console.log(err));
     }

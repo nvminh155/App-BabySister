@@ -68,7 +68,6 @@ export default function LoginScreen({ navigation }) {
           }
           onChangeText={(text) => {
             setEmail(text);
-            console.log("TẼ", text);
           }}
           value={email}
           inputType="text"
@@ -86,7 +85,6 @@ export default function LoginScreen({ navigation }) {
           }
           onChangeText={(text) => {
             setPassword(text);
-            console.log("TẼ", text);
           }}
           value={password}
           inputType="password"
