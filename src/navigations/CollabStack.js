@@ -31,6 +31,11 @@ import { COLORS } from "../constants/COLORS";
 import NoticeScreen from "../collabScreens/NoticeScreen";
 import ChatStack from "./ChatStack";
 
+import ChatPrivateScreen from "../screens/ChatScreen/ChatPrivate";
+import MenuChatPrivate from "../screens/ChatScreen/MenuChatPrivate";
+import ActiveSchedule from "../screens/ScheduleBabyScreen/ActiveSchedule";
+import ChatPrivateProvider from "../contexts/ChatPrivateProvider";
+
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
 
@@ -88,13 +93,6 @@ function CustomTabHeader(props) {
   );
 }
 
-function NotificationsScreen({ navigation }) {
-  return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Button onPress={() => navigation.goBack()} title="Go back home" />
-    </View>
-  );
-}
 
 function ContentDrawerHome(props) {
   const { navigation } = props;

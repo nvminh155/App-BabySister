@@ -32,7 +32,7 @@ import {
   Row,
   InputGroup,
 } from "../../components";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { formatDateTime } from "../../utils";
 
@@ -90,6 +90,9 @@ function NoticeJobAccepted({ data }) {
                 {formatDateTime(data.time).DDMYTS}
               </AppText>
             </AppText>
+            <AppText color={'grey'} style={{marginTop: 20}}>
+              {formatDateTime(data.createdAt).DDMYTS}
+            </AppText>
           </View>
         }
       />
@@ -102,7 +105,7 @@ export default function NoticeScreen({ navigation, route }) {
   const [noticePosts, setNoticePosts] = useState([]);
 
   const fetchNotice = async () => {
-    const q = query(collection(db, `notices/${user.uid}/posts`));
+    const q = query(collection(db, `notices/${user.uid}/posts`), orderBy('createdAt', 'desc'));
     const docs = (await getDocs(q)).docs;
 
     setNoticePosts(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
@@ -114,7 +117,7 @@ export default function NoticeScreen({ navigation, route }) {
   }, []);
 
   return (
-    <View
+    <ScrollView
       style={{
         paddingHorizontal: 10,
         paddingVertical: 10,
@@ -126,6 +129,6 @@ export default function NoticeScreen({ navigation, route }) {
       ))}
 
       <View></View>
-    </View>
+    </ScrollView>
   );
 }

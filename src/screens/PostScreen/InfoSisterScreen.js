@@ -187,15 +187,12 @@ export default function InfoSisterScreen({
               </AppText>
             </View>
 
-            <View style={{ flexDirection: "row", columnGap: 10 }}>
+            <View style={{ flexDirection: "row", columnGap: 10, flexWrap: 'wrap' }}>
               <AppText style={{ fontWeight: "700" }}>Số điện thoại :</AppText>
               <AppText numberOfLines={2}>{sister.phone}</AppText>
             </View>
 
-            <View style={{ flexDirection: "row", columnGap: 10 }}>
-              <AppText style={{ fontWeight: "700" }}>Cách xa bạn :</AppText>
-              <AppText numberOfLines={2}>??? KM</AppText>
-            </View>
+
 
             <View style={{ flexDirection: "row", columnGap: 10 }}>
               <AppText style={{ fontWeight: "700" }}>Kinh nghiệm :</AppText>
@@ -207,14 +204,14 @@ export default function InfoSisterScreen({
               <AppText numberOfLines={2}>COMPUTING</AppText>
             </View>
 
-            <View style={{ flexDirection: "row", columnGap: 10 }}>
+            <View style={{ flexDirection: "row", columnGap: 10, flexWrap: 'wrap' }}>
               <AppText style={{ fontWeight: "700" }}>Bằng cấp :</AppText>
               <AppText numberOfLines={2}>?????</AppText>
             </View>
           </View>
         </View>
 
-        <View>
+        <View style={{flex: 1}}>
           <AppText
             style={{
               fontSize: 20,
@@ -244,7 +241,7 @@ export default function InfoSisterScreen({
 
           <ScrollView
             id="reviewer"
-            style={{ height: 200, paddingVertical: 10 }}
+            style={{ height: 200, paddingVertical: 10, flex: 1 }}
             nestedScrollEnabled
           >
             {[1, 2, 3, 4, 5, 6].map((v) => (
@@ -255,11 +252,13 @@ export default function InfoSisterScreen({
                   columnGap: 20,
                   alignItems: "center",
                   marginBottom: 20,
+                  flex: 1,
+                  
                 }}
               >
                 <AppImage
-                  width={60}
-                  height={60}
+                  width={45}
+                  height={45}
                   options={{
                     styles: {
                       borderRadius: 30,
@@ -269,12 +268,11 @@ export default function InfoSisterScreen({
                   }}
                   source={require("images/bbst_1.jpg")}
                 />
-                <View style={{ rowGap: 10, paddingRight: 100 }}>
+                <View style={{ rowGap: 10}}>
                   <View
                     style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      columnGap: 5,
+                      rowGap: 5,
+                      
                     }}
                   >
                     <AppText style={{ fontWeight: "600" }}>
@@ -292,7 +290,7 @@ export default function InfoSisterScreen({
                       ))}
                     </View>
                   </View>
-                  <AppText style={{ color: "grey" }}>
+                  <AppText style={{ color: "grey" }} >
                     Ban nay tuyet voi lam Ban nay tuyet voi lam Ban nay tuyet
                     voi lam Ban nay tuyet voi lam
                   </AppText>
@@ -320,7 +318,7 @@ export default function InfoSisterScreen({
           label={"Liên hệ ngay"}
           style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
           onPress={() => {
-            navigation.navigate("ChatPrivate", {receiverID: sister.uid});
+            navigation.navigate("ChatPrivateStack", {receiverID: sister.uid});
           }}
         />
       )}

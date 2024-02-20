@@ -6,9 +6,36 @@ import ViewPostScreen from "../screens/PostScreen/ViewPost";
 import EditPostScreen from "../screens/PostScreen/EditPost";
 import InfoSisterScreen from "../screens/PostScreen/InfoSisterScreen";
 import UserApply from "../screens/PostScreen/UserApply";
+
 import ChatPrivateScreen from "../screens/ChatScreen/ChatPrivate";
+import MenuChatPrivate from "../screens/ChatScreen/MenuChatPrivate";
+import ActiveSchedule from "../screens/ScheduleBabyScreen/ActiveSchedule";
+import ChatPrivateProvider from "../contexts/ChatPrivateProvider";
 
 const Stack = createStackNavigator();
+const StackChatPrivate = createStackNavigator();
+
+function ChatPrivateStack({ navigation, route }) {
+  return (
+    <ChatPrivateProvider navigation={navigation} route={route}>
+      <StackChatPrivate.Navigator initialRouteName="ChatPrivate">
+        <StackChatPrivate.Screen
+          name="ChatPrivate"
+          component={ChatPrivateScreen}
+        />
+        <StackChatPrivate.Screen
+          name="MenuChatPrivate"
+          component={MenuChatPrivate}
+        />
+        <StackChatPrivate.Screen
+          name="ActiveSchedule"
+          component={ActiveSchedule}
+        />
+      </StackChatPrivate.Navigator>
+    </ChatPrivateProvider>
+  );
+}
+
 
 export default function PostStack() {
   return (
@@ -18,7 +45,7 @@ export default function PostStack() {
         component={PostedScreen}
         options={{ title: "Bài đã đăng" }}
       />
-      <Stack.Screen name="ViewPost" component={ViewPostScreen} />
+      <Stack.Screen name="ViewPost" component={ViewPostScreen} options={{title: ""}} />
       <Stack.Screen name="EditPost" component={EditPostScreen} />
       <Stack.Screen
         name="UserApply"
@@ -31,9 +58,9 @@ export default function PostStack() {
         options={{ title: "Thông tin về Sister" }}
       />
       <Stack.Screen
-        name="ChatPrivate"
-        component={ChatPrivateScreen}
-        options={{ title: "Nhắn Tin",  }}
+        name="ChatPrivateStack"
+        component={ChatPrivateStack}
+        options={{ title: "Nhắn Tin", headerShown: false }}
       />
     </Stack.Navigator>
   );

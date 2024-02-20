@@ -102,6 +102,9 @@ function NoticeJobAccepted({ data }) {
                 {formatDateTime(data.time).DDMYTS}
               </AppText>
             </AppText>
+            <AppText color={'grey'} style={{marginTop: 20}}>
+              {formatDateTime(data.createdAt).DDMYTS}
+            </AppText>
           </View>
         }
       />
@@ -122,20 +125,20 @@ export default function NoticeScreen({ navigation, route }) {
 
   useEffect(() => {
     fetchNotice();
-    console.log("MOUTED INDEX NOTICE");
+    // console.log("MOUTED INDEX NOTICE");
   }, []);
 
   return (
-    <View
+    <ScrollView
       style={{
         paddingHorizontal: 10,
-        paddingVertical: 10,
         flex: 1,
+        marginVertical: 15 
       }}
     >
       {noticeJobs.map((notice, i) => (
         <NoticeJobAccepted key={i} data={notice} />
       ))}
-    </View>
+    </ScrollView>
   );
 }

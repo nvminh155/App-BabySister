@@ -91,7 +91,7 @@ export default function UserScreen({ navigation }) {
                 source={require("images/collab.png")}
               />
 
-              <AppText fontSize={20}> Cộng Tác Viên</AppText>
+              <AppText fontSize={20}>{user.typeUser === 1 ? "Cộng Tác Viên" : "Phụ Huynh"}</AppText>
             </Row>
           </View>
         }

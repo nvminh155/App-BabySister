@@ -25,6 +25,9 @@ import {
   getDocs,
   getDoc,
   onSnapshot,
+  updateDoc,
+  deleteDoc,
+  doc,
 } from "firebase/firestore";
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -51,47 +54,30 @@ export default function WaittingJobSreen({ navigation }) {
   const [acceptJob, setAcceptJob] = useState(false);
   const [jobs, setJobs] = useState([]);
 
-  const fetchJobs = async () => {
-    const q = query(
-      collection(db, "posts"),
-      and(
-        where("isDone", "==", 0),
-        where("applies", "array-contains-any", [user])
-      )
-    );
-    const querySnap = await getDocs(q);
-
-    setJobs(
-      querySnap.docs
-        .map((doc) => ({ ...doc.data(), _id: doc.id }))
-        .filter((docMap) =>
-          docMap.applies.some((apply) => user.uid === apply.uid)
-        )
-    );
-  };
   useEffect(() => {
-    // fetchJobs();
-  }, []);
-
-  useEffect(() => {
-    const q = query(
-      collection(db, "posts"),
-      and(
-        where("isDone", "==", 0),
-        where("applies", "array-contains-any", [user])
-      )
-    );
-    const unsubscribe = onSnapshot(q, (jobSnap) => {
+    const q = query(collection(db, "posts"), where("isDone", "==", 0));
+    const unsubscribe = onSnapshot(q, async (jobSnap) => {
       const jobs = [];
-      jobSnap.forEach((doc) => {
-        jobs.push({ ...doc.data(), _id: doc.id });
+      const promise = jobSnap.docs.map(async (docJob) => {
+        const appllies = await getDocs(collection(docJob.ref, "applies"));
+        if (appllies.docs.some((doc) => doc.data().uid === user.uid)) {
+          jobs.push({ ...docJob.data(), _id: docJob.id });
+        }
       });
 
-      setJobs(jobs)
+      await Promise.all(promise);
+      setJobs(jobs);
     });
 
     return unsubscribe;
   }, []);
+
+  const handleCancelJob = async (job) => {
+    await deleteDoc(doc(db, `posts/${job._id}/applies/${user.uid}`));
+    await updateDoc(doc(db, `posts/${job._id}`), {
+      numOfApplies: job.numOfApplies - 1,
+    });
+  };
   const headerCardInfoJob = (title, startTimestamp) => {
     return (
       <View style={{ justifyContent: "space-between" }}>
@@ -161,26 +147,25 @@ export default function WaittingJobSreen({ navigation }) {
     );
   };
 
-  const footerCardInfoJob = () => {
+  const footerCardInfoJob = (job) => {
     return (
       <View>
-        <AppText color={COLORS.accent}>alsdfjljasdfklajsdlfkj</AppText>
-        <TouchableOpacity
-          onPress={() => {
-            console.log("SET VI TRI GPS");
-          }}
-          id="address-map"
-          style={{
-            alignItems: "center",
-            justifyContent: "center",
-            borderTopColor: "black",
-            borderTopWidth: 0.2,
-            marginTop: 10,
-          }}
-        >
-          <AppImage width={32} height={32} source={require("images/map.png")} />
-          <AppText fontWeight={"bold"}>XEM VỊ TRÍ LÀM VIỆC</AppText>
-        </TouchableOpacity>
+        <Row style={{marginHorizontal: 'auto'}}>
+          <CustomButton
+            label={"Xem công việc"}
+            style={{ backgroundColor: COLORS.accent }}
+            onPress={() => {
+              navigation.navigate("ViewJob", { job, isWaitting: true});  
+            }}
+          />
+          <CustomButton
+            label={"Hủy công việc này"}
+            style={{ backgroundColor: COLORS.accent }}
+            onPress={() => {
+              handleCancelJob(job);
+            }}
+          />
+        </Row>
       </View>
     );
   };
@@ -196,10 +181,10 @@ export default function WaittingJobSreen({ navigation }) {
           body={bodyCardInfoJob(
             job.timeHire,
             job.money,
-            job.address,
+            job.address2.text,
             job.textNote
           )}
-          footer={footerCardInfoJob()}
+          footer={footerCardInfoJob(job)}
           style={{
             rowGap: 15,
             backgroundColor: "white",

@@ -64,7 +64,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View style={[styles.walletAndGift, { paddingHorizontal: 40 }]}>
+        {/* <View style={[styles.walletAndGift, { paddingHorizontal: 40 }]}>
           <View id="Vi BSPAY">
             <View
               style={{ flexDirection: "row", alignItems: "center", gap: 5 }}
@@ -86,11 +86,11 @@ export default function HomeScreen() {
             </View>
             <AppText>Chưa có ưu đãi nào</AppText>
           </View>
-        </View>
+        </View> */}
 
         <View>
           <AppText
-            style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
+            style={{ fontWeight: "bold", marginBottom: 10, marginTop: 30, fontSize: 17 }}
           >
             Đăng bài tìm kiếm
           </AppText>
@@ -127,7 +127,8 @@ export default function HomeScreen() {
           />
         </View>
 
-        <View>
+          {/* gan nha ban */}
+        {/* <View>
           <AppText
             style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
           >
@@ -194,7 +195,7 @@ export default function HomeScreen() {
               );
             })}
           </ScrollView>
-        </View>
+        </View> */}
 
         <TouchableOpacity
           onPress={async () => {

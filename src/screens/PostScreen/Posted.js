@@ -166,7 +166,7 @@ export default function PostedScreen({ navigation }) {
 
         <View id="address" style={{ flexDirection: "row" }}>
           <AppText>Tại: </AppText>
-          <AppText fontWeight={"bold"}>{job.address}</AppText>
+          <AppText fontWeight={"bold"}>{job.address2.text}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
           <AppText>Ghi chú: </AppText>
@@ -178,7 +178,8 @@ export default function PostedScreen({ navigation }) {
 
   const footerCardInfoJob = (job) => {
     return (
-      <Row style={{marginLeft: 'auto'}}>
+      <>
+        {job.isDone === 0 && <Row style={{marginLeft: 'auto'}}>
         <CustomButton
           label={"XEM THÊM"}
           style={{
@@ -204,7 +205,21 @@ export default function PostedScreen({ navigation }) {
             navigation.navigate("ViewJob", { job });
           }}
         />
-      </Row>
+      </Row>}
+      {job.isDone !== 0 && <Row style={{marginLeft: 'auto'}}>
+        <CustomButton
+          label={"XEM THÊM"}
+          style={{
+            backgroundColor: COLORS.accent,
+            alignSelf: "center",
+            width: "max-content",
+          }}
+          onPress={() => {
+            navigation.navigate("ViewPost", { docIdJob: job._id, job });
+          }}
+        />
+      </Row>}
+      </>
     );
   };
 

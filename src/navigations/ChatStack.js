@@ -16,6 +16,7 @@ const StackChatPrivate = createStackNavigator();
 import ChatPrivateProvider from "../contexts/ChatPrivateProvider";
 
 function ChatPrivateStack({ navigation, route }) {
+  console.log("🚀 ~ ChatPrivateStack ~ route:", route)
   return (
     <ChatPrivateProvider navigation={navigation} route={route}>
       <StackChatPrivate.Navigator initialRouteName="ChatPrivate">
@@ -26,6 +27,7 @@ function ChatPrivateStack({ navigation, route }) {
         <StackChatPrivate.Screen
           name="MenuChatPrivate"
           component={MenuChatPrivate}
+          options={{ title: "" }}
         />
         <StackChatPrivate.Screen
           name="ActiveSchedule"
@@ -36,10 +38,11 @@ function ChatPrivateStack({ navigation, route }) {
   );
 }
 
-export default function ChatStack() {
+export default function ChatStack({ navigation, route }) {
+  console.log("🚀 ~ ChatStack ~ route:", route.params?.receiverID)
   return (
     <Stack.Navigator
-      initialRouteName="ChatScreen"
+      initialRouteName={route.params?.receiverID ? "ChatPrivateStack" : "ChatScreen"}
       screenOptions={{ headerShown: true }}
     >
       <Stack.Screen
@@ -51,6 +54,7 @@ export default function ChatStack() {
         name="ChatPrivateStack"
         component={ChatPrivateStack}
         options={{ headerShown: false }}
+        initialParams={{ receiverID: route.params?.receiverID ?? this.receiverID }}
       />
 
       <Stack.Screen

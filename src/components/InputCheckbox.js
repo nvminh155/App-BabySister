@@ -29,6 +29,7 @@ export default function InputCheckbox({
       {!disable ? (
         <TouchableOpacity
           onPress={() => {
+            if(disable) return;
             setIsTick(!isTick);
           }}
           style={{

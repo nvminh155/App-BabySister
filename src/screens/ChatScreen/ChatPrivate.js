@@ -57,8 +57,9 @@ import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 
 export default function ChatPrivateScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
-  const { dataChat, messages, receiver, schedules } =
-    useContext(ChatPrivateContext);
+  const { dataChat, setDataChat, fetchChatRef, messages, receiver, schedules } =
+  useContext(ChatPrivateContext);
+  console.log("🚀 ~ ChatPrivateScreen ~ dataChat:", dataChat)
 
   const messagesEl = useRef();
 
@@ -124,12 +125,10 @@ export default function ChatPrivateScreen({ navigation, route }) {
         (v) => v.scheduleID !== schedule.scheduleID
       );
     }
-
   };
 
   const onSendMessage = async () => {
     if (textMessage === "") return;
-
 
     const dataMessage = {
       messageID: genShortId(),
@@ -140,8 +139,15 @@ export default function ChatPrivateScreen({ navigation, route }) {
       text: textMessage,
       createdAt: Date.now(),
     };
+    if (!dataChat) {
+      await setDoc(doc(db, `chats/${user.uid}`), {
+        members: [user.uid, receiver.uid],
+        createdAt: Date.now(),
+      });
+      await fetchChatRef();
+    }
     await setDoc(
-      doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`),
+      doc(db, `chats/${dataChat ? dataChat._id : user.uid}/messages/${dataMessage.messageID}`),
       dataMessage
     );
 
@@ -164,10 +170,19 @@ export default function ChatPrivateScreen({ navigation, route }) {
         updatedAt: Date.now(),
         isDone: false,
       };
+
+      if (!dataChat) {
+        await setDoc(doc(db, `chats/${user.uid}`), {
+          members: [user.uid, receiver.uid],
+          createdAt: Date.now(),
+        });
+        await fetchChatRef();
+      }
       await setDoc(
-        doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`),
+        doc(db, `chats/${dataChat ? dataChat._id : user.uid}/messages/${dataMessage.messageID}`),
         dataMessage
       );
+
     });
   };
 
@@ -215,7 +230,7 @@ export default function ChatPrivateScreen({ navigation, route }) {
       >
         {messages.map((m, i) => {
           return (
-            <View key={m.messageID}>
+            <View key={m.messageID} >
               {m.type === "text" ? (
                 <View
                   style={styles.message(m.senderID === user.uid)}
@@ -318,7 +333,7 @@ export default function ChatPrivateScreen({ navigation, route }) {
           ></TextInput>
           <Button
             onPress={() => onSendMessage()}
-            title="SEND"
+            title="Gửi"
             style={{ marginRight: 10 }}
           />
         </View>

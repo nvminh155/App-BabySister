@@ -12,6 +12,8 @@ import PostSearchScreen from "../screens/HomeScreen/PostSearchScreen";
 import { AuthContext } from "../contexts/AuthProvider";
 import { AppImage, AppSafeAreaView, AppText } from "../components";
 import NoticeScreen from "../screens/NoticeScreen";
+import SelectAddress from "../screens/MapScreen/SelectAddress";
+import { timeIcon } from "../utils";
 
 const Stack = createStackNavigator();
 
@@ -38,7 +40,7 @@ function CustomTabHeader(props) {
       <View
         style={{ flexDirection: "row", alignItems: "center", columnGap: 5 }}
       >
-        <Ionicons name="sunny-outline" size={24} color={"yellow"} />
+        {timeIcon(Date.now())}
         <AppText style={{ fontWeight: "bold" }}>{user.displayName} !</AppText>
       </View>
 
@@ -61,16 +63,20 @@ export default function HomeStack() {
   return (
     <Stack.Navigator
       initialRouteName="Home"
-      screenOptions={{
-        header: (props) => {
-          return <CustomTabHeader props={{ ...props }} />;
-        },
-      }}
     >
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          header: (props) => {
+            return <CustomTabHeader props={{ ...props }} />;
+          },
+        }}
+      />
       <Stack.Screen name="InfoSister" component={InfoSisterScreen} />
       <Stack.Screen name="ChatSister" component={ChatScreen} />
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />
+      <Stack.Screen name="SelectAddress" component={SelectAddress} />
       <Stack.Screen name="Notice" component={NoticeScreen} />
     </Stack.Navigator>
   );

@@ -33,10 +33,15 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
   const { user } = useContext(AuthContext);
 
   const [dataChat, setDataChat] = useState(null);
+  console.log("🚀 ~ ChatPrivateProvider ~ dataChat:", dataChat)
   const [messages, setMessages] = useState([]);
+  console.log("🚀 ~ ChatPrivateProvider ~ messages:", messages)
   const [receiver, setReceiver] = useState(null);
+  console.log("🚀 ~ ChatPrivateProvider ~ receiver:", receiver)
   const [schedules, setSchedules] = useState(null);
+  console.log("🚀 ~ ChatPrivateProvider ~ schedules:", schedules)
   const [schedulesInChat, setSchedulesInChat] = useState([]);
+  console.log("🚀 ~ ChatPrivateProvider ~ schedulesInChat:", schedulesInChat)
   const [loading, setLoading] = useState(true);
 
   const fetchReceiver = async () => {
@@ -56,7 +61,7 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
   }, []);
 
   useLayoutEffect(() => {
-    if (receiver) {
+    if (!receiver)  return;
       const uid = user.typeUser === 2 ? user._id : receiver._id;
       const docsRef = collection(db, `users/${uid}/schedules`);
       const unsubscribe = onSnapshot(docsRef, (snap) => {
@@ -68,10 +73,11 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
       });
 
       return unsubscribe;
-    }
+    
   }, [receiver]);
 
   const fetchChatRef = async () => {
+    if(!receiver) return;
     const collectionRef = collection(db, "chats");
     let q = query(
       collectionRef,
@@ -83,14 +89,14 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
 
     const docs = await getDocs(q);
     docs.forEach((doc) => {
+      console.log("🚀 ~ docs.forEach ~ doc:", doc.id)
       setDataChat({ ...doc.data(), _id: doc.id });
     });
   };
 
   useLayoutEffect(() => {
-    if (receiver) {
       fetchChatRef();
-    }
+    
   }, [receiver]);
 
   useLayoutEffect(() => {
@@ -136,12 +142,14 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
     <ChatPrivateContext.Provider
       value={{
         dataChat,
+        setDataChat,
         messages,
         setMessages,
         receiver,
         schedules,
         setSchedules,
         schedulesInChat,
+        fetchChatRef
       }}
     >
       {loading ? <Spin /> : children}

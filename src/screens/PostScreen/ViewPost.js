@@ -30,6 +30,7 @@ import {
   getDocs,
   query,
   onSnapshot,
+  where,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
@@ -49,7 +50,7 @@ import {
   CustomModal,
 } from "../../components";
 
-import { formatDateTime, formatMoney } from "../../utils";
+import { formatDateTime, formatMoney, markerDistance } from "../../utils";
 
 import InfoSisterScreen from "./InfoSisterScreen";
 import Spin from "../../components/Spin";
@@ -58,30 +59,52 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function ViewPostScreen({ navigation, route }) {
-  const { user } = useContext(AuthContext);
+  const { user, yourLocation } = useContext(AuthContext);
   const { docIdJob } = route.params;
   const [job, setJob] = useState(null);
+  const [applies, setApplies] = useState([]);
   const [editAble, setEditAble] = useState(false);
   const [infoSister, setInfoSister] = useState(null);
   const [choosed, setChoosed] = useState(true);
   const [sisterChoosed, setSisterChoosed] = useState(null);
   const [loadingData, setLoadingData] = useState(true);
 
-  useEffect(() => {
+  async function fetchSister(uidChoosed) {
+    const q = query(
+      collection(db, "users"),
+      where("uid", "==", uidChoosed ?? "")
+    );
+    const docs = await getDocs(q);
+    docs.forEach((doc) => {
+      setSisterChoosed({ ...doc.data(), _id: doc.id });
+    });
+  }
+  useLayoutEffect(() => {
     const q = doc(db, "posts", docIdJob);
-    const unsubscribe = onSnapshot(q, (snap) => {
+    const unsubscribe = onSnapshot(q, async (snap) => {
       const data = { ...snap.data() };
       setJob({ ...data, _id: docIdJob });
-      setSisterChoosed(
-        data.applies.find((apply) => apply.uid === data.userChoosed)
+      const applies = await getDocs(
+        collection(db, `posts/${docIdJob}/applies`)
       );
+      setApplies(
+        applies.docs.map((apply) => ({
+          ...apply.data(),
+          _id: apply.id,
+          distance: markerDistance(
+            { lat: apply.data().lat, lon: apply.data().lon },
+            { lat: data.address2.lat, lon: data.address2.lon }
+          ),
+        }))
+      );
+      fetchSister(data.userChoosed);
       setChoosed(data.userChoosed ? true : false);
     });
 
     return unsubscribe;
   }, [docIdJob]);
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     const unsubscribeTimeout = setTimeout(() => {
       setLoadingData(false);
       console.log("STOP");
@@ -196,15 +219,16 @@ export default function ViewPostScreen({ navigation, route }) {
     });
     console.log("UPDATE USERCHOOSED SUCCESS FULL");
 
-    job.applies.forEach(async (sisterApplyed) => {
+    applies.forEach(async (sisterApplyed) => {
       const dataSendNoticeSister = {
         type: sisterApplyed.uid === sister.uid ? "accepted" : "rejected",
         text:
           sisterApplyed.uid === sister.uid
             ? `Bạn đã được chọn đảm nhận công việc ${job.title}`
             : `Oops! Có lẽ đã có người khác đảm nhận công việc ${job.title}... Bạn vui lòng chọn công việc khác nhé !`,
-        address: job.address,
+        address: job.address2.text,
         time: job.start,
+        createdAt: Date.now(),
       };
       await handleSendNotice(sisterApplyed.uid, "jobs", dataSendNoticeSister);
     });
@@ -212,8 +236,9 @@ export default function ViewPostScreen({ navigation, route }) {
     await handleSendNotice(user.uid, "posts", {
       type: "notice",
       text: `Bạn đã chọn SISTER: ${sister.displayName} để chăm bé`,
-      address: job.address,
+      address: job.address2.text,
       time: job.start,
+      createdAt: Date.now(),
     });
 
     console.log("SEND NOTICE FOR SESSTERAPPLYED SUCCESS FULL");
@@ -246,24 +271,24 @@ export default function ViewPostScreen({ navigation, route }) {
 
   const handleFinishJob = async () => {
     const jobRef = doc(db, `posts/${docIdJob}`);
-    await updateDoc(jobRef, {isDone: 2})
+    await updateDoc(jobRef, { isDone: 2 });
 
-    await handleSendNotice(job.userChoosed, 'jobs', {
-      type: 'donejob',
+    await handleSendNotice(job.userChoosed, "jobs", {
+      type: "donejob",
       text: `Chúc mừng ! Bạn đã được xác nhận hoàn thành công việc ${job.title}`,
       createdAt: Date.now(),
-      address: job.address,
+      address: job.address2.text,
       time: job.start,
     });
 
-    await handleSendNotice(user.uid, 'posts', {
-      type: 'donejob',
+    await handleSendNotice(user.uid, "posts", {
+      type: "donejob",
       text: `Chúc mừng ! Bạn và SISTER đã hợp tác vui vẻ !`,
       createdAt: Date.now(),
-      address: job.address,
+      address: job.address2.text,
       time: job.start,
     });
-  }
+  };
   return (
     <>
       {loadingData ? (
@@ -304,7 +329,7 @@ export default function ViewPostScreen({ navigation, route }) {
               body={bodyCardInfoJob(
                 job.timeHire,
                 job.money,
-                job.address,
+                job.address2.text,
                 job.textNote
               )}
               footer={footerCardInfoJob()}
@@ -316,7 +341,7 @@ export default function ViewPostScreen({ navigation, route }) {
               }}
             />
 
-            {!sisterChoosed && (
+            {!choosed && (
               <View id="list-applies" style={{ flex: 1 }}>
                 <AppText
                   style={{ marginLeft: "auto", marginBottom: 20 }}
@@ -329,7 +354,7 @@ export default function ViewPostScreen({ navigation, route }) {
                     fontSize={20}
                     fontWeight={"bold"}
                   >
-                    {job.applies.length}
+                    {job.numOfApplies}
                   </AppText>{" "}
                   người nộp đơn
                 </AppText>
@@ -338,7 +363,7 @@ export default function ViewPostScreen({ navigation, route }) {
                   style={{ flex: 1 }}
                   contentContainerStyle={{ rowGap: 10 }}
                 >
-                  {job.applies.map((sister, i) => (
+                  {applies.map((sister, i) => (
                     <CustomCard
                       key={i}
                       style={{
@@ -355,9 +380,12 @@ export default function ViewPostScreen({ navigation, route }) {
                       }
                       body={
                         <View style={{ flex: 1 }}>
-                          <AppText fontWeight={"bold"}>
-                            {sister.displayName}
-                          </AppText>
+                          <Row style={{ marginTop: 0 }}>
+                            <AppText fontWeight={"bold"}>
+                              {sister.displayName}
+                            </AppText>
+                            <AppText>{sister.distance}</AppText>
+                          </Row>
                           <AppText
                             style={{ fontStyle: "italic", opacity: 0.5 }}
                           >
@@ -382,7 +410,7 @@ export default function ViewPostScreen({ navigation, route }) {
                 </ScrollView>
               </View>
             )}
-            {sisterChoosed && (
+            {choosed && sisterChoosed && (
               <View>
                 <AppText fontWeight={"bold"}>
                   {"Bạn đã chọn".toUpperCase()}
@@ -396,20 +424,39 @@ export default function ViewPostScreen({ navigation, route }) {
             )}
           </ScrollView>
 
-          {user.typeUser === 2 && !editAble && (
-            <View style={{marginVertical: 10, marginHorizontal: 15}}>
-              <Row>
-                <InputCheckbox edge={15} />
-                <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
-              </Row>
-              <CustomButton
-                label={"Cập nhật"}
-                style={{ backgroundColor: COLORS.accent }}
-                onPress={() => {
-                  handleFinishJob()
-                }}
-              />
-            </View>
+          {user.typeUser === 2 && !editAble && job.userChoosed && (
+            <>
+              {job.isDone === 1 && (
+                <View style={{ marginVertical: 10, marginHorizontal: 15 }}>
+                  <Row>
+                    <InputCheckbox edge={15} />
+                    <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
+                  </Row>
+                  <CustomButton
+                    label={"Cập nhật"}
+                    style={{ backgroundColor: COLORS.accent }}
+                    onPress={() => {
+                      handleFinishJob();
+                    }}
+                  />
+                </View>
+              )}
+              {job.isDone == 2 && (
+                <View style={{ marginVertical: 10, marginHorizontal: 15 }}>
+                  <Row>
+                    <InputCheckbox edge={15} initTick={true} disable={true} />
+                    <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
+                  </Row>
+                  <CustomButton
+                    label={
+                      "Bảo mẫu đã được bạn xác nhận hoàn thành công việc này !"
+                    }
+                    style={{ backgroundColor: COLORS.accent }}
+                    disable={true}
+                  />
+                </View>
+              )}
+            </>
           )}
         </View>
       )}

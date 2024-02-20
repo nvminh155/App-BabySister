@@ -69,7 +69,7 @@ export default function HomeScreen({ navigation }) {
       <View>
         <Row style={{ marginTop: 0, marginBottom: 10, marginLeft: "auto" }}>
           <AppText color={isDone == 1 ? COLORS.textDanger : COLORS.textSuccess}>
-            {isDone ? "Chưa Hoàn Thành" : "Đã Hoàn Thành"}
+            {isDone === 1 ? "Chưa Hoàn Thành" : "Đã Hoàn Thành"}
           </AppText>
         </Row>
         <View>
@@ -144,6 +144,7 @@ export default function HomeScreen({ navigation }) {
             navigation.navigate("ViewJob", {job});
           }}
         />
+        
       </View>
     );
   };

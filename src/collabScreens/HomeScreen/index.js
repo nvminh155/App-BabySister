@@ -25,6 +25,7 @@ import {
   getDocs,
   getDoc,
   onSnapshot,
+  doc,
 } from "firebase/firestore";
 
 // CONTEXT
@@ -58,29 +59,29 @@ export default function HomeScreen({ navigation }) {
     setJobs(
       querySnap.docs
         .map((doc) => ({ ...doc.data(), _id: doc.id }))
-        .filter((apply) =>
-          !apply.applies.some((sister) => sister.uid === user.uid)
-        )
+        .filter((apply) => true)
     );
   };
   useEffect(() => {
-    fetchJobs();
+    // fetchJobs();
   }, []);
 
   useEffect(() => {
     const q = query(collection(db, "posts"), where("isDone", "==", 0));
 
-    const unsubscribe = onSnapshot(q, (jobsSnap) => {
+    const unsubscribe = onSnapshot(q, async (jobsSnap) => {
       const jobs = [];
-      jobsSnap.forEach((doc) => {
-        jobs.push({ ...doc.data(), _id: doc.id });
+      const promise = jobsSnap.docs.map(async (docJob) => {
+        const applies = await getDocs(collection(docJob.ref, "applies"));
+        console.log("🚀 ~ jobsSnap.forEach ~ applies:", applies);
+      
+        if (applies.docs.some((doc) => doc.data().uid === user.uid)) {
+        } else {
+          jobs.push({ ...docJob.data(), _id: docJob.id });
+        }
       });
-
-      setJobs(
-        jobs.filter((apply) =>
-          !apply.applies.some((sister) => sister.uid === user.uid)
-        )
-      );
+      await Promise.all(promise);
+      setJobs(jobs);
     });
 
     return unsubscribe;
@@ -135,7 +136,7 @@ export default function HomeScreen({ navigation }) {
 
         <View id="address" style={{ flexDirection: "row" }}>
           <AppText>Tại: </AppText>
-          <AppText fontWeight={"bold"}>{address}</AppText>
+          <AppText fontWeight={"bold"}>{address.text}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
           <AppText>Ghi chú: </AppText>
@@ -175,7 +176,7 @@ export default function HomeScreen({ navigation }) {
           body={bodyCardInfoJob(
             job.timeHire,
             job.money,
-            job.address,
+            job.address2,
             job.textNote
           )}
           footer={footerCardInfoJob(job)}

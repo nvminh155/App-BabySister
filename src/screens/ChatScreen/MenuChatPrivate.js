@@ -24,10 +24,13 @@ function MenuChatPrivate({ navigation, route }) {
   const bodyCardSchedule = (schedule) => {
     const colorStatus = 1;
     const scheduleIsDone = () => {
+      const cur_date = Date.now();
+      if(!schedule.isDone && cur_date > schedule.end) { 
+        return user.typeUser === 2 ? "Bảo mẫu không hoàn thành" : "Bạn Không hoàn thành"
+      }
       if(schedule.isDone) {
         return user.typeUser === 2 ? "Đã kết thúc" : "Đã hoàn thành";
       } else {
-        const cur_date = Date.now();
         if(cur_date >= schedule.start && cur_date <= schedule.end) {
           return "Đang diễn ra";
         } else return "Chưa bắt đầu"

@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
+  useCallback,
   useContext,
   useEffect,
   useLayoutEffect,
@@ -38,11 +39,14 @@ import { COLORS } from "../../constants/COLORS";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
 
+import SelectAddress from "../MapScreen/SelectAddress";
+
 import {
   AppImage,
   AppSafeAreaView,
   AppText,
   CustomButton,
+  CustomModal,
   InputGroup,
   Row,
 } from "../../components";
@@ -53,7 +57,8 @@ export default function PostSearchScreen({ navigation, route }) {
   const user = route.params.user;
   const [numOfChilds, setNumOfChilds] = useState(0);
   const [textNote, setTextNote] = useState("");
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState({ text: "", lon: 123, lat: 123 });
+  const [showMap, setShowMap] = useState(false);
   const [startDate, setStartDate] = useState({
     timestamp: Date.now(),
     showDate: false,
@@ -65,10 +70,15 @@ export default function PostSearchScreen({ navigation, route }) {
     showDate: false,
     showTime: false,
   });
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState("");
   const [timeHire, setTimeHire] = useState("0");
   const [money, setMoney] = useState(0);
 
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      title: "Đăng bài tìm kiếm",
+    });
+  });
   const returnDateTime = (timestamp) => {
     return timestamp ? new Date(timestamp) : new Date();
   };
@@ -85,27 +95,24 @@ export default function PostSearchScreen({ navigation, route }) {
     return Math.ceil(hours);
   };
 
-  const handlePost = async () => {
-    // console.log({
-    //   user,
-    //   numOfChilds,
-    //   textNote,
-    //   start: startDate.timestamp,
-    //   end: endDate.timestamp,
-    //   timeHire,
-    //   money,
-    // });
+  const handleSelectAddress = useCallback((data) => {
+    setAddress(data);
+    console.log("🚀 ~ handleSelectAddress ~ data:", data);
+  }, [])
 
+  const handlePost = async () => {
     const docData = {
       uid: user.uid,
       title,
       numOfChilds,
       textNote,
-      address,
+      address1: {},
+      address2: address,
       start: startDate.timestamp,
       end: endDate.timestamp,
       timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
       money,
+      numOfApplies: 0,
       applies: [],
       userChoosed: null,
       isDone: 0, // 1 choosed sister // 2 done
@@ -113,7 +120,7 @@ export default function PostSearchScreen({ navigation, route }) {
       updatedAt: Date.now(),
     };
     // console.log(docData)
-    const docRef = await addDoc(collection(db, "posts"), docData); 
+    const docRef = await addDoc(collection(db, "posts"), docData);
     // console.log(docRef);
   };
 
@@ -125,29 +132,12 @@ export default function PostSearchScreen({ navigation, route }) {
   };
 
   return (
-    <AppSafeAreaView style={{ paddingHorizontal: 10 }}>
-      <View
-        id="header"
-        style={{ flexDirection: "row", alignItems: "center", marginBottom: 20 }}
-      >
-        <TouchableOpacity
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Ionicons name="arrow-back" size={30} />
-        </TouchableOpacity>
-        <Text
-          style={{
-            marginLeft: 70,
-            fontWeight: 700,
-            color: COLORS.text,
-            fontSize: 20,
-          }}
-        >
-          ĐĂNG BÀI
-        </Text>
-      </View>
+    <View style={{ paddingHorizontal: 10, marginTop: 20, flex: 1 }}>
+      {showMap && (
+        <View style={{height: 600}}>
+          <SelectAddress onSelectAddress={handleSelectAddress} setShowMap={setShowMap}/>
+        </View>
+      )}
 
       <ScrollView style={{ marginBottom: 10 }}>
         <InputGroup
@@ -198,15 +188,17 @@ export default function PostSearchScreen({ navigation, route }) {
             styleInput={{ flex: 1, maxHeight: 100, backgroundColor: "white" }}
             multiline={true}
             placeholder={"Địa chỉ ..."}
-            value={address}
+            value={address.text}
             onChangeText={(address) => {
-              setAddress(address);
+              setAddress((prev) => ({ ...prev, text: address }));
             }}
+            readOnly={true}
           />
           <View>
             <TouchableOpacity
               onPress={() => {
                 console.log(123);
+                setShowMap(true);
               }}
               id="address-map"
               style={{
@@ -400,7 +392,7 @@ export default function PostSearchScreen({ navigation, route }) {
           />
         </View>
       </ScrollView>
-    </AppSafeAreaView>
+    </View>
   );
 }
 

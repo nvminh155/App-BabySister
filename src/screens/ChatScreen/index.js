@@ -46,11 +46,17 @@ import {
 import Spin from "../../components/Spin";
 
 export default function ChatScreen({ navigation, route }) {
+  console.log("🚀 ~ ChatScreen ~ route:", route);
+
+  if (route.params?.receiverID) {
+    navigation.navigate("ChatPrivateStack", {
+      receiverID: route.params.receiverID,
+    });
+  }
   const { user } = useContext(AuthContext);
 
   const [friends, setFriends] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
-
 
   useEffect(() => {
     // setFriends({ ...user.following });
@@ -81,7 +87,7 @@ export default function ChatScreen({ navigation, route }) {
 
       users.forEach((docUser) => {
         setFriends((prev) => [...prev, docUser.data()]);
-        
+
         console.log("AA", docUser.data());
       });
     });
@@ -140,6 +146,11 @@ export default function ChatScreen({ navigation, route }) {
                     navigation.navigate("ChatPrivateStack", {
                       receiverID: f.uid,
                     });
+                  }}
+                  style={{
+                    backgroundColor: COLORS.secondary,
+                    borderRadius: 10,
+                    padding: 5,
                   }}
                 >
                   <CustomCard

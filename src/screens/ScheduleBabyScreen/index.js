@@ -114,9 +114,9 @@ export default function ScheduleBabyScreen({ navigation }) {
       </View>
 
       {schedules.length > 0 ? (
-        <View id="contains-schedules" style={{ marginTop: 30, rowGap: 20 }}>
+        <View id="contains-schedules" style={{ marginTop: 25, rowGap: 20 }}>
           {schedules.map((schedule, i) => (
-            <View key={i}>
+            <View key={i} style={{backgroundColor: COLORS.secondary, padding: 5, borderRadius: 10}}>
               <CustomCard
                 body={bodyCardSchedule(schedule)}
                 footer={footerCardSchedule(schedule)}
