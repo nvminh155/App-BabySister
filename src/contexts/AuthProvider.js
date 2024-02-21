@@ -14,6 +14,8 @@ import {
   getDocs,
   onSnapshot,
   query,
+  setDoc,
+  doc,
   where,
 } from "firebase/firestore";
 
@@ -35,8 +37,9 @@ export default function AuthProvider({ children }) {
           where("uid", "==", authenticatedUser.uid)
         );
         const querySnapshot = await getDocs(q).then((qr) => {
-          qr.forEach((doc) => {
-            setUser({ ...doc.data(), _id: doc.id });
+          qr.forEach(async (doc1) => {
+            setUser({ ...doc1.data(), _id: doc1.id });
+            // await setDoc(doc(db, `users/${doc1.data().uid}`), {...doc1.data()})
           });
         });
 
@@ -57,6 +60,8 @@ export default function AuthProvider({ children }) {
     if(yourLocation) return;
     (async () => {
       let { status } = await Location.requestForegroundPermissionsAsync();
+      let location = await Location.getCurrentPositionAsync({});
+      console.log("🚀 ~ location:", location)
       if (status !== "granted") {
         console.log("🚀 ~ status:", status);
 
@@ -64,8 +69,7 @@ export default function AuthProvider({ children }) {
         return;
       }
 
-      let location = await Location.getCurrentPositionAsync({});
-      console.log("🚀 ~ location:", location)
+      
       
       setYourLocation({
         latitude: location.coords.latitude,

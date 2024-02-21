@@ -210,6 +210,20 @@ export default function ViewPostScreen({ navigation, route }) {
     await addDoc(noticeRef, { ...data });
   };
 
+  const handleReview = async (sisterUid, numsOfStars, textReview) => {
+    console.log("🚀 ~ handleReview ~ sisterUid, numsOfStars, textReview:", sisterUid, numsOfStars, textReview)
+  
+    const reviewRef = collection(db, `users/${sisterUid}/reviews`);
+    await addDoc(reviewRef, {
+      from: user.uid,
+      numsOfStars,
+      textReview,
+      images: [],
+      videos: [],
+      createdAt: Date.now(),
+    });
+  }
+
   const handleChoosedUser = async (sister) => {
     const jobRef = doc(db, "posts", job._id);
     const update = await updateDoc(jobRef, {
@@ -271,7 +285,7 @@ export default function ViewPostScreen({ navigation, route }) {
 
   const handleFinishJob = async () => {
     const jobRef = doc(db, `posts/${docIdJob}`);
-    await updateDoc(jobRef, { isDone: 2 });
+    await updateDoc(jobRef, { isDone: 2, isRated: true});
 
     await handleSendNotice(job.userChoosed, "jobs", {
       type: "donejob",
@@ -322,6 +336,8 @@ export default function ViewPostScreen({ navigation, route }) {
                 sister={infoSister}
                 onChooseSister={onChooseSister}
                 choosedUid={choosed}
+                onReview={handleReview}
+                isRated={job.isRated}
               />
             </CustomModal>
             <CustomCard
@@ -419,6 +435,8 @@ export default function ViewPostScreen({ navigation, route }) {
                   sister={sisterChoosed}
                   choosed={true}
                   navigation={navigation}
+                  onReview={handleReview}
+                  isRated={job.isRated}
                 />
               </View>
             )}

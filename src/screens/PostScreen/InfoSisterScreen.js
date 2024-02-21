@@ -57,6 +57,8 @@ export default function InfoSisterScreen({
   sister,
   choosedUid,
   choosed = false,
+  onReview,
+  isRated
 }) {
   const [visiableRate, setVisiableRate] = useState(false);
   const [numStar, setNumStar] = useState(0);
@@ -67,10 +69,13 @@ export default function InfoSisterScreen({
       <CustomButton
         label={"Gửi"}
         style={{
-          backgroundColor: COLORS.primary,
+          backgroundColor: COLORS.accent,
           paddingHorizontal: 15,
           paddingVertical: 4,
           borderRadius: 5,
+        }}
+        onPress={() => {
+          onReview(sister.uid, numStar, textRate);
         }}
       />
       <CustomButton
@@ -223,7 +228,7 @@ export default function InfoSisterScreen({
             CÁC ĐÁNH GIÁ
           </AppText>
 
-          <CustomButton
+          {!isRated && <CustomButton
             label={"Đánh Giá"}
             style={{
               backgroundColor: COLORS.accent,
@@ -237,7 +242,7 @@ export default function InfoSisterScreen({
             onPress={() => {
               setVisiableRate(!visiableRate);
             }}
-          />
+          />}
 
           <ScrollView
             id="reviewer"

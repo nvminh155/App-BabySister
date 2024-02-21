@@ -114,6 +114,7 @@ export default function PostSearchScreen({ navigation, route }) {
       money,
       numOfApplies: 0,
       applies: [],
+      isRated: false,
       userChoosed: null,
       isDone: 0, // 1 choosed sister // 2 done
       createdAt: Date.now(),
