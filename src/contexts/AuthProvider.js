@@ -26,7 +26,7 @@ export const AuthContext = createContext();
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [yourLocation, setYourLocation] = useState(null);
+  const [yourLocation, setYourLocation] = useState({"latitude": 37.4220936, "latitudeDelta": 0.0922, "longitude": -122.083922, "longitudeDelta": 0.0421});
   console.log("🚀 ~ AuthProvider ~ yourLocation:", yourLocation);
   useEffect(() => {
     const unsubcribe = onAuthStateChanged(auth, async (authenticatedUser) => {
@@ -57,28 +57,35 @@ export default function AuthProvider({ children }) {
   }, []);
 
   useEffect(() => {
-    if(yourLocation) return;
+    if (yourLocation) return;
     (async () => {
+      console.log("START FIND LOCATIONS");
       let { status } = await Location.requestForegroundPermissionsAsync();
-      let location = await Location.getCurrentPositionAsync({});
-      console.log("🚀 ~ location:", location)
-      if (status !== "granted") {
-        console.log("🚀 ~ status:", status);
 
-        setErrorMsg("Permission to access location was denied");
-        return;
+      console.log("START FIND LOCATIONS");
+      if (status === "granted") {
+        const enabled = await Location.hasServicesEnabledAsync();
+        console.log("🚀 ~ enabled:", enabled)
+        if (enabled) {
+          // If location services are enabled, get the current location
+          const location = await Location.getCurrentPositionAsync({});
+          console.log("🚀 ~ location", location);
+          // setYourLocation({
+          //   latitude: location.coords.latitude,
+          //   longitude: location.coords.longitude,
+          //   latitudeDelta: 0.0922,
+          //   longitudeDelta: 0.0421,
+          // });
+          setYourLocation({"latitude": 37.4220936, "latitudeDelta": 0.0922, "longitude": -122.083922, "longitudeDelta": 0.0421});
+        }
+      } else {
+        // Handle the case where location permission is not granted
+        setYourLocation(null);
       }
 
-      
-      
-      setYourLocation({
-        latitude: location.coords.latitude,
-        longitude: location.coords.longitude,
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,
-      });
+  
     })();
-  }, [yourLocation]);
+  }, []);
 
   useEffect(() => {
     if (yourLocation) {
@@ -91,8 +98,6 @@ export default function AuthProvider({ children }) {
       };
     }
   }, [yourLocation, user]);
-
-
 
   return (
     <AuthContext.Provider value={{ user, setUser, yourLocation }}>

@@ -51,28 +51,23 @@ import {
   InputCheckbox,
 } from "../../components";
 import { db } from "../../firebase/config";
-import { formatDateTime, genShortId } from "../../utils";
+import { formatDateTime, genShortId, uploadImage } from "../../utils";
 import EditTimeSchedule from "./EditTimeSchedule";
 import { AuthContext } from "../../contexts/AuthProvider";
-import { ScheduleContext } from "../../contexts/ScheduleProvider";
 import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
-import * as ImagePicker from "expo-image-picker";
-import AddNewTimeSchedule from "./AddNewTimeSchedule";
 
-function ListSchedule({
+function ListScheduleActive({
   onAddTimeSchedule,
   onRemoveTimeSchedule,
   onEditTimeSchedule,
+  timeSchedules,
   readOnly,
   startActive,
   isDone,
   onMarkFinishTimeSchedule,
   finishTimeSchedule,
-  onUploadImgTimeSchedule,
-  onAddImgTimeSchedule,
 }) {
   const { user } = useContext(AuthContext);
-  const {timeSchedules, setTimeSchedules, childs, setChilds} = useContext(ScheduleContext);
   const [visiable, setVisiable] = useState(false);
   const [showTime, setShowTime] = useState(false);
   const [time, setTime] = useState(Date.now());
@@ -80,46 +75,11 @@ function ListSchedule({
   const [images, setImages] = useState([]);
   const [schedule, setSchedule] = useState({});
   const [infoTimeSchedule, setInfoTimeSchedule] = useState(null);
-  const [visiableUpImg, setVisiableUpImg] = useState(false);
-  const [typeHandleImg, setTypeHandleImg] = useState("add");
-  const [imageID, setImageID] = useState(null);
+
   console.log("render add time");
 
-  const handleEditTimeSchedule = useCallback((data) => {
-    setTimeSchedules((prev) =>
-      prev.map((v, i) => {
-        if (v.timeScheduleID === data.timeScheduleID) {
-          return { ...v, ...data };
-        } else return v;
-      })
-    );
+  useLayoutEffect(() => {
   }, []);
-
-  const handleRemoveTimeSchedule = useCallback((timeScheduleID) => {
-    setTimeSchedules((prev) =>
-      prev.filter((v, i) => v.timeScheduleID !== timeScheduleID)
-    );
-  }, []);
-  const uploadImg = async (mode, childID) => {
-    if (mode === "camera") {
-      await ImagePicker.requestCameraPermissionsAsync();
-      let result = await ImagePicker.launchCameraAsync({
-        cameraType: ImagePicker.CameraType.front,
-        allowsEditing: true,
-        quality: 1,
-      });
-
-      if (!result.canceled) {
-        console.log(result.assets[0]);
-        result.assets[0].assetId = genShortId();
-        setNewTimeSchedule((prev) => ({
-          ...prev,
-          images: [prev.images, result.assets[0]],
-        }));
-      }
-    }
-  };
-
   const header = (
     <View>
       <AppText style={{ fontWeight: "bold" }}>Thêm mới mốc thời gian</AppText>
@@ -146,7 +106,10 @@ function ListSchedule({
         }}
         onPress={() => {
           onAddTimeSchedule({
-            ...newTimeSchedule,
+            scheduleID: genShortId(),
+            time,
+            textNote,
+            images,
           });
         }}
       />
@@ -170,7 +133,7 @@ function ListSchedule({
     <View style={{ flex: 1 }}>
       {infoTimeSchedule && (
         <EditTimeSchedule
-          onSaveEdit={handleEditTimeSchedule}
+          onSaveEdit={onEditTimeSchedule}
           timeSchedule={infoTimeSchedule}
           setTimeSchedule={setInfoTimeSchedule}
           readOnly={readOnly}
@@ -196,10 +159,83 @@ function ListSchedule({
         )}
       </View>
 
-      <AddNewTimeSchedule visiable={visiable} setVisiable={setVisiable} />
+      <CustomModal
+        header={header}
+        footer={footer}
+        modalVisible={visiable}
+        handleAddTimeSchedule
+      >
+        <View
+          style={{
+            paddingVertical: 0,
+            flexDirection: "row",
+            alignItems: "center",
+            columnGap: 10,
+            marginVertical: 10,
+          }}
+        >
+          <AppText style={{ fontWeight: "bold" }}>Thời Gian :</AppText>
+          <CustomButton
+            label={formatDateTime(time).TS}
+            style={{
+              backgroundColor: "#f5f5f5",
+              paddingVertical: 4,
+              paddingHorizontal: 5,
+            }}
+            styleText={{ color: "black" }}
+            onPress={() => {
+              setShowTime(true);
+            }}
+          />
+          {showTime && (
+            <DateTimePicker
+              value={new Date(time)}
+              mode="time"
+              is24Hour={true}
+              onChange={({ nativeEvent }) => {
+                setShowTime(false);
+                setTime(nativeEvent.timestamp);
+              }}
+            />
+          )}
+        </View>
+
+        <InputGroup
+          label={<AppText style={{ fontWeight: "bold" }}>Ghi Chú :</AppText>}
+          row={true}
+          styleInput={{ flex: 1, maxHeight: 100, backgroundColor: "white" }}
+          multiline={true}
+          placeholder={"Điền ghi chú ..."}
+          value={textNote}
+          onChangeText={(text) => {
+            setTextNote(text);
+          }}
+        />
+
+        <View style={{ flexDirection: "row", columnGap: 10 }}>
+          <TouchableOpacity>
+            <AppImage
+              width={40}
+              height={40}
+              source={require("images/gallery_add.png")}
+            />
+          </TouchableOpacity>
+          <ScrollView horizontal contentContainerStyle={{ columnGap: 10 }}>
+            {Array.from({ length: 8 }).map((v, i) => (
+              <View key={i}>
+                <AppImage
+                  width={40}
+                  height={40}
+                  source={require("images/bbst_1.jpg")}
+                />
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </CustomModal>
 
       {!timeSchedules.length && (
-        <AppText style={{ color: "grey", fontStyle: "italic", alignSelf: 'center'}}>
+        <AppText style={{ color: "grey", fontStyle: "italic" }}>
           Chưa có khung giờ nào !!!
         </AppText>
       )}
@@ -224,7 +260,7 @@ function ListSchedule({
                   edge={20}
                   disable={isDone || user.typeUser === 2}
                   initTick={finishTimeSchedule.some(
-                    (timeID) => timeID === timeSche.scheduleID
+                    (timeID) => timeID === timeSche.timeScheduleID
                   )}
                   onToggle={(tick) => {
                     onMarkFinishTimeSchedule(tick, timeSche);
@@ -297,7 +333,7 @@ function ListSchedule({
                     <Ionicons name="trash" size={24} color={COLORS.accent} />
                   }
                   onPress={() => {
-                    onRemoveTimeSchedule(timeSche.scheduleID);
+                    onRemoveTimeSchedule(timeSche.timeScheduleID);
                   }}
                 />
               )}
@@ -309,4 +345,4 @@ function ListSchedule({
   );
 }
 
-export default memo(ListSchedule);
+export default memo(ListScheduleActive);

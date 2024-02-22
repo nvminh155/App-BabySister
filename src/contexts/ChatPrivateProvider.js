@@ -149,6 +149,7 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
         schedules,
         setSchedules,
         schedulesInChat,
+        setSchedulesInChat,
         fetchChatRef
       }}
     >

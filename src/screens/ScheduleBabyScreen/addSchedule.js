@@ -1,5 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import {
+  createContext,
   useCallback,
   useContext,
   useEffect,
@@ -51,40 +52,42 @@ import {
 } from "../../components";
 import { db } from "../../firebase/config";
 
-import { formatDateTime, genShortId } from "../../utils";
 
 import { AuthContext } from "../../contexts/AuthProvider";
 
 import ListSchedule from "./ListSchedule";
 
-export default function ScheduleBabyScreen({ navigation }) {
+import { ScheduleContext } from "../../contexts/ScheduleProvider";
+import { genShortId, uploadImage } from "../../utils";
+
+export default function ScheduleBabyScreen({ navigation, children }) {
   const { user } = useContext(AuthContext);
+  const { timeSchedules, setTimeSchedules, childs, setChilds } =
+    useContext(ScheduleContext);
+  console.log("🚀 ~ ScheduleBabyScreen ~ ScheduleContext:", ScheduleContext);
   const [title, setTitle] = useState("");
   const [numOfChilds, setNumOfChilds] = useState("0");
-  const [childs, setChilds] = useState([]);
-  const [timeSchedules, setTimeSchedules] = useState([]);
-  console.log("🚀 ~ ScheduleBabyScreen ~ timeSchedules:", timeSchedules);
+  const [visiableUpImg, setVisiableUpImg] = useState(false);
+  console.log("🚀 ~ ScheduleBabyScreen ~ timeSchedules:1", timeSchedules);
   const [page, setPage] = useState(0);
 
-  const handleAddTimeSchedule = useCallback((data) => {
-    setTimeSchedules((prev) => [...prev, data]);
-  }, []);
-
-  const handleEditTimeSchedule = useCallback((data) => {
-    setTimeSchedules((prev) =>
-      prev.map((v, i) => {
-        if (v.scheduleID === data.scheduleID) {
-          return { ...v, ...data };
-        } else return v;
+  const handleUploadImgChild = async (mode, childID) => {
+      await uploadImage(mode).then(res => {
+        if(!res) return;
+        setChilds((prev) => {
+          console.log(prev);
+          return prev.map((v, i) => ({
+            ...v,
+            image: v.id === childID ? {...res} : v.image,
+          }));
+        });
+        setVisiableUpImg(false);
       })
-    );
-  }, []);
 
-  const handleRemoveTimeSchedule = useCallback((scheduleID) => {
-    setTimeSchedules((prev) =>
-      prev.filter((v, i) => v.scheduleID !== scheduleID)
-    );
-  }, []);
+    
+  };
+
+
 
   const handleAddSchedule = async () => {
     const data = {
@@ -95,7 +98,7 @@ export default function ScheduleBabyScreen({ navigation }) {
       timeSchedules,
     };
     await setDoc(doc(db, `users/${user._id}/schedules`, `${data.scheduleID}`), {
-      ...data
+      ...data,
     });
   };
 
@@ -128,6 +131,59 @@ export default function ScheduleBabyScreen({ navigation }) {
         </Text>
       </View>
 
+      <CustomModal
+        modalVisible={visiableUpImg}
+        setModalVisible={setVisiableUpImg}
+      >
+        <Row
+          style={{
+            alignSeft: "center",
+            marginTop: 0,
+            margin: "0 auto",
+            justifyContent: "center",
+          }}
+        >
+          <CustomButton
+            label={"Máy ảnh"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              handleUploadImgChild("camera", childs[page].id);
+            }}
+          />
+          <CustomButton
+            label={"Thư viện ảnh"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              handleUploadImgChild("gallery", childs[page].id);
+            }}
+          />
+          <CustomButton
+            label={"Hủy"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              setVisiableUpImg(false);
+            }}
+          />
+        </Row>
+      </CustomModal>
       <InputGroup
         label={
           <AppText id="label" style={{ fontWeight: "bold" }}>
@@ -158,6 +214,7 @@ export default function ScheduleBabyScreen({ navigation }) {
             fullName: "",
             age: "",
             image: "",
+            id: genShortId(),
           }));
           setChilds(childs);
         }}
@@ -166,11 +223,23 @@ export default function ScheduleBabyScreen({ navigation }) {
       {childs.length > 0 && (
         <View id="list-child">
           <View>
-            <AppImage
-              width={64}
-              height={64}
-              source={require("images/upload_image.png")}
-            />
+            <TouchableOpacity
+              onPress={() => {
+                setVisiableUpImg(true);
+              }}
+            >
+              <AppImage
+                width={64}
+                height={64}
+                source={
+                  childs[page].image
+                    ? childs[page].image.uri
+                    : require("images/upload_image.png")
+                }
+                type={childs[page].image ? "uri" : "icon"}
+                style={{ resizeMode: "contain" }}
+              />
+            </TouchableOpacity>
 
             <InputGroup
               label={
@@ -238,12 +307,8 @@ export default function ScheduleBabyScreen({ navigation }) {
         </View>
       )}
 
-      <ListSchedule
-        onAddTimeSchedule={handleAddTimeSchedule}
-        onRemoveTimeSchedule={handleRemoveTimeSchedule}
-        timeSchedules={timeSchedules}
-        onEditTimeSchedule={handleEditTimeSchedule}
-      />
+      <ListSchedule />
+
       <View
         style={{
           flexDirection: "row",

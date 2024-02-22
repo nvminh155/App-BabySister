@@ -181,12 +181,13 @@ function EditTimeSchedule({
           </TouchableOpacity>
         )}
         <ScrollView horizontal contentContainerStyle={{ columnGap: 10 }}>
-          {images.map((image, i) => (
+          {images.map((img, i) => (
             <View key={i}>
               <AppImage
                 width={40}
                 height={40}
-                source={require("images/bbst_1.jpg")}
+                type="uri"
+                source={img.uri}
               />
             </View>
           ))}

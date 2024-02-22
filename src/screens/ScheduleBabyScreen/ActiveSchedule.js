@@ -52,7 +52,7 @@ import {
 } from "../../components";
 import { db } from "../../firebase/config";
 import { AuthContext } from "../../contexts/AuthProvider";
-import ListSchedule from "./ListSchedule";
+import ListScheduleActive from "./ListScheduleActive";
 import Spin from "../../components/Spin";
 import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 
@@ -71,6 +71,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
   console.log("🚀 ~ ViewSchedule ~ schedule:", schedule);
   const [loadingData, setLoadingData] = useState(true);
   const [finishTimeSchedule, setFinishTimeSchedule] = useState([]);
+  const [visiableUpImg, setVisiableUpImg] = useState(false);
 
   useLayoutEffect(() => {
     if (!editAble) {
@@ -130,6 +131,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
     );
     const unsubcribe = onSnapshot(messageDoc, (message) => {
       const data = { ...message.data() };
+      console.log("🚀 ~ unsubcribe ~ data:", data)
       setFinishTimeSchedule(data.finishTimeSchedule);
     });
 
@@ -181,16 +183,16 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
   const handleEditTimeSchedule = useCallback((data) => {
     setTimeSchedules((prev) =>
       prev.map((v, i) => {
-        if (v.scheduleID === data.scheduleID) {
+        if (v.timeScheduleID === data.timeScheduleID) {
           return { ...v, ...data };
         } else return v;
       })
     );
   }, []);
 
-  const handleRemoveTimeSchedule = useCallback((scheduleID) => {
+  const handleRemoveTimeSchedule = useCallback((timeScheduleID) => {
     setTimeSchedules((prev) =>
-      prev.filter((v, i) => v.scheduleID !== scheduleID)
+      prev.filter((v, i) => v.timeScheduleID !== timeScheduleID)
     );
   }, []);
 
@@ -202,20 +204,36 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
     );
     await updateDoc(messageDoc, {
       finishTimeSchedule: tick
-        ? arrayUnion(timeSche.scheduleID)
-        : arrayRemove(timeSche.scheduleID),
+        ? arrayUnion(timeSche.timeScheduleID)
+        : arrayRemove(timeSche.timeScheduleID),
     });
   }, []);
 
-    const handleFinishSchedule = async () => {
-      const messageDoc = doc(
-        db,
-        `chats/${dataChat._id}/messages/${route.params.messageID}`
-      );
-      await updateDoc(messageDoc, {
-        isDone: true,
+  const handleUploadImgChild = async (mode, childID) => {
+    await uploadImage(mode).then(res => {
+      if(!res) return;
+      setChilds((prev) => {
+        console.log(prev);
+        return prev.map((v, i) => ({
+          ...v,
+          image: v.id === childID ? {...res} : v.image,
+        }));
       });
-    }
+      setVisiableUpImg(false);
+    })
+
+  
+};
+
+  const handleFinishSchedule = async () => {
+    const messageDoc = doc(
+      db,
+      `chats/${dataChat._id}/messages/${route.params.messageID}`
+    );
+    await updateDoc(messageDoc, {
+      isDone: true,
+    });
+  };
   return (
     <>
       {loadingData ? (
@@ -229,6 +247,59 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
             marginTop: 20,
           }}
         >
+        <CustomModal
+        modalVisible={visiableUpImg}
+        setModalVisible={setVisiableUpImg}
+      >
+        <Row
+          style={{
+            alignSeft: "center",
+            marginTop: 0,
+            margin: "0 auto",
+            justifyContent: "center",
+          }}
+        >
+          <CustomButton
+            label={"Máy ảnh"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              handleUploadImgChild("camera", childs[page].id);
+            }}
+          />
+          <CustomButton
+            label={"Thư viện ảnh"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              handleUploadImgChild("gallery", childs[page].id);
+            }}
+          />
+          <CustomButton
+            label={"Hủy"}
+            style={{
+              borderRadius: 15,
+              padding: 10,
+              borderColor: COLORS.accent,
+              borderWidth: 1,
+            }}
+            styleText={{ color: COLORS.accent }}
+            onPress={() => {
+              setVisiableUpImg(false);
+            }}
+          />
+        </Row>
+      </CustomModal>
           {editAble ? (
             <InputGroup
               label={
@@ -285,11 +356,23 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
               <View>
                 {editAble ? (
                   <View id="edit-able" style={{ rowGap: 10 }}>
-                    <AppImage
-                      width={64}
-                      height={64}
-                      source={require("images/upload_image.png")}
-                    />
+                    <TouchableOpacity
+                      onPress={() => {
+                        setVisiableUpImg(true);
+                      }}
+                    >
+                      <AppImage
+                        width={64}
+                        height={64}
+                        source={
+                          childs[page].image
+                            ? childs[page].image.uri
+                            : require("images/upload_image.png")
+                        }
+                        type={childs[page].image ? "uri" : "icon"}
+                        style={{ resizeMode: "contain" }}
+                      />
+                    </TouchableOpacity>
 
                     <InputGroup
                       label={
@@ -336,7 +419,13 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
                     <AppImage
                       width={64}
                       height={64}
-                      source={require("images/bbst_1.jpg")}
+                      source={
+                        childs[page].image
+                          ? childs[page].image.uri
+                          : require("images/upload_image.png")
+                      }
+                      type={childs[page].image ? "uri" : "icon"}
+                      style={{ resizeMode: "contain" }}
                     />
 
                     <View style={{ flexDirection: "row", columnGap: 15 }}>
@@ -387,7 +476,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
             </View>
           )}
 
-          <ListSchedule
+          <ListScheduleActive
             onAddTimeSchedule={handleAddTimeSchedule}
             onRemoveTimeSchedule={handleRemoveTimeSchedule}
             timeSchedules={timeSchedules}
@@ -425,7 +514,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
           )}
 
           {user.typeUser === 2 && !editAble && (
-            <View style={{marginVertical: 10}}>
+            <View style={{ marginVertical: 10 }}>
               <Row>
                 <InputCheckbox edge={15} />
                 <AppText>Xác nhận bảo mẫu hoàn thành lịch trình</AppText>
@@ -434,7 +523,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
                 label={"Cập nhật"}
                 style={{ backgroundColor: COLORS.accent }}
                 onPress={() => {
-                  handleFinishSchedule()
+                  handleFinishSchedule();
                 }}
               />
             </View>

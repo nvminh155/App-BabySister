@@ -31,6 +31,7 @@ import {
   CustomButton,
   Row,
   InputGroup,
+  InputRadio,
 } from "../../components";
 
 const wWidth = Dimensions.get("window").width;
@@ -38,7 +39,11 @@ const wHeight = Dimensions.get("window").height;
 
 export default function UserScreen({ navigation }) {
   const { user } = useContext(AuthContext);
-  const [listFollowing, setListFollowing] = useState(null);
+  const [showMap, setShowMap] = useState(false);
+  const [address, setAddress] = useState("");
+  const [email, setEmail] = useState(user.email);
+  const [phone, setPhone] = useState(user.phone ?? "");
+  const [gender, setGender] = useState(1);
   const [editAble, setEditAble] = useState(false);
   console.log(editAble);
   useLayoutEffect(() => {
@@ -91,7 +96,9 @@ export default function UserScreen({ navigation }) {
                 source={require("images/collab.png")}
               />
 
-              <AppText fontSize={20}>{user.typeUser === 1 ? "Cộng Tác Viên" : "Phụ Huynh"}</AppText>
+              <AppText fontSize={20}>
+                {user.typeUser === 1 ? "Cộng Tác Viên" : "Phụ Huynh"}
+              </AppText>
             </Row>
           </View>
         }
@@ -101,7 +108,8 @@ export default function UserScreen({ navigation }) {
         <InputGroup
           label={<AppText>Email</AppText>}
           row={true}
-          value={"??"}
+          value={email}
+          onChangeText={(text) => setEmail(text)}
           colorTextInput={!editAble ? "black" : null}
           readOnly={!editAble}
           styleRoot={{ columnGap: 30 }}
@@ -109,19 +117,53 @@ export default function UserScreen({ navigation }) {
         <InputGroup
           label={<AppText>Số điện thoại</AppText>}
           row={true}
-          value={"??"}
+          value={phone}
+          onChangeText={(text) => setPhone(text)}
           colorTextInput={!editAble ? "black" : null}
           readOnly={!editAble}
           styleRoot={{ columnGap: 30 }}
         />
-        <InputGroup
-          label={<AppText>Giới tính</AppText>}
-          row={true}
-          value={"??"}
-          colorTextInput={!editAble ? "black" : null}
-          readOnly={!editAble}
-          styleRoot={{ columnGap: 30 }}
-        />
+        <Row id="gender">
+          {["Nam", "Nữ", "other"].map((val, index) => (
+            <InputRadio
+              key={index}
+              edge={20}
+              label={<AppText>{val}</AppText>}
+              id={index}
+              activeRadio={gender}
+            />
+          ))}
+        </Row>
+
+        <Row>
+          <InputGroup
+            label={<AppText>Địa chỉ</AppText>}
+            row={true}
+            value={"??"}
+            colorTextInput={!editAble ? "black" : null}
+            readOnly={!editAble}
+            styleRoot={{ columnGap: 30 }}
+          />
+          <TouchableOpacity
+            onPress={() => {
+              console.log(123);
+              setShowMap(true);
+            }}
+            id="address-map"
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+              marginTop: 10,
+            }}
+          >
+            <AppImage
+              width={32}
+              height={32}
+              source={require("images/map.png")}
+            />
+            <AppText fontWeight={"bold"}>ĐẶT VỊ TRÍ</AppText>
+          </TouchableOpacity>
+        </Row>
       </View>
 
       {editAble && (

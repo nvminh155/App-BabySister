@@ -44,7 +44,7 @@ import {
   Row,
 } from "../../components";
 
-import { formatDateTime, formatMoney } from "../../utils";
+import { checkExpire, formatDateTime, formatMoney } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
@@ -69,57 +69,62 @@ export default function PostedScreen({ navigation }) {
     const q = query(collection(db, "posts"));
     const unsubscribe = onSnapshot(q, (postSnap) => {
       const posts = [];
-      postSnap.forEach(doc => {
+      postSnap.forEach((doc) => {
         // console.log("SNAP POST IN POSTED" , doc.data())
         posts.push({
           ...doc.data(),
           _id: doc.id,
-        })
-      })
-      setTest(posts)
-      console.log("CHANGE VALUE POST POSTED")
-    })
-    return unsubscribe
+        });
+      });
+      setTest(posts);
+      console.log("CHANGE VALUE POST POSTED");
+    });
+    return unsubscribe;
   }, []);
 
-  useEffect( () => {
+  useEffect(() => {
     const q = query(collection(db, "posts"), where("uid", "==", user.uid));
     const unsubscribe = onSnapshot(q, (postSnap) => {
       const posts = [];
-      postSnap.forEach(doc => {
+      postSnap.forEach((doc) => {
         // console.log("SNAP POST" , doc.data())
         posts.push({
           ...doc.data(),
           _id: doc.id,
-        })
-      })
-      setJobs(posts)
-      console.log("CHANGE VALUE POST")
-    })
+        });
+      });
+      setJobs(posts);
+      console.log("CHANGE VALUE POST");
+    });
 
     return unsubscribe;
-  }, [])
+  }, []);
 
-  const removePost = () => {
-
-  }
-  
+  const removePost = () => {};
 
   const headerCardInfoJob = (job) => {
-
     const isJobDone = () => {
-      if(job.isDone === 0) return "Đang đợi bảo mẫu";
-      else if(job.isDone === 1) return "Đang diễn ra";
+      if (job.isDone === 0) return "Đang đợi bảo mẫu";
+      else if (job.isDone === 1) {
+        if (checkExpire(job.start, job.end).lt) return "Sắp bắt đầu";
+        if (checkExpire(job.start, job.end).process) return "Đang diễn ra";
+        return "Đã kết thúc - Bảo mẫu chưa hoàn thành công việc";
+      }
       return "Đã kết thúc - Bảo mẫu hoàn thành công việc";
-    }
+    };
     const colorStatus = () => {
-      if(job.isDone === 0) return 'yellow';
-      else if(job.isDone === 1) return "blue";
+      if (job.isDone === 0) return "yellow";
+      else if (job.isDone === 1) return "blue";
       return COLORS.accent;
-    }
+    };
     return (
       <View>
-        <AppText style={{fontStyle: 'italic', marginBottom: 10}} color={colorStatus()}>{isJobDone()}</AppText>
+        <AppText
+          style={{ fontStyle: "italic", marginBottom: 10 }}
+          color={colorStatus()}
+        >
+          {isJobDone()}
+        </AppText>
         <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
           {job.title.toUpperCase()}
         </AppText>
@@ -179,46 +184,50 @@ export default function PostedScreen({ navigation }) {
   const footerCardInfoJob = (job) => {
     return (
       <>
-        {job.isDone === 0 && <Row style={{marginLeft: 'auto'}}>
-        <CustomButton
-          label={"XEM THÊM"}
-          style={{
-            backgroundColor: COLORS.accent,
-            alignSelf: "center",
-            width: "max-content",
-          }}
-          onPress={() => {
-            navigation.navigate("ViewPost", { docIdJob: job._id, job });
-          }}
-        />
-        <CustomButton
-          label={"HỦY ĐĂNG"}
-          style={{
-            backgroundColor: COLORS.secondary,
-            alignSelf: "center",
-            width: "max-content",
-            borderColor: COLORS.accent,
-            borderWidth: 1
-          }}
-          styleText={{color: COLORS.accent}}
-          onPress={() => {
-            navigation.navigate("ViewJob", { job });
-          }}
-        />
-      </Row>}
-      {job.isDone !== 0 && <Row style={{marginLeft: 'auto'}}>
-        <CustomButton
-          label={"XEM THÊM"}
-          style={{
-            backgroundColor: COLORS.accent,
-            alignSelf: "center",
-            width: "max-content",
-          }}
-          onPress={() => {
-            navigation.navigate("ViewPost", { docIdJob: job._id, job });
-          }}
-        />
-      </Row>}
+        {job.isDone === 0 && (
+          <Row style={{ marginLeft: "auto" }}>
+            <CustomButton
+              label={"XEM THÊM"}
+              style={{
+                backgroundColor: COLORS.accent,
+                alignSelf: "center",
+                width: "max-content",
+              }}
+              onPress={() => {
+                navigation.navigate("ViewPost", { docIdJob: job._id, job });
+              }}
+            />
+            <CustomButton
+              label={"HỦY ĐĂNG"}
+              style={{
+                backgroundColor: COLORS.secondary,
+                alignSelf: "center",
+                width: "max-content",
+                borderColor: COLORS.accent,
+                borderWidth: 1,
+              }}
+              styleText={{ color: COLORS.accent }}
+              onPress={() => {
+                navigation.navigate("ViewJob", { job });
+              }}
+            />
+          </Row>
+        )}
+        {job.isDone !== 0 && (
+          <Row style={{ marginLeft: "auto" }}>
+            <CustomButton
+              label={"XEM THÊM"}
+              style={{
+                backgroundColor: COLORS.accent,
+                alignSelf: "center",
+                width: "max-content",
+              }}
+              onPress={() => {
+                navigation.navigate("ViewPost", { docIdJob: job._id, job });
+              }}
+            />
+          </Row>
+        )}
       </>
     );
   };
@@ -232,9 +241,7 @@ export default function PostedScreen({ navigation }) {
         <CustomCard
           key={i}
           header={headerCardInfoJob(job)}
-          body={bodyCardInfoJob(
-            job
-          )}
+          body={bodyCardInfoJob(job)}
           footer={footerCardInfoJob(job)}
           style={{
             rowGap: 15,

@@ -199,10 +199,10 @@ export default function InfoSisterScreen({
 
 
 
-            <View style={{ flexDirection: "row", columnGap: 10 }}>
+            {/* <View style={{ flexDirection: "row", columnGap: 10 }}>
               <AppText style={{ fontWeight: "700" }}>Kinh nghiệm :</AppText>
               <AppText numberOfLines={2}>???</AppText>
-            </View>
+            </View> */}
 
             <View style={{ flexDirection: "row", columnGap: 10 }}>
               <AppText style={{ fontWeight: "700" }}>Đánh giá :</AppText>

@@ -35,18 +35,62 @@ import CustomCard from "../../components/CustomCard";
 import AppImage from "../../components/AppImage";
 
 import { COLORS } from "../../constants/COLORS";
-import { AppSafeAreaView, AppText } from "../../components";
+import { AppSafeAreaView, AppText, Row } from "../../components";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
+
+import * as ImagePicker from "expo-image-picker";
+import { storage } from "../../firebase/config";
+import { uploadImage } from "../../utils";
+
+import {
+  getDownloadURL,
+  ref,
+  uploadBytes,
+  uploadString,
+} from "firebase/storage";
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
-
+  const [image, setImage] = useState(null);
+  console.log("🚀 ~ HomeScreen ~ image:", image);
+  const [imageName, setImageName] = useState("");
+  const [url, setUrl] = useState("");
   const [text, setText] = useState(
     "Bạn muốn nhờ người hỗ trợ ? Hãy gửi bài đăng kèm các yêu cầu của bạn ..."
   );
 
+  const saveImage = async () => {
+    if (!image) return;
+
+    const fetchUri = await fetch(image.uri);
+    const theBlob = await fetchUri.blob();
+
+    const storageRef = ref(storage, `images/${imageName}`);
+    await uploadBytes(storageRef, theBlob).then((snapshot) => {
+      console.log("Uploaded a blob or file!", snapshot);
+    });
+  };
+  // const uploadImage = async () => {
+  //   await ImagePicker.requestCameraPermissionsAsync();
+  //   let result = await ImagePicker.launchCameraAsync({
+  //     cameraType: ImagePicker.CameraType.front,
+  //     allowsEditing: true,
+  //     quality: 1,
+  //   });
+
+  //   if (!result.canceled) {
+  //     setImage(result.assets[0]);
+  //   }
+  // };
+
+  const dowloadURL = async () => {
+    await uploadImage("camera").then( (result) => {
+      console.log("🚀 ~ awaituploadImage ~ result:", result);
+    });
+    
+  };
   return (
     <View
       style={{
@@ -90,7 +134,12 @@ export default function HomeScreen() {
 
         <View>
           <AppText
-            style={{ fontWeight: "bold", marginBottom: 10, marginTop: 30, fontSize: 17 }}
+            style={{
+              fontWeight: "bold",
+              marginBottom: 10,
+              marginTop: 30,
+              fontSize: 17,
+            }}
           >
             Đăng bài tìm kiếm
           </AppText>
@@ -127,7 +176,7 @@ export default function HomeScreen() {
           />
         </View>
 
-          {/* gan nha ban */}
+        {/* gan nha ban */}
         {/* <View>
           <AppText
             style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
@@ -196,7 +245,43 @@ export default function HomeScreen() {
             })}
           </ScrollView>
         </View> */}
+        <View>
+          {url && <Image width={200} height={200} source={{ uri: url }} />}
+          <CustomButton
+            label={"Camera"}
+            style={{ backgroundColor: COLORS.accent }}
+            onPress={() => {
+              // uploadImage();
+              dowloadURL();
+            }}
+          />
 
+          {image && (
+            <View>
+              <Image
+                source={{ uri: image.uri }}
+                style={{ width: 200, height: 200, resizeMode: "contain" }}
+              />
+
+              <Row>
+                <TextInput
+                  value={imageName}
+                  onChangeText={setImageName}
+                  style={{
+                    borderColor: "black",
+                    borderWidth: 1,
+                  }}
+                />
+                <CustomButton
+                  label={"Lưu"}
+                  onPress={() => {
+                    saveImage();
+                  }}
+                />
+              </Row>
+            </View>
+          )}
+        </View>
         <TouchableOpacity
           onPress={async () => {
             await signOut(auth).catch((err) => console.log(err));
@@ -230,18 +315,19 @@ const styles = StyleSheet.create({
     marginTop: -15,
     marginBottom: 25,
     paddingHorizoltal: 10,
-  },linearGradient: {
+  },
+  linearGradient: {
     flex: 1,
     paddingLeft: 15,
     paddingRight: 15,
-    borderRadius: 5
+    borderRadius: 5,
   },
   buttonText: {
     fontSize: 18,
-    fontFamily: 'Gill Sans',
-    textAlign: 'center',
+    fontFamily: "Gill Sans",
+    textAlign: "center",
     margin: 10,
-    color: '#ffffff',
-    backgroundColor: 'transparent',
+    color: "#ffffff",
+    backgroundColor: "transparent",
   },
 });
