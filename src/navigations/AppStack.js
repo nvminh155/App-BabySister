@@ -134,7 +134,7 @@ export default function AppStack() {
         name="UserScreen"
         component={UserScreen}
         options={{
-          title: "Người Dùng",
+          title: "Thông Tin Cá Nhân",
           tabBarIcon: () => (
             <FontAwesome5
               name="user-circle"

@@ -121,14 +121,15 @@ export default function NoticeScreen({ navigation, route }) {
       style={{
         paddingHorizontal: 10,
         paddingVertical: 10,
+        marginBottom: 10,
         flex: 1,
       }}
+      contentContainerStyle={{ paddingBottom: 20 }}
     >
       {noticePosts.map((notice, i) => (
         <NoticeJobAccepted key={i} data={notice} />
       ))}
 
-      <View></View>
     </ScrollView>
   );
 }

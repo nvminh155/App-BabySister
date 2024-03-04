@@ -14,6 +14,7 @@ import { AppImage, AppSafeAreaView, AppText } from "../components";
 import NoticeScreen from "../screens/NoticeScreen";
 import SelectAddress from "../screens/MapScreen/SelectAddress";
 import { timeIcon } from "../utils";
+import Test_notification from "../screens/Test_notification";
 
 const Stack = createStackNavigator();
 
@@ -78,6 +79,7 @@ export default function HomeStack() {
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />
       <Stack.Screen name="SelectAddress" component={SelectAddress} />
       <Stack.Screen name="Notice" component={NoticeScreen} />
+      <Stack.Screen name="Test_notification" component={Test_notification} />
     </Stack.Navigator>
   );
 }

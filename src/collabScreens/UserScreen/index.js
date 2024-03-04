@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useContext, useLayoutEffect, useState } from "react";
+import { useCallback, useContext, useLayoutEffect, useState } from "react";
 
 // FIRE BASE
 
@@ -38,8 +38,9 @@ const wHeight = Dimensions.get("window").height;
 
 export default function UserScreen({ navigation }) {
   const { user } = useContext(AuthContext);
-  const [listFollowing, setListFollowing] = useState(null);
   const [editAble, setEditAble] = useState(false);
+  cónst[(address, setAddress)] = useState(null);
+  const [showMap, setShowMap] = useState(false);
   console.log(editAble);
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -55,6 +56,10 @@ export default function UserScreen({ navigation }) {
       ),
     });
   }, [editAble]);
+  const handleSelectAddress = useCallback((data) => {
+    setAddress(data);
+    console.log("🚀 ~ handleSelectAddress ~ data:", data);
+  }, []);
   return (
     <View
       style={{
@@ -64,6 +69,14 @@ export default function UserScreen({ navigation }) {
         height: "100%",
       }}
     >
+      {showMap && (
+        <View style={{ height: 600 }}>
+          <SelectAddress
+            onSelectAddress={handleSelectAddress}
+            setShowMap={setShowMap}
+          />
+        </View>
+      )}
       <CustomCard
         style={{ flexDirection: "row", alignItems: "center", columnGap: 10 }}
         header={

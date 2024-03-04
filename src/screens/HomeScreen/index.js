@@ -289,6 +289,13 @@ export default function HomeScreen() {
         >
           <AppText>SIGN OUT</AppText>
         </TouchableOpacity>
+
+        <CustomButton label={"Test notification"} style={{
+          backgroundColor: COLORS.accent,
+          
+        }} onPress={() => {
+          navigation.navigate("Test_notification");
+        }} />
       </ScrollView>
     </View>
   );

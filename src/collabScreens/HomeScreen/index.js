@@ -44,13 +44,13 @@ import {
   CustomButton,
   Row,
 } from "../../components";
-import { formatDateTime, formatMoney } from "../../utils";
+import { formatDateTime, formatMoney, markerDistance } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function HomeScreen({ navigation }) {
-  const { user } = useContext(AuthContext);
+  const { user, yourLocation } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
 
   const fetchJobs = async () => {
@@ -74,25 +74,37 @@ export default function HomeScreen({ navigation }) {
       const promise = jobsSnap.docs.map(async (docJob) => {
         const applies = await getDocs(collection(docJob.ref, "applies"));
         console.log("🚀 ~ jobsSnap.forEach ~ applies:", applies);
-      
+
         if (applies.docs.some((doc) => doc.data().uid === user.uid)) {
         } else {
           jobs.push({ ...docJob.data(), _id: docJob.id });
         }
       });
       await Promise.all(promise);
-      setJobs(jobs);
+      setJobs(
+        jobs.map((job, i) => ({
+          ...job,
+          _id: job._id,
+          distance: markerDistance(
+            { lat: job.address2.lat, lon: job.address2.lon },
+            { lat: yourLocation.latitude, lon: yourLocation.longitude }
+          ),
+        })).sort((a, b) => a.distance - b.distance)
+      );
     });
 
     return unsubscribe;
   }, []);
 
-  const headerCardInfoJob = (title, startTimestamp) => {
+  const headerCardInfoJob = (title, startTimestamp, distance) => {
     return (
       <View>
-        <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-          {title.toUpperCase()}
-        </AppText>
+        <Row style={{alignItems: 'center', justifyContent: 'space-between'}}>
+          <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
+            {title.toUpperCase()}
+          </AppText>
+          <AppText>{distance}</AppText>
+        </Row>
         <AppText style={{ fontSize: 15 }}>
           Bắt đầu vào lúc:
           <AppText
@@ -172,7 +184,7 @@ export default function HomeScreen({ navigation }) {
       {jobs.map((job, i) => (
         <CustomCard
           key={i}
-          header={headerCardInfoJob(job.title, job.start)}
+          header={headerCardInfoJob(job.title, job.start, job.distance ?? 0)}
           body={bodyCardInfoJob(
             job.timeHire,
             job.money,

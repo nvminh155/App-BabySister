@@ -28,6 +28,8 @@ import {
   where,
   getDocs,
   and,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -48,6 +50,7 @@ import {
   AppSafeAreaView,
   AppText,
 } from "../../components";
+import { formatDateTime } from "../../utils";
 
 export default function InfoSisterScreen({
   navigation,
@@ -58,11 +61,28 @@ export default function InfoSisterScreen({
   choosedUid,
   choosed = false,
   onReview,
-  isRated
+  isRated,
 }) {
   const [visiableRate, setVisiableRate] = useState(false);
   const [numStar, setNumStar] = useState(0);
   const [textRate, setTextRate] = useState("");
+  const [reviews, setReviews] = useState([]);
+
+  useLayoutEffect(() => {
+    const q = query(collection(db, `users/${sister.uid}/reviews`));
+    const unsub = onSnapshot(q, async (qr) => {
+      const customReviews = qr.docs.map(async (review) => ({
+        ...review.data(),
+        user: (await getDoc(doc(db, `users/${review.data().from}`))).data(),
+        _id: review.id,
+      }));
+      await Promise.all(customReviews).then((reviews) => {
+        setReviews(reviews);
+      });
+    });
+
+    return unsub;
+  }, []);
 
   const footerRate = (
     <View style={{ flexDirection: "row", columnGap: 10 }}>
@@ -192,12 +212,12 @@ export default function InfoSisterScreen({
               </AppText>
             </View>
 
-            <View style={{ flexDirection: "row", columnGap: 10, flexWrap: 'wrap' }}>
+            <View
+              style={{ flexDirection: "row", columnGap: 10, flexWrap: "wrap" }}
+            >
               <AppText style={{ fontWeight: "700" }}>Số điện thoại :</AppText>
               <AppText numberOfLines={2}>{sister.phone}</AppText>
             </View>
-
-
 
             {/* <View style={{ flexDirection: "row", columnGap: 10 }}>
               <AppText style={{ fontWeight: "700" }}>Kinh nghiệm :</AppText>
@@ -209,14 +229,16 @@ export default function InfoSisterScreen({
               <AppText numberOfLines={2}>COMPUTING</AppText>
             </View>
 
-            <View style={{ flexDirection: "row", columnGap: 10, flexWrap: 'wrap' }}>
+            <View
+              style={{ flexDirection: "row", columnGap: 10, flexWrap: "wrap" }}
+            >
               <AppText style={{ fontWeight: "700" }}>Bằng cấp :</AppText>
               <AppText numberOfLines={2}>?????</AppText>
             </View>
           </View>
         </View>
 
-        <View style={{flex: 1}}>
+        <View style={{ flex: 1 }}>
           <AppText
             style={{
               fontSize: 20,
@@ -228,37 +250,38 @@ export default function InfoSisterScreen({
             CÁC ĐÁNH GIÁ
           </AppText>
 
-          {!isRated && <CustomButton
-            label={"Đánh Giá"}
-            style={{
-              backgroundColor: COLORS.accent,
-              paddingHorizontal: 3,
-              paddingVertical: 3,
-              width: 100,
-              borderRadius: 15,
-              marginLeft: "auto",
-              marginBottom: 10,
-            }}
-            onPress={() => {
-              setVisiableRate(!visiableRate);
-            }}
-          />}
+          {!isRated && (
+            <CustomButton
+              label={"Đánh Giá"}
+              style={{
+                backgroundColor: COLORS.accent,
+                paddingHorizontal: 3,
+                paddingVertical: 3,
+                width: 100,
+                borderRadius: 15,
+                marginLeft: "auto",
+                marginBottom: 10,
+              }}
+              onPress={() => {
+                setVisiableRate(!visiableRate);
+              }}
+            />
+          )}
 
           <ScrollView
             id="reviewer"
             style={{ height: 200, paddingVertical: 10, flex: 1 }}
             nestedScrollEnabled
           >
-            {[1, 2, 3, 4, 5, 6].map((v) => (
+            {reviews.map((review, i) => (
               <View
-                key={v}
+                key={i}
                 style={{
                   flexDirection: "row",
                   columnGap: 20,
                   alignItems: "center",
                   marginBottom: 20,
                   flex: 1,
-                  
                 }}
               >
                 <AppImage
@@ -273,31 +296,36 @@ export default function InfoSisterScreen({
                   }}
                   source={require("images/bbst_1.jpg")}
                 />
-                <View style={{ rowGap: 10}}>
+                <View style={{ rowGap: 10 }}>
                   <View
                     style={{
                       rowGap: 5,
-                      
                     }}
                   >
                     <AppText style={{ fontWeight: "600" }}>
-                      Nguyen Nguyen Thi Van {v}
+                      {review.user.displayName}
                     </AppText>
                     <View style={{ flexDirection: "row", columnGap: 4 }}>
-                      {[1, 2, 3, 4, 5].map((v) => (
-                        <View key={v}>
+                      {[1, 2, 3, 4, 5].map((v, i) => (
+                        <View key={i}>
                           <AppImage
-                            width={10}
-                            height={10}
-                            source={require("images/star.png")}
+                            width={24}
+                            height={24}
+                            source={
+                              i + 1 <= review.numsOfStars
+                                ? require("images/star.png")
+                                : require("images/star_empty.png")
+                            }
                           />
                         </View>
                       ))}
                     </View>
                   </View>
-                  <AppText style={{ color: "grey" }} >
-                    Ban nay tuyet voi lam Ban nay tuyet voi lam Ban nay tuyet
-                    voi lam Ban nay tuyet voi lam
+                  <AppText style={{ color: "grey" }}>
+                    {review.textReview ? review.textReview : "Không có đánh giá"}
+                  </AppText>
+                  <AppText style={{ color: "grey" }}>
+                    Ngày tạo : {formatDateTime(review.createdAt).DDMYTS}
                   </AppText>
                 </View>
               </View>
@@ -323,7 +351,7 @@ export default function InfoSisterScreen({
           label={"Liên hệ ngay"}
           style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
           onPress={() => {
-            navigation.navigate("ChatPrivateStack", {receiverID: sister.uid});
+            navigation.navigate("ChatPrivateStack", { receiverID: sister.uid });
           }}
         />
       )}
@@ -331,6 +359,4 @@ export default function InfoSisterScreen({
   );
 }
 
-const styles = StyleSheet.create({
-
-});
+const styles = StyleSheet.create({});

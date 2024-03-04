@@ -17,7 +17,7 @@ import { Button, Dimensions, TouchableOpacity, View, Text } from "react-native";
 
 import CollabHomeStack from "./CollabHomeStack";
 import ViewJobScreen from "../collabScreens/HomeScreen/ViewJob";
-import UserScreen from "../collabScreens/UserScreen";
+import UserScreen from "../screens/UserScreen";
 
 import { AuthContext } from "../contexts/AuthProvider";
 

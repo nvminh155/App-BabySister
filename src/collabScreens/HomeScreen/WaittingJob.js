@@ -43,15 +43,13 @@ import {
   Row,
   InputCheckbox,
 } from "../../components";
-import { formatDateTime, formatMoney } from "../../utils";
+import { formatDateTime, formatMoney, markerDistance } from "../../utils";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function WaittingJobSreen({ navigation }) {
-  const { user } = useContext(AuthContext);
-  const [listFollowing, setListFollowing] = useState(null);
-  const [acceptJob, setAcceptJob] = useState(false);
+  const { user, yourLocation } = useContext(AuthContext);
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
@@ -66,7 +64,16 @@ export default function WaittingJobSreen({ navigation }) {
       });
 
       await Promise.all(promise);
-      setJobs(jobs);
+      setJobs(
+        jobs.map((job, i) => ({
+          ...job,
+          _id: job._id,
+          distance: markerDistance(
+            { lat: job.address2.lat, lon: job.address2.lon },
+            { lat: yourLocation.latitude, lon: yourLocation.longitude }
+          ),
+        }))
+      );
     });
 
     return unsubscribe;
@@ -78,7 +85,7 @@ export default function WaittingJobSreen({ navigation }) {
       numOfApplies: job.numOfApplies - 1,
     });
   };
-  const headerCardInfoJob = (title, startTimestamp) => {
+  const headerCardInfoJob = (title, startTimestamp, distance) => {
     return (
       <View style={{ justifyContent: "space-between" }}>
         <Row style={{ marginLeft: "auto", marginBottom: 10 }}>
@@ -90,9 +97,14 @@ export default function WaittingJobSreen({ navigation }) {
           <AppText fontWeight={"bold"}>Đang Chờ ...</AppText>
         </Row>
         <View>
-          <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-            {title.toUpperCase()}
-          </AppText>
+          <Row
+            style={{ alignItems: "center", justifyContent: "space-between" }}
+          >
+            <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
+              {title.toUpperCase()}
+            </AppText>
+            <AppText>{distance}</AppText>
+          </Row>
           <AppText style={{ fontSize: 15 }}>
             Bắt đầu vào lúc:
             <AppText
@@ -150,12 +162,12 @@ export default function WaittingJobSreen({ navigation }) {
   const footerCardInfoJob = (job) => {
     return (
       <View>
-        <Row style={{marginHorizontal: 'auto'}}>
+        <Row style={{ marginHorizontal: "auto" }}>
           <CustomButton
             label={"Xem công việc"}
             style={{ backgroundColor: COLORS.accent }}
             onPress={() => {
-              navigation.navigate("ViewJob", { job, isWaitting: true});  
+              navigation.navigate("ViewJob", { job, isWaitting: true });
             }}
           />
           <CustomButton
@@ -177,7 +189,7 @@ export default function WaittingJobSreen({ navigation }) {
       {jobs.map((job, i) => (
         <CustomCard
           key={i}
-          header={headerCardInfoJob(job.title, job.start)}
+          header={headerCardInfoJob(job.title, job.start, job.distance ?? 0)}
           body={bodyCardInfoJob(
             job.timeHire,
             job.money,

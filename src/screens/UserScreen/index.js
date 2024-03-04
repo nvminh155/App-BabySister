@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useContext, useLayoutEffect, useState } from "react";
+import { useCallback, useContext, useLayoutEffect, useState } from "react";
 
 // FIRE BASE
 
@@ -33,6 +33,10 @@ import {
   InputGroup,
   InputRadio,
 } from "../../components";
+import SelectAddress from "../MapScreen/SelectAddress";
+import { doc, updateDoc } from "firebase/firestore";
+import { auth, db } from "../../firebase/config";
+import { signOut } from "firebase/auth";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
@@ -40,12 +44,13 @@ const wHeight = Dimensions.get("window").height;
 export default function UserScreen({ navigation }) {
   const { user } = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(user.address ?? "");
   const [email, setEmail] = useState(user.email);
   const [phone, setPhone] = useState(user.phone ?? "");
   const [gender, setGender] = useState(1);
+  const [bio, setBio] = useState(user.bio ?? "");
   const [editAble, setEditAble] = useState(false);
-  console.log(editAble);
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -60,6 +65,21 @@ export default function UserScreen({ navigation }) {
       ),
     });
   }, [editAble]);
+
+  const handleSelectAddress = useCallback((data) => {
+    setAddress(data.text);
+  }, []);
+
+  const updateProfile = useCallback(async () => {
+    const docRef = doc(db, "users", user.uid);
+    await updateDoc(docRef, {
+      gender,
+      address,
+      phone,
+      bio,
+    });
+    setEditAble(false);
+  }, [address]);
   return (
     <View
       style={{
@@ -69,6 +89,25 @@ export default function UserScreen({ navigation }) {
         height: "100%",
       }}
     >
+      {showMap && (
+        <View
+          style={{
+            height: "100%",
+            position: "absolute",
+            flex: 1,
+            zIndex: 10000,
+            top: 0,
+            right: 0,
+            left: 0,
+          }}
+        >
+          <SelectAddress
+            onSelectAddress={handleSelectAddress}
+            setShowMap={setShowMap}
+          />
+        </View>
+      )}
+
       <CustomCard
         style={{ flexDirection: "row", alignItems: "center", columnGap: 10 }}
         header={
@@ -105,10 +144,29 @@ export default function UserScreen({ navigation }) {
       />
 
       <View style={{ marginTop: 40 }}>
+        {user.typeUser === 2 && (
+          <TouchableOpacity
+            style={{
+              marginBottom: 15,
+              flexDirection: "row",
+              columnGap: 10,
+              alignItems: "center",
+            }}
+          >
+            <AppImage
+              width={32}
+              height={32}
+              source={require("images/king.png")}
+            />
+            <AppText fontSize={20}>Trở thành cộng tác viên</AppText>
+          </TouchableOpacity>
+        )}
+
         <InputGroup
           label={<AppText>Email</AppText>}
           row={true}
           value={email}
+          placeholder={"Nhập email của bạn"}
           onChangeText={(text) => setEmail(text)}
           colorTextInput={!editAble ? "black" : null}
           readOnly={!editAble}
@@ -118,6 +176,7 @@ export default function UserScreen({ navigation }) {
           label={<AppText>Số điện thoại</AppText>}
           row={true}
           value={phone}
+          placeholder={"Nhập số điện thoại của bạn"}
           onChangeText={(text) => setPhone(text)}
           colorTextInput={!editAble ? "black" : null}
           readOnly={!editAble}
@@ -131,6 +190,11 @@ export default function UserScreen({ navigation }) {
               label={<AppText>{val}</AppText>}
               id={index}
               activeRadio={gender}
+              onClick={() => {
+                if (editAble) {
+                  setGender(index);
+                }
+              }}
             />
           ))}
         </Row>
@@ -139,12 +203,15 @@ export default function UserScreen({ navigation }) {
           <InputGroup
             label={<AppText>Địa chỉ</AppText>}
             row={true}
-            value={"??"}
+            value={address}
+            // onChangeText={(text) => setAddress(text)}
+            placeholder={"Chọn địa chỉ của bạn"}
             colorTextInput={!editAble ? "black" : null}
             readOnly={!editAble}
-            styleRoot={{ columnGap: 30 }}
+            styleRoot={{ columnGap: 30, flex: 1 }}
           />
           <TouchableOpacity
+            disabled={!editAble}
             onPress={() => {
               console.log(123);
               setShowMap(true);
@@ -164,6 +231,36 @@ export default function UserScreen({ navigation }) {
             <AppText fontWeight={"bold"}>ĐẶT VỊ TRÍ</AppText>
           </TouchableOpacity>
         </Row>
+
+        <InputGroup
+          label={<AppText>Mô tả</AppText>}
+          row={true}
+          value={bio}
+          placeholder={"Mô tả về bạn"}
+          onChangeText={(text) => setBio(text)}
+          colorTextInput={!editAble ? "black" : null}
+          readOnly={!editAble}
+          styleRoot={{ columnGap: 30 }}
+        />
+        <TouchableOpacity
+          style={{
+            flexDirection: "row",
+            columnGap: 15,
+            alignItems: "center",
+            paddingHorizontal: 15,
+            paddingVertical: 20,
+          }}
+          onPress={async () => {
+            await signOut(auth).catch((err) => console.log(err));
+          }}
+        >
+          <AppImage
+            width={24}
+            height={24}
+            source={require("images/logout.png")}
+          />
+          <AppText fontSize={17}>Đăng Xuất</AppText>
+        </TouchableOpacity>
       </View>
 
       {editAble && (
@@ -171,6 +268,7 @@ export default function UserScreen({ navigation }) {
           label={"Lưu"}
           style={{ backgroundColor: COLORS.accent, paddingVertical: 15 }}
           styleText={{ fontSize: 20 }}
+          onPress={updateProfile}
         />
       )}
     </View>

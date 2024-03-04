@@ -145,7 +145,7 @@ function SelectAddress({
               }}
             />
             <CustomButton
-              label={"Xác Nhận"}
+              label={"Hủy"}
               style={{
                 backgroundColor: COLORS.secondary,
                 borderColor: COLORS.accent,

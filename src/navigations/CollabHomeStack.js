@@ -21,7 +21,7 @@ export default function CollabHomeStack({ navigation }) {
   return (
     <Tab.Navigator initialRouteName="Home" screenOptions={{
     }}>
-      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Home" component={HomeScreen} options={{ title: "Công Việc Hiện Tại"}} />
       <Tab.Screen
         name="WaittingJob"
         component={WaittingJobSreen}

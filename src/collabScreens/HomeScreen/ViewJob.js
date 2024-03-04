@@ -56,9 +56,8 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function ViewJobScreen({ navigation, route }) {
-  const { user } = useContext(AuthContext);
+  const { user, yourLocation } = useContext(AuthContext);
   const [acceptJob, setAcceptJob] = useState(false);
-  const { yourLocation } = useContext(AuthContext);
   console.log("🚀 ~ ViewJobScreen ~ yourLocation:", yourLocation);
   const [address, setAddress] = useState({ text: "", lon: 123, lat: 123 });
   const [isWaitting, setIsWaitting] = useState(
@@ -67,12 +66,13 @@ export default function ViewJobScreen({ navigation, route }) {
   const [apply, setApply] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [job, setJob] = useState(route.params.job);
+  console.log("🚀 ~ ViewJobScreen ~ job:", job)
 
   useLayoutEffect(() => {
     async function fetchJob() {
       const jobRef = doc(db, `posts/${route.params.job._id}`);
       const jobDoc = await getDoc(jobRef);
-      setJob({ ...jobDoc.data(), _id: jobDoc.id });
+      setJob(prev => ({ ...prev, ...jobDoc.data(), _id: jobDoc.id}));
       const applies = await getDocs(collection(db, `posts/${job._id}/applies`));
       setApply(
         applies.docs
@@ -88,6 +88,13 @@ export default function ViewJobScreen({ navigation, route }) {
       );
     }
     fetchJob();
+    // setJob((prev) => ({
+    //   ...prev,
+    //   distance: markerDistance(
+    //     { lat: prev.address2.lat, lon: prev.address2.lon },
+    //     { lat: yourLocation.latitude, lon: yourLocation.longitude }
+    //   ),
+    // }));
   }, []);
   useEffect(() => {
     setAddress({
@@ -97,12 +104,15 @@ export default function ViewJobScreen({ navigation, route }) {
     });
   }, []);
 
-  const headerCardInfoJob = (title, startTimestamp) => {
+  const headerCardInfoJob = (title, startTimestamp, distance) => {
     return (
       <View>
-        <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
-          {title.toUpperCase()}
-        </AppText>
+        <Row style={{ alignItems: "center", justifyContent: "space-between" }}>
+          <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
+            {title.toUpperCase()}
+          </AppText>
+          <AppText>{distance}</AppText>
+        </Row>
         <AppText style={{ fontSize: 15 }}>
           Bắt đầu vào lúc:
           <AppText
@@ -181,7 +191,7 @@ export default function ViewJobScreen({ navigation, route }) {
             paddingTop: 10,
             marginTop: 10,
             alignItems: "center",
-              justifyContent: "center",
+            justifyContent: "center",
           }}
         >
           <TouchableOpacity
@@ -204,7 +214,7 @@ export default function ViewJobScreen({ navigation, route }) {
 
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("ChatStack", {receiverID: job.postedBy})
+              navigation.navigate("ChatStack", { receiverID: job.postedBy });
             }}
             id="address-map"
             style={{
@@ -279,7 +289,7 @@ export default function ViewJobScreen({ navigation, route }) {
       )}
 
       <CustomCard
-        header={headerCardInfoJob(job.title, job.start)}
+        header={headerCardInfoJob(job.title, job.start, job.distance)}
         body={bodyCardInfoJob(
           job.timeHire,
           job.money,

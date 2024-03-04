@@ -113,6 +113,7 @@ export default function PostSearchScreen({ navigation, route }) {
       timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
       money,
       numOfApplies: 0,
+      postedBy: user.uid,
       applies: [],
       isRated: false,
       userChoosed: null,
