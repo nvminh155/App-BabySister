@@ -33,3 +33,6 @@ export default function PaymentStack({ navigation, route }) {
     </Stack.Navigator>
   );
 }
+
+
+// add payment stack
