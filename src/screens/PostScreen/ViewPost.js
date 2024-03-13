@@ -337,7 +337,7 @@ export default function ViewPostScreen({ navigation, route }) {
                 onChooseSister={onChooseSister}
                 choosedUid={choosed}
                 onReview={handleReview}
-                isRated={job.isRated}
+                isRated={job.isRated || job.isDone !== 2 ? true : false}
               />
             </CustomModal>
             <CustomCard

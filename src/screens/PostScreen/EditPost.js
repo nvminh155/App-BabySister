@@ -61,8 +61,32 @@ export default function EditPostScreen({ navigation, route }) {
   const [timeHire, setTimeHire] = useState("0");
   const [money, setMoney] = useState(0);
 
+
+  async function saveEditPost() {
+    const docData = {
+      uid: user.uid,
+      title,
+      numOfChilds,
+      textNote,
+      address,
+      start: startDate.timestamp,
+      end: endDate.timestamp,
+      timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
+      money,
+      updatedAt: Date.now()
+    };
+    console.log("🚀 ~ saveEditPost ~ docData:", docData)
+
+    const postRef = doc(db, "posts", job._id);
+    const update = await updateDoc(postRef, { ...docData })
+      .then(() => {
+        console.log(`UPDATE EDIT POST ${job._id} SUCCESS `);
+      })
+      .catch((err) => console.log("UPDATE POST ERR"));
+  }
+
   useLayoutEffect(() => {
-    setAddress(job.address);
+    setAddress(job.address2.text);
     setEndDate((prev) => ({ ...prev, timestamp: job.end }));
     setStartDate((prev) => ({ ...prev, timestamp: job.start }));
     setTitle(job.title);
@@ -70,49 +94,6 @@ export default function EditPostScreen({ navigation, route }) {
     setNumOfChilds(job.numOfChilds);
     setTextNote(job.textNote);
 
-    async function saveEditPost() {
-      const docData = {
-        uid: user.uid,
-        title,
-        numOfChilds,
-        textNote,
-        address,
-        start: startDate.timestamp,
-        end: endDate.timestamp,
-        timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
-        money,
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      };
-
-      const postRef = doc(db, "posts", job._id);
-      const update = await updateDoc(postRef, { ...docData })
-        .then(() => {
-          console.log(`UPDATE EDIT POST ${job._id} SUCCESS `);
-        })
-        .catch((err) => console.log("UPDATE POST ERR"));
-    }
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 10 }}
-          onPress={() => {
-            saveEditPost();
-          }}
-        >
-          <Row style={{ columnGap: 5 }}>
-            <AppImage
-              width={24}
-              height={24}
-              source={require("images/save_doc.png")}
-            />
-            <AppText fontWeight={"bold"} color={COLORS.accent}>
-              Lưu
-            </AppText>
-          </Row>
-        </TouchableOpacity>
-      ),
-    });
   }, []);
   useEffect( () => {
     const unsubPost = onSnapshot(doc(db, "posts", job._id), doc => {
@@ -145,8 +126,8 @@ export default function EditPostScreen({ navigation, route }) {
   };
 
   return (
-    <View style={{ paddingHorizontal: 10, marginTop: 20 }}>
-      <ScrollView style={{ marginBottom: 10 }}>
+    <View style={{ paddingHorizontal: 10, marginTop: 20, flex: 1 }}>
+      <ScrollView style={{ marginBottom: 10, flex: 1}}>
         <InputGroup
           label={
             <AppText style={{ fontWeight: "bold" }}>Đặt tiêu đề :</AppText>
@@ -381,6 +362,23 @@ export default function EditPostScreen({ navigation, route }) {
           }
         />
       </ScrollView>
+      <TouchableOpacity
+          style={{  marginBottom: 10, marginLeft: "auto"}}
+          onPress={() => {
+            saveEditPost();
+          }}
+        >
+          <Row style={{ columnGap: 5 }}>
+            <AppImage
+              width={24}
+              height={24}
+              source={require("images/save_doc.png")}
+            />
+            <AppText fontWeight={"bold"} color={COLORS.accent}>
+              Lưu
+            </AppText>
+          </Row>
+        </TouchableOpacity>
     </View>
   );
 }

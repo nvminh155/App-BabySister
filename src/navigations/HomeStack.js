@@ -15,7 +15,7 @@ import NoticeScreen from "../screens/NoticeScreen";
 import SelectAddress from "../screens/MapScreen/SelectAddress";
 import { timeIcon } from "../utils";
 import Test_notification from "../screens/Test_notification";
-
+import PaymentStack from "./PaymentStack";
 const Stack = createStackNavigator();
 
 const wWidth = Dimensions.get("window").width;
@@ -77,9 +77,10 @@ export default function HomeStack() {
       <Stack.Screen name="InfoSister" component={InfoSisterScreen} />
       <Stack.Screen name="ChatSister" component={ChatScreen} />
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />
-      <Stack.Screen name="SelectAddress" component={SelectAddress} />
       <Stack.Screen name="Notice" component={NoticeScreen} />
-      <Stack.Screen name="Test_notification" component={Test_notification} />
+      {/* <Stack.Screen name="Test_notification" component={Test_notification} /> */}
+      <Stack.Screen name="Test_payment" component={PaymentStack} options={{headerShown: false}} />
+      <Stack.Screen name="Payment" component={PaymentStack} options={{headerShown: false}} />
     </Stack.Navigator>
   );
 }

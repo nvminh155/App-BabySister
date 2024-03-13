@@ -15,7 +15,7 @@ import ChatStack from "../navigations/ChatStack";
 import UserScreen from "../screens/UserScreen";
 import PostedScreen from "../screens/PostScreen/Posted";
 import PostStack from "./PostStack";
-import MapScreen from "../screens/MapScreen";
+import UserStack from "./UserStack";
 
 const Tab = createBottomTabNavigator();
 
@@ -46,7 +46,7 @@ export default function AppStack() {
           tabPress: (e) => {
             e.preventDefault();
             console.log(e);
-
+            
             navigation.reset({
               index: 0,
               routes: [{ name: e.target.split("-")[0] }],
@@ -132,9 +132,9 @@ export default function AppStack() {
       />
       <Tab.Screen
         name="UserScreen"
-        component={UserScreen}
+        component={UserStack}
         options={{
-          title: "Thông Tin Cá Nhân",
+          title: "Thông Tin",
           tabBarIcon: () => (
             <FontAwesome5
               name="user-circle"
@@ -143,7 +143,7 @@ export default function AppStack() {
               style={{ marginRight: 5 }}
             />
           ),
-          headerShown: true,
+          headerShown: false,
         }}
         listeners={({ navigation }) => ({
           tabPress: (e) => {

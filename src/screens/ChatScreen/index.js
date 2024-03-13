@@ -132,11 +132,12 @@ export default function ChatScreen({ navigation, route }) {
         <View
           style={{
             flex: 1,
-            paddingVertical: 20,
-            paddingHorizontal: 10,
           }}
         >
-          <ScrollView contentContainerStyle={{ rowGap: 20 }}>
+          <ScrollView
+            contentContainerStyle={{ rowGap: 20 }}
+            style={{ backgroundColor: COLORS.secondary, paddingVertical: 10 }}
+          >
             {friends
               .filter((v, i, self) => self.indexOf(v) === i)
               .map((f, i) => (
@@ -147,11 +148,11 @@ export default function ChatScreen({ navigation, route }) {
                       receiverID: f.uid,
                     });
                   }}
-                  style={{
-                    backgroundColor: COLORS.secondary,
-                    borderRadius: 10,
-                    padding: 5,
-                  }}
+                  // style={{
+                  //   backgroundColor: COLORS.secondary,
+                  //   borderRadius: 10,
+                  //   padding: 5,
+                  // }}
                 >
                   <CustomCard
                     header={

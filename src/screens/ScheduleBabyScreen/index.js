@@ -47,7 +47,7 @@ import {
   CustomCard,
   AppSafeAreaView,
 } from "../../components";
-import  {formatDateTime} from "../../utils"
+import { formatDateTime } from "../../utils";
 import { AuthContext } from "../../contexts/AuthProvider";
 import { db } from "../../firebase/config";
 
@@ -67,7 +67,7 @@ export default function ScheduleBabyScreen({ navigation }) {
 
     return unsubcribe;
   }, []);
-  
+
   const bodyCardSchedule = (schedule) => (
     <View>
       <AppText style={{ fontWeight: "bold" }}>{schedule.title}</AppText>
@@ -94,7 +94,13 @@ export default function ScheduleBabyScreen({ navigation }) {
     </View>
   );
   return (
-    <AppSafeAreaView style={{ height: "100%", width: "100%" }}>
+    <AppSafeAreaView
+      style={{
+        height: "100%",
+        width: "100%",
+        backgroundColor: COLORS.background,
+      }}
+    >
       <View id="header" style={{ paddingHorizontal: 10 }}>
         <CustomButton
           label={"Thêm mới"}
@@ -116,7 +122,15 @@ export default function ScheduleBabyScreen({ navigation }) {
       {schedules.length > 0 ? (
         <View id="contains-schedules" style={{ marginTop: 25, rowGap: 20 }}>
           {schedules.map((schedule, i) => (
-            <View key={i} style={{backgroundColor: COLORS.secondary, padding: 5, borderRadius: 10}}>
+            <View
+              key={i}
+              style={{
+                backgroundColor: COLORS.secondary,
+                padding: 5,
+                borderRadius: 10,
+                elevation: 2
+              }}
+            >
               <CustomCard
                 body={bodyCardSchedule(schedule)}
                 footer={footerCardSchedule(schedule)}

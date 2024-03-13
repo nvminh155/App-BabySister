@@ -35,8 +35,11 @@ const styles = StyleSheet.create({
   button: {
     paddingVertical: 5,
     paddingHorizontal: 10,
-    justifyContent: "center",
     borderRadius: 7,
-    marginTop: 10
+    marginTop: 10,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    columnGap: 10
   },
 });

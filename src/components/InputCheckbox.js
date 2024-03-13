@@ -18,18 +18,17 @@ export default function InputCheckbox({
 
   useEffect(() => {
     setIsTick(initTick);
-    if (onToggle) onToggle(initTick);
-  }, [initTick]);
+    // if (onToggle) onToggle(initTick);
+  }, []);
 
-  useEffect(() => {
-    if (onToggle) onToggle(isTick);
-  }, [isTick]);
+
   return (
     <>
       {!disable ? (
         <TouchableOpacity
           onPress={() => {
             if(disable) return;
+            onToggle(!isTick);
             setIsTick(!isTick);
           }}
           style={{

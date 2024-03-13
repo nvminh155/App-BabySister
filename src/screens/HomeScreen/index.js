@@ -296,6 +296,14 @@ export default function HomeScreen() {
         }} onPress={() => {
           navigation.navigate("Test_notification");
         }} />
+
+<CustomButton label={" Test_payment"} style={{
+          backgroundColor: COLORS.accent,
+          
+        }} onPress={() => {
+          navigation.navigate("Test_payment");
+        }} />
+
       </ScrollView>
     </View>
   );

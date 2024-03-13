@@ -18,8 +18,7 @@ import { useCallback, useContext, useLayoutEffect, useState } from "react";
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
 
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import Ionicons from "react-native-vector-icons/Ionicons";
+import { Ionicons, AntDesign, FontAwesome } from "react-native-vector-icons";
 
 import { COLORS } from "../../constants/COLORS";
 
@@ -50,6 +49,7 @@ export default function UserScreen({ navigation }) {
   const [gender, setGender] = useState(1);
   const [bio, setBio] = useState(user.bio ?? "");
   const [editAble, setEditAble] = useState(false);
+  const [showWalletAction, setShowWalletAction] = useState(false);
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -81,7 +81,7 @@ export default function UserScreen({ navigation }) {
     setEditAble(false);
   }, [address]);
   return (
-    <View
+    <ScrollView
       style={{
         paddingHorizontal: 10,
         paddingVertical: 10,
@@ -143,8 +143,8 @@ export default function UserScreen({ navigation }) {
         }
       />
 
-      <View style={{ marginTop: 40 }}>
-        {user.typeUser === 2 && (
+      <View style={{ marginTop: 40, rowGap: 10 }}>
+        <View>
           <TouchableOpacity
             style={{
               marginBottom: 15,
@@ -152,15 +152,47 @@ export default function UserScreen({ navigation }) {
               columnGap: 10,
               alignItems: "center",
             }}
+            onPress={() => {
+              setShowWalletAction(!showWalletAction);
+            }}
           >
             <AppImage
               width={32}
               height={32}
-              source={require("images/king.png")}
+              source={require("images/wallet.png")}
             />
-            <AppText fontSize={20}>Trở thành cộng tác viên</AppText>
+            <AppText fontSize={20}>Ví BSPay</AppText>
+            <AntDesign name="down" size={24} style={{ marginLeft: "auto" }} />
           </TouchableOpacity>
-        )}
+
+          {showWalletAction && (
+            <Row id="actions">
+              <CustomButton
+                label={"Nạp tiền"}
+                style={{ backgroundColor: COLORS.accent }}
+                icon={<AntDesign name="plus" size={24} color={"white"} />}
+                onPress={() => {
+                  navigation.navigate("UserPaymentStack", {
+                    paymentType: "BSP",
+                    onGoBack: async (code) => {
+                      if (code === 500) return;
+
+                      navigation.reset({
+                        index: 0,
+                        routes: [{ name: "UserScreen" }],
+                      });
+                    },
+                  });
+                }}
+              />
+              <CustomButton
+                label={"Các giao dịch"}
+                style={{ backgroundColor: "#68A2D4" }}
+                icon={<FontAwesome name="exchange" size={24} color={"white"} />}
+              />
+            </Row>
+          )}
+        </View>
 
         <InputGroup
           label={<AppText>Email</AppText>}
@@ -271,6 +303,6 @@ export default function UserScreen({ navigation }) {
           onPress={updateProfile}
         />
       )}
-    </View>
+    </ScrollView>
   );
 }

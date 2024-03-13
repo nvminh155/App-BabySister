@@ -197,6 +197,19 @@ export default function PostedScreen({ navigation }) {
                 navigation.navigate("ViewPost", { docIdJob: job._id, job });
               }}
             />
+
+            <CustomButton
+              label={"Chỉnh Sửa"}
+              style={{
+                backgroundColor: COLORS.accent,
+                alignSelf: "center",
+                width: "max-content",
+              }}
+              onPress={() => {
+                navigation.navigate("EditPost", { job: job});
+              }}
+            />
+
             <CustomButton
               label={"HỦY ĐĂNG"}
               style={{

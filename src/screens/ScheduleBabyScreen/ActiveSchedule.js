@@ -55,6 +55,7 @@ import { AuthContext } from "../../contexts/AuthProvider";
 import ListScheduleActive from "./ListScheduleActive";
 import Spin from "../../components/Spin";
 import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
+import { formatDateTime } from "../../utils";
 
 export default function ActiveSchedule({ navigation, route, isDone }) {
   const { user } = useContext(AuthContext);
@@ -72,6 +73,32 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
   const [loadingData, setLoadingData] = useState(true);
   const [finishTimeSchedule, setFinishTimeSchedule] = useState([]);
   const [visiableUpImg, setVisiableUpImg] = useState(false);
+  const [isNoticeForParent, setIsNoticeForParent] = useState(null);
+
+  console.log(isNoticeForParent);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("beforeRemove", (e) => {
+      // Prevent default action
+      console.log(isNoticeForParent);
+      if (isNoticeForParent !== 1) return;
+
+      e.preventDefault();
+
+      Alert.alert(
+        "Chưa gửi thông báo cho phụ huynh",
+        'Bạn vừa  cập nhật quá trình làm việc của mình ! Vui lòng nhấn "Cập nhật quá trình" để thông báo cho phụ huynh trước khi rời khỏi màn hình này!',
+        [
+          {
+            text: "Tôi sẽ thông báo ngay !",
+            style: "cancel",
+            onPress: () => {},
+          },
+        ]
+      );
+    });
+
+    return unsubscribe;
+  }, [navigation, isNoticeForParent]);
 
   useLayoutEffect(() => {
     if (!editAble) {
@@ -131,7 +158,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
     );
     const unsubcribe = onSnapshot(messageDoc, (message) => {
       const data = { ...message.data() };
-      console.log("🚀 ~ unsubcribe ~ data:", data)
+      console.log("🚀 ~ unsubcribe ~ data:", data);
       setFinishTimeSchedule(data.finishTimeSchedule);
     });
 
@@ -206,24 +233,35 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
       finishTimeSchedule: tick
         ? arrayUnion(timeSche.timeScheduleID)
         : arrayRemove(timeSche.timeScheduleID),
+    }).then(() => {
+      console.log("123213");
+      setIsNoticeForParent(1);
     });
   }, []);
 
+  const handleSendNoticeMarkDoneToParent = async () => {
+    const timeDone = "Bảo mẫu đã hoàn thành các mốc thời gian: ";
+    for(time in finishTimeSchedule) {
+      const findTime = timeSchedules.find((v) => v.timeScheduleID === time);
+      timeDone += formatDateTime(findTime.time).T + ", ";
+    }
+    timeDone += " !!!";
+    
+    
+  }
   const handleUploadImgChild = async (mode, childID) => {
-    await uploadImage(mode).then(res => {
-      if(!res) return;
+    await uploadImage(mode).then((res) => {
+      if (!res) return;
       setChilds((prev) => {
         console.log(prev);
         return prev.map((v, i) => ({
           ...v,
-          image: v.id === childID ? {...res} : v.image,
+          image: v.id === childID ? { ...res } : v.image,
         }));
       });
       setVisiableUpImg(false);
-    })
-
-  
-};
+    });
+  };
 
   const handleFinishSchedule = async () => {
     const messageDoc = doc(
@@ -247,59 +285,59 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
             marginTop: 20,
           }}
         >
-        <CustomModal
-        modalVisible={visiableUpImg}
-        setModalVisible={setVisiableUpImg}
-      >
-        <Row
-          style={{
-            alignSeft: "center",
-            marginTop: 0,
-            margin: "0 auto",
-            justifyContent: "center",
-          }}
-        >
-          <CustomButton
-            label={"Máy ảnh"}
-            style={{
-              borderRadius: 15,
-              padding: 10,
-              borderColor: COLORS.accent,
-              borderWidth: 1,
-            }}
-            styleText={{ color: COLORS.accent }}
-            onPress={() => {
-              handleUploadImgChild("camera", childs[page].id);
-            }}
-          />
-          <CustomButton
-            label={"Thư viện ảnh"}
-            style={{
-              borderRadius: 15,
-              padding: 10,
-              borderColor: COLORS.accent,
-              borderWidth: 1,
-            }}
-            styleText={{ color: COLORS.accent }}
-            onPress={() => {
-              handleUploadImgChild("gallery", childs[page].id);
-            }}
-          />
-          <CustomButton
-            label={"Hủy"}
-            style={{
-              borderRadius: 15,
-              padding: 10,
-              borderColor: COLORS.accent,
-              borderWidth: 1,
-            }}
-            styleText={{ color: COLORS.accent }}
-            onPress={() => {
-              setVisiableUpImg(false);
-            }}
-          />
-        </Row>
-      </CustomModal>
+          <CustomModal
+            modalVisible={visiableUpImg}
+            setModalVisible={setVisiableUpImg}
+          >
+            <Row
+              style={{
+                alignSeft: "center",
+                marginTop: 0,
+                margin: "0 auto",
+                justifyContent: "center",
+              }}
+            >
+              <CustomButton
+                label={"Máy ảnh"}
+                style={{
+                  borderRadius: 15,
+                  padding: 10,
+                  borderColor: COLORS.accent,
+                  borderWidth: 1,
+                }}
+                styleText={{ color: COLORS.accent }}
+                onPress={() => {
+                  handleUploadImgChild("camera", childs[page].id);
+                }}
+              />
+              <CustomButton
+                label={"Thư viện ảnh"}
+                style={{
+                  borderRadius: 15,
+                  padding: 10,
+                  borderColor: COLORS.accent,
+                  borderWidth: 1,
+                }}
+                styleText={{ color: COLORS.accent }}
+                onPress={() => {
+                  handleUploadImgChild("gallery", childs[page].id);
+                }}
+              />
+              <CustomButton
+                label={"Hủy"}
+                style={{
+                  borderRadius: 15,
+                  padding: 10,
+                  borderColor: COLORS.accent,
+                  borderWidth: 1,
+                }}
+                styleText={{ color: COLORS.accent }}
+                onPress={() => {
+                  setVisiableUpImg(false);
+                }}
+              />
+            </Row>
+          </CustomModal>
           {editAble ? (
             <InputGroup
               label={
@@ -527,6 +565,21 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
                 }}
               />
             </View>
+          )}
+
+          {user.typeUser === 1 && (
+            <CustomButton
+              label={"Cập nhật quá trình"}
+              style={{
+                backgroundColor: COLORS.accent,
+                marginBottom: 10,
+                marginTop: "auto",
+              }}
+              onPress={() => {
+                setIsNoticeForParent(2);
+                handleSendNoticeMarkDoneToParent();
+              }}
+            />
           )}
         </View>
       )}

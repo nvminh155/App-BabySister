@@ -189,9 +189,12 @@ export default function ViewJobScreen({ navigation, route }) {
             borderTopColor: "black",
             borderTopWidth: 0.2,
             paddingTop: 10,
+            paddingHorizontal: 10,
+            flexWrap: 'wrap',
             marginTop: 10,
             alignItems: "center",
             justifyContent: "center",
+            rowGap: 10
           }}
         >
           <TouchableOpacity
@@ -229,6 +232,26 @@ export default function ViewJobScreen({ navigation, route }) {
             />
             <AppText fontWeight={"bold"}>Liên hệ ngay</AppText>
           </TouchableOpacity>
+
+
+          <TouchableOpacity
+            onPress={() => {
+              navigation.navigate("ChatStack", { receiverID: job.postedBy });
+            }}
+            id="address-map"
+            style={{
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <AppImage
+              width={32}
+              height={32}
+              source={require("images/up_price.png")}
+            />
+            <AppText fontWeight={"bold"}>Yêu cầu tăng giá</AppText>
+          </TouchableOpacity>
+
         </Row>
       </View>
     );
@@ -261,7 +284,7 @@ export default function ViewJobScreen({ navigation, route }) {
     navigation.goBack();
   };
   return (
-    <View style={{ paddingHorizontal: 10, flex: 1 }}>
+    <View style={{flex: 1, backgroundColor: COLORS.background }}>
       {showMap && (
         <View
           style={{
@@ -308,12 +331,13 @@ export default function ViewJobScreen({ navigation, route }) {
       {job.isDone === 0 && (
         <View style={{ flex: 1 }}>
           {!isWaitting && (
-            <Row>
+            <Row style={{marginLeft: 10}}>
               <InputCheckbox
                 edge={20}
                 onToggle={(val) => {
                   setAcceptJob(val);
                 }}
+            
               />
               <AppText>Bạn đã đọc kỹ thông tin và muốn nhận việc ? </AppText>
             </Row>

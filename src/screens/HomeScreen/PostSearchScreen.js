@@ -73,12 +73,27 @@ export default function PostSearchScreen({ navigation, route }) {
   const [title, setTitle] = useState("");
   const [timeHire, setTimeHire] = useState("0");
   const [money, setMoney] = useState(0);
-
+  console.log("GO BAC1K")
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Đăng bài tìm kiếm",
     });
   });
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('state', (e) => {
+      // Check if the action is 'goBack'
+      // if (e.data.action.type === 'GO_BACK') {
+      //   // Handle the goBack event
+      //   console.log('Going back!');
+      // }
+      // console.log("🚀 ~ unsubscribe ~ e:", e) 
+      // console.log(e.data.state.routes)
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
   const returnDateTime = (timestamp) => {
     return timestamp ? new Date(timestamp) : new Date();
   };
@@ -101,6 +116,44 @@ export default function PostSearchScreen({ navigation, route }) {
   }, [])
 
   const handlePost = async () => {
+    navigation.navigate("Payment", {
+      amount: money,
+      title: "Thanh toán job",
+      onGoBack: async (code) => {
+        if(code === 500) return;
+        console.log("🚀 ~ handlePost ~ code - success", code)
+        const docData = {
+          uid: user.uid,
+          title,
+          numOfChilds,
+          textNote,
+          address1: {},
+          address2: address,
+          start: startDate.timestamp,
+          end: endDate.timestamp,
+          timeHire: calcTimeHire(startDate.timestamp, endDate.timestamp),
+          money,
+          numOfApplies: 0,
+          postedBy: user.uid,
+          applies: [],
+          isRated: false,
+          userChoosed: null,
+          isDone: 0, // 1 choosed sister // 2 done
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        };
+        // console.log(docData)
+        const docRef = await addDoc(collection(db, "posts"), docData).then(() => {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'HomeStack' }],
+          });
+        });
+        // console.log(docRef);
+      }
+    })
+    
+    return;
     const docData = {
       uid: user.uid,
       title,
@@ -390,7 +443,9 @@ export default function PostSearchScreen({ navigation, route }) {
             label={"Hủy"}
             style={{ borderColor: COLORS.accent, borderWidth: 1 }}
             styleText={{ color: COLORS.accent }}
-            onPress={() => {}}
+            onPress={() => {
+
+            }}
           />
         </View>
       </ScrollView>

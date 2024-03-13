@@ -235,6 +235,14 @@ export default function InfoSisterScreen({
               <AppText style={{ fontWeight: "700" }}>Bằng cấp :</AppText>
               <AppText numberOfLines={2}>?????</AppText>
             </View>
+
+            <View
+              style={{ flexDirection: "row", columnGap: 10, flexWrap: "wrap" }}
+            >
+              <AppText style={{ fontWeight: "700" }}>Mô tả bản thân :</AppText>
+              <AppText numberOfLines={2}>{sister?.bio ?? "Không có"}</AppText>
+            </View>
+
           </View>
         </View>
 
@@ -273,7 +281,7 @@ export default function InfoSisterScreen({
             style={{ height: 200, paddingVertical: 10, flex: 1 }}
             nestedScrollEnabled
           >
-            {reviews.map((review, i) => (
+            {reviews && reviews.length > 0 ? reviews.map((review, i) => (
               <View
                 key={i}
                 style={{
@@ -325,11 +333,11 @@ export default function InfoSisterScreen({
                     {review.textReview ? review.textReview : "Không có đánh giá"}
                   </AppText>
                   <AppText style={{ color: "grey" }}>
-                    Ngày tạo : {formatDateTime(review.createdAt).DDMYTS}
+                    Ngày bình luận : {formatDateTime(review.createdAt).DDMYTS}
                   </AppText>
                 </View>
               </View>
-            ))}
+            )) : <AppText style={{alignSelf: 'center', fontStyle: 'italic'}} color={'grey'} >Chưa có</AppText>}
           </ScrollView>
         </View>
       </ScrollView>
