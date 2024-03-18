@@ -58,8 +58,8 @@ import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
 export default function ChatPrivateScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
   const { dataChat, setDataChat, fetchChatRef, messages, receiver, schedules } =
-  useContext(ChatPrivateContext);
-  console.log("🚀 ~ ChatPrivateScreen ~ dataChat:", dataChat)
+    useContext(ChatPrivateContext);
+  console.log("🚀 ~ ChatPrivateScreen ~ dataChat:", dataChat);
 
   const messagesEl = useRef();
 
@@ -147,7 +147,12 @@ export default function ChatPrivateScreen({ navigation, route }) {
       await fetchChatRef();
     }
     await setDoc(
-      doc(db, `chats/${dataChat ? dataChat._id : user.uid}/messages/${dataMessage.messageID}`),
+      doc(
+        db,
+        `chats/${dataChat ? dataChat._id : user.uid}/messages/${
+          dataMessage.messageID
+        }`
+      ),
       dataMessage
     );
 
@@ -179,10 +184,14 @@ export default function ChatPrivateScreen({ navigation, route }) {
         await fetchChatRef();
       }
       await setDoc(
-        doc(db, `chats/${dataChat ? dataChat._id : user.uid}/messages/${dataMessage.messageID}`),
+        doc(
+          db,
+          `chats/${dataChat ? dataChat._id : user.uid}/messages/${
+            dataMessage.messageID
+          }`
+        ),
         dataMessage
       );
-
     });
   };
 
@@ -229,9 +238,9 @@ export default function ChatPrivateScreen({ navigation, route }) {
         style={{ flex: 1 }}
       >
         {messages.map((m, i) => {
-          return (
-            <View key={m.messageID} >
-              {m.type === "text" ? (
+          function message() {
+            if (m.type === "text")
+              return (
                 <View
                   style={styles.message(m.senderID === user.uid)}
                   key={m.messageID}
@@ -240,7 +249,9 @@ export default function ChatPrivateScreen({ navigation, route }) {
                     {m.text}
                   </Text>
                 </View>
-              ) : (
+              );
+            else if (m.type === "schedule") {
+              return (
                 <View
                   key={m.messageID}
                   style={{
@@ -285,9 +296,25 @@ export default function ChatPrivateScreen({ navigation, route }) {
                     </View>
                   </View>
                 </View>
-              )}
-            </View>
-          );
+              );
+            } else if (m.type === "notice") {
+              return (
+                <View
+                  key={m.messageID}
+                  style={{
+                    backgroundColor: COLORS.accent,
+                    marginHorizontal: 40,
+                    marginTop: 15,
+                    padding: 10,
+                    borderRadius: 10,
+                  }}
+                >
+                  <AppText color={'white'} style={{fontStyle: 'italic'}}>{m.text}</AppText>
+                </View>
+              );
+            }
+          }
+          return <View key={m.messageID}>{message()}</View>;
         })}
       </ScrollView>
 

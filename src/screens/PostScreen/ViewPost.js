@@ -31,6 +31,7 @@ import {
   query,
   onSnapshot,
   where,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "../../firebase/config";
 
@@ -286,7 +287,12 @@ export default function ViewPostScreen({ navigation, route }) {
   const handleFinishJob = async () => {
     const jobRef = doc(db, `posts/${docIdJob}`);
     await updateDoc(jobRef, { isDone: 2, isRated: true});
-
+    await getDoc(doc(db, `users/${job.userChoosed}`)).then(async (doc) => {
+      const data = doc.data();
+      await updateDoc(doc.ref, {
+        wallet: data.wallet + job.money,
+      });
+    })
     await handleSendNotice(job.userChoosed, "jobs", {
       type: "donejob",
       text: `Chúc mừng ! Bạn đã được xác nhận hoàn thành công việc ${job.title}`,

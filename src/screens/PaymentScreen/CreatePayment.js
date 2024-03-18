@@ -31,7 +31,16 @@ export default function CreatePayment({ navigation, route }) {
     if (selectedMethod === "ATM") {
       const url = createURL(amount);
       navigation.navigate("ShowPayment", {
+        paymentType: "ATM",
+        amount,
         linkPayment: url,
+        onGoBack: route.params?.onGoBack,
+      });
+    } else {
+      navigation.navigate("ShowPayment", {
+        paymentType: "BSP",
+        amount,
+        linkPayment: "success",
         onGoBack: route.params?.onGoBack,
       });
     }
@@ -42,6 +51,7 @@ export default function CreatePayment({ navigation, route }) {
         label={<AppText>Số tiền</AppText>}
         inputMode={"numeric"}
         row={true}
+        readOnly={route.params?.readOnly ?? false}
         value={formatMoney(amount)}
         onChangeText={(text) => setAmount(text.replaceAll(".", ""))}
         iconAfter={

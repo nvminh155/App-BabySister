@@ -34,6 +34,7 @@ import {
   updateDoc,
   arrayUnion,
   arrayRemove,
+  setDoc,
 } from "firebase/firestore";
 
 import { Ionicons } from "react-native-vector-icons";
@@ -55,7 +56,7 @@ import { AuthContext } from "../../contexts/AuthProvider";
 import ListScheduleActive from "./ListScheduleActive";
 import Spin from "../../components/Spin";
 import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
-import { formatDateTime } from "../../utils";
+import { formatDateTime, genShortId } from "../../utils";
 
 export default function ActiveSchedule({ navigation, route, isDone }) {
   const { user } = useContext(AuthContext);
@@ -240,14 +241,29 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
   }, []);
 
   const handleSendNoticeMarkDoneToParent = async () => {
-    const timeDone = "Bảo mẫu đã hoàn thành các mốc thời gian: ";
-    for(time in finishTimeSchedule) {
-      const findTime = timeSchedules.find((v) => v.timeScheduleID === time);
-      timeDone += formatDateTime(findTime.time).T + ", ";
+    let textMessage = "Bảo mẫu đã hoàn thành các mốc thời gian: ";
+    for(time of finishTimeSchedule) {
+      const findTime = timeSchedules.find((v) => v.timeScheduleID == time);
+      textMessage += formatDateTime(findTime.time).T + ", ";
     }
-    timeDone += " !!!";
-    
-    
+    if(finishTimeSchedule && finishTimeSchedule.length > 0) {
+      textMessage[textMessage.length - 2] = "";
+    }
+    textMessage += " !!!";
+    console.log("🚀 ~ handleSendNoticeMarkDoneToParent ~ textMessage:", textMessage)
+   
+    const dataMessage = {
+      messageID: genShortId(),
+      senderID: user.uid,
+      receiverID: receiver.uid,
+      type: "notice",
+      images: [],
+      text: textMessage,
+      createdAt: Date.now(),
+    };
+    await setDoc(doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`), {
+      ...dataMessage
+    })
   }
   const handleUploadImgChild = async (mode, childID) => {
     await uploadImage(mode).then((res) => {

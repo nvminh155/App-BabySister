@@ -261,7 +261,7 @@ export default function ViewJobScreen({ navigation, route }) {
     if (!acceptJob) {
       Alert.alert(
         "CẢNH BÁO",
-        "Vui lòng đọc kỹ yêu cầu và nhấn vào nút Xác Nhận bên dưới trước khi nhận việc"
+        "Vui lòng đọc kỹ yêu cầu và nhấn vào nút Xác Nhận bên dưới trước khi nhận việc",
       );
       return;
     }

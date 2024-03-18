@@ -11,7 +11,7 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useCallback, useContext, useLayoutEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
 
 // FIRE BASE
 
@@ -33,7 +33,7 @@ import {
   InputRadio,
 } from "../../components";
 import SelectAddress from "../MapScreen/SelectAddress";
-import { doc, updateDoc } from "firebase/firestore";
+import { collection, doc, getDocs, updateDoc } from "firebase/firestore";
 import { auth, db } from "../../firebase/config";
 import { signOut } from "firebase/auth";
 
@@ -51,6 +51,16 @@ export default function UserScreen({ navigation }) {
   const [editAble, setEditAble] = useState(false);
   const [showWalletAction, setShowWalletAction] = useState(false);
 
+  // useEffect(() => {
+  //   const docs = getDocs(collection(db, 'users')).then((querySnapshot) => {
+  //     querySnapshot.forEach(async (qr) => {
+  //       console.log(qr.id, " => ", qr.data());
+  //       await updateDoc(qr.ref, {
+  //         wallet: 800000000,
+  //       });
+  //     });
+  //   })
+  // }, [])
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -166,31 +176,41 @@ export default function UserScreen({ navigation }) {
           </TouchableOpacity>
 
           {showWalletAction && (
-            <Row id="actions">
-              <CustomButton
-                label={"Nạp tiền"}
-                style={{ backgroundColor: COLORS.accent }}
-                icon={<AntDesign name="plus" size={24} color={"white"} />}
-                onPress={() => {
-                  navigation.navigate("UserPaymentStack", {
-                    paymentType: "BSP",
-                    onGoBack: async (code) => {
-                      if (code === 500) return;
+            <View>
+              <AppText fontSize={18}>Số dư: {user?.wallet ?? 0}</AppText>
 
-                      navigation.reset({
-                        index: 0,
-                        routes: [{ name: "UserScreen" }],
-                      });
-                    },
-                  });
-                }}
-              />
-              <CustomButton
-                label={"Các giao dịch"}
-                style={{ backgroundColor: "#68A2D4" }}
-                icon={<FontAwesome name="exchange" size={24} color={"white"} />}
-              />
-            </Row>
+              <Row id="actions">
+                <CustomButton
+                  label={"Nạp tiền"}
+                  style={{ backgroundColor: COLORS.accent }}
+                  icon={<AntDesign name="plus" size={24} color={"white"} />}
+                  onPress={() => {
+                    navigation.navigate("UserPaymentStack", {
+                      paymentType: "BSP",
+                      readOnly: false,
+                      onGoBack: async ({ code, amount }) => {
+                        if (code === 500) return;
+                        await updateDoc(db, doc(db, "users", user.uid), {
+                          wallet: amount,
+                        }).then(() => {
+                          navigation.reset({
+                            index: 0,
+                            routes: [{ name: "UserScreen" }],
+                          });
+                        });
+                      },
+                    });
+                  }}
+                />
+                <CustomButton
+                  label={"Các giao dịch"}
+                  style={{ backgroundColor: "#68A2D4" }}
+                  icon={
+                    <FontAwesome name="exchange" size={24} color={"white"} />
+                  }
+                />
+              </Row>
+            </View>
           )}
         </View>
 

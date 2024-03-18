@@ -2,7 +2,7 @@ import { View } from "react-native";
 import { AppImage, AppText, CustomButton, CustomModal } from "../../components";
 import { COLORS } from "../../constants/COLORS";
 
-export default function SuccessPayment({navigation, route}) {
+export default function SuccessPayment({ navigation, route }) {
   return (
     <CustomModal
       footer={
@@ -12,7 +12,11 @@ export default function SuccessPayment({navigation, route}) {
             backgroundColor: COLORS.accent,
           }}
           onPress={() => {
-            route.params?.onGoBack(200);
+            route.params?.onGoBack({
+              code: 200,
+              amount: route.params?.amount ?? 0,
+              paymentType: route.params?.paymentType,
+            });
           }}
         />
       }

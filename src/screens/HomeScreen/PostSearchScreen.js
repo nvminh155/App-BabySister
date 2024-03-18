@@ -28,6 +28,8 @@ import {
   where,
   getDocs,
   and,
+  updateDoc,
+  doc,
 } from "firebase/firestore";
 
 import { db } from "../../firebase/config";
@@ -54,7 +56,7 @@ import {
 import { formatDateTime } from "../../utils";
 
 export default function PostSearchScreen({ navigation, route }) {
-  const user = route.params.user;
+  const {user, setUser} = useContext(AuthContext);
   const [numOfChilds, setNumOfChilds] = useState(0);
   const [textNote, setTextNote] = useState("");
   const [address, setAddress] = useState({ text: "", lon: 123, lat: 123 });
@@ -80,19 +82,13 @@ export default function PostSearchScreen({ navigation, route }) {
     });
   });
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('state', (e) => {
-      // Check if the action is 'goBack'
-      // if (e.data.action.type === 'GO_BACK') {
-      //   // Handle the goBack event
-      //   console.log('Going back!');
-      // }
-      // console.log("🚀 ~ unsubscribe ~ e:", e) 
-      // console.log(e.data.state.routes)
-    });
+  // useEffect(() => {
+  //   const unsubscribe = onSnapshot(doc(db, "users", user.uid), (snap) => {
 
-    return unsubscribe;
-  }, [navigation]);
+  //   })
+
+  //   return unsubscribe;
+  // }, []);
 
   const returnDateTime = (timestamp) => {
     return timestamp ? new Date(timestamp) : new Date();
@@ -117,9 +113,10 @@ export default function PostSearchScreen({ navigation, route }) {
 
   const handlePost = async () => {
     navigation.navigate("Payment", {
+      readOnly: true,
       amount: money,
       title: "Thanh toán job",
-      onGoBack: async (code) => {
+      onGoBack: async ({code, amount, paymentType}) => {
         if(code === 500) return;
         console.log("🚀 ~ handlePost ~ code - success", code)
         const docData = {
@@ -143,11 +140,22 @@ export default function PostSearchScreen({ navigation, route }) {
           updatedAt: Date.now(),
         };
         // console.log(docData)
-        const docRef = await addDoc(collection(db, "posts"), docData).then(() => {
+        const docRef = await addDoc(collection(db, "posts"), docData).then(async () => {
+          if(paymentType === "BSP") {
+            await updateDoc(doc(db, "users", user.uid), {
+              wallet: user.wallet - amount
+            }).then(() => {
+              setUser(prev => ({
+                ...prev,
+                wallet: prev.wallet - amount
+              }))
+            })
+          }
           navigation.reset({
             index: 0,
             routes: [{ name: 'HomeStack' }],
           });
+
         });
         // console.log(docRef);
       }

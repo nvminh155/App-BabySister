@@ -28,7 +28,7 @@ export default function InputCheckbox({
         <TouchableOpacity
           onPress={() => {
             if(disable) return;
-            onToggle(!isTick);
+            if(onToggle) onToggle(!isTick);
             setIsTick(!isTick);
           }}
           style={{
