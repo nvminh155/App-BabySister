@@ -10,7 +10,7 @@ import {
   Image,
 } from "react-native";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../firebase/config";
+import { auth, db } from "../firebase/config";
 import { useEffect, useState } from "react";
 
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -19,17 +19,32 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { COLORS } from "../constants/COLORS";
 
 import { AppText, CustomButton, InputField, AppImage, AppSafeAreaView} from "../components";
+import { expoPushNotice } from "../utils";
+import { arrayUnion, doc, updateDoc } from "firebase/firestore";
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState("minhnv@gmail.com");
   const [password, setPassword] = useState("123456");
 
 
+  const addExpoPushToken = async (uid) => {
+    expoPushNotice.registerForPushNotificationsAsync().then(async token => {
+      if(token) {
+        await updateDoc(doc(db, "users", uid), {
+          expoPushTokens: arrayUnion(token)
+        })
+      }
+    });
+  }
   const handleLogin = async () => {
     // return;
     if (email !== "" && password !== "") {
-      await signInWithEmailAndPassword(auth, email, password).then(() => console.log("LONGIN SUCCESSFULL",email, password)).catch((err) =>
+      await signInWithEmailAndPassword(auth, email, password).then((data) => {
+        console.log("LONGIN SUCCESSFULL",email, password, data.user.uid)
+        addExpoPushToken(data.user.uid)
+      }).catch((err) =>
         Alert.alert(err.message)
+        
       );
     }
   };

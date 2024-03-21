@@ -51,16 +51,16 @@ export default function UserScreen({ navigation }) {
   const [editAble, setEditAble] = useState(false);
   const [showWalletAction, setShowWalletAction] = useState(false);
 
-  // useEffect(() => {
-  //   const docs = getDocs(collection(db, 'users')).then((querySnapshot) => {
-  //     querySnapshot.forEach(async (qr) => {
-  //       console.log(qr.id, " => ", qr.data());
-  //       await updateDoc(qr.ref, {
-  //         wallet: 800000000,
-  //       });
-  //     });
-  //   })
-  // }, [])
+  useEffect(() => {
+    const docs = getDocs(collection(db, 'users')).then((querySnapshot) => {
+      querySnapshot.forEach(async (qr) => {
+        console.log(qr.id, " => ", qr.data());
+        await updateDoc(qr.ref, {
+          expoPushTokens: []
+        });
+      });
+    })
+  }, [])
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (

@@ -25,9 +25,9 @@ export const AuthContext = createContext();
 
 export default function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  console.log("🚀 ~ AuthProvider ~ user:", user)
   const [loading, setLoading] = useState(true);
   const [yourLocation, setYourLocation] = useState({"latitude": 37.4220936, "latitudeDelta": 0.0922, "longitude": -122.083922, "longitudeDelta": 0.0421});
-  console.log("🚀 ~ AuthProvider ~ yourLocation:", yourLocation);
   useEffect(() => {
     const unsubcribe = onAuthStateChanged(auth, async (authenticatedUser) => {
       if (authenticatedUser) {

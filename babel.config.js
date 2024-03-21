@@ -6,7 +6,6 @@ module.exports = function (api) {
       [
         "module-resolver",
         {
-          root: ["./src"], // Set your source directory
           alias: {
             components: "./src/components", // Define your aliases
             screens: "./src/screens",

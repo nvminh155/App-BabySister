@@ -15,13 +15,20 @@ import { useContext, useEffect, useState } from "react";
 
 // FIRE BASE
 import { auth, db } from "../../firebase/config";
-import { signOut } from "firebase/auth";
+import {
+  AuthCredential,
+  EmailAuthCredential,
+  EmailAuthProvider,
+  signOut,
+  updatePassword,
+} from "firebase/auth";
 import {
   getDocs,
   onSnapshot,
   collection,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 
 // CONTEXT
@@ -50,6 +57,11 @@ import {
   uploadBytes,
   uploadString,
 } from "firebase/storage";
+
+import messaging from "@react-native-firebase/messaging";
+
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export default function HomeScreen() {
   const navigation = useNavigation();
   const { user } = useContext(AuthContext);
@@ -57,6 +69,7 @@ export default function HomeScreen() {
   console.log("🚀 ~ HomeScreen ~ image:", image);
   const [imageName, setImageName] = useState("");
   const [url, setUrl] = useState("");
+  const [pass, setPass] = useState("");
   const [text, setText] = useState(
     "Bạn muốn nhờ người hỗ trợ ? Hãy gửi bài đăng kèm các yêu cầu của bạn ..."
   );
@@ -86,11 +99,48 @@ export default function HomeScreen() {
   // };
 
   const dowloadURL = async () => {
-    await uploadImage("camera").then( (result) => {
+    await uploadImage("camera").then((result) => {
       console.log("🚀 ~ awaituploadImage ~ result:", result);
     });
-    
   };
+
+  async function requestPermission() {
+    const authStatus = await messaging().requestPermission();
+
+    const enabled = authStatus === messaging.AuthorizationStatus.AUTHORIZED || messaging.AuthorizationStatus.PROVISIONAL;
+
+    if(enabled) {
+      getFcmToken();
+    }
+  }
+  async function getFcmToken() {
+    let fcmToken = await AsyncStorage.getItem('fcmToken');
+
+    if(!fcmToken) {
+      try {
+        const token = await messaging().getToken();
+        console.log(token)
+
+        if(token) {
+          await AsyncStorage.setItem('fcmToken', token);
+        }
+      } catch (err) {
+        console.log("An error occurred while getting a token");
+      
+      }
+    }
+  }
+
+  const [token, setToken] = useState("");
+  useEffect(() => {
+    requestPermission();
+    getTokenFromAsyncStorage()
+  }, [])
+
+  const getTokenFromAsyncStorage = async () => {
+    const token = await AsyncStorage.getItem("fcmToken");
+    if(token) setToken(token);
+  }
   return (
     <View
       style={{
@@ -290,21 +340,47 @@ export default function HomeScreen() {
           <AppText>SIGN OUT</AppText>
         </TouchableOpacity>
 
-        <CustomButton label={"Test notification"} style={{
-          backgroundColor: COLORS.accent,
-          
-        }} onPress={() => {
-          navigation.navigate("Test_notification");
-        }} />
+        <CustomButton
+          label={"Test notification"}
+          style={{
+            backgroundColor: COLORS.accent,
+          }}
+          onPress={() => {
+            navigation.navigate("Test_notification");
+          }}
+        />
 
-<CustomButton label={" Test_payment"} style={{
-          backgroundColor: COLORS.accent,
-          
-        }} onPress={() => {
-          navigation.navigate("Test_payment");
-        }} />
-
+        <CustomButton
+          label={" Test_payment"}
+          style={{
+            backgroundColor: COLORS.accent,
+          }}
+          onPress={() => {
+            navigation.navigate("Test_payment");
+          }}
+        />
       </ScrollView>
+
+      <TextInput
+        value={pass}
+        onChangeText={(text) => {
+          setPass(text);
+        }}
+      ></TextInput>
+        <AppText>Your Token: {token} </AppText>
+      <CustomButton
+        label={"change page"}
+        style={{
+          backgroundColor: COLORS.accent,
+        }}
+        onPress={async () => {
+          const userCurrent = auth.currentUser;
+          console.log("🚀 ~ onPress={ ~ userCurrent:", userCurrent)
+          await updatePassword(userCurrent, pass).then((data) => {
+            console.log("update successfull", pass, data);
+          });
+        }}
+      />
     </View>
   );
 }

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "BabySister",
-    "slug": "BabySister",
+    "slug": "chatapp",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -22,7 +22,13 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "package": "com.anonymous.ChatApp"
+      "package": "com.anonymous.BabySister",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.FOREGROUND_SERVICE"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png"
@@ -33,7 +39,19 @@
         {
           "locationAlwaysAndWhenInUsePermission": "Cho phép $(PRODUCT_NAME) sử dụng định vị của bạn."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "image":  "./src/assets/atm_card.png"
+        }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "497e77fc-f310-435c-ab6a-5fd30b5c1550"
+      }
+    },
+    "owner": "minhrxpo1505"
   }
 }

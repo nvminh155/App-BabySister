@@ -78,7 +78,7 @@ export default function HomeStack() {
       <Stack.Screen name="ChatSister" component={ChatScreen} />
       <Stack.Screen name="PostSearch" component={PostSearchScreen} />
       <Stack.Screen name="Notice" component={NoticeScreen} />
-      {/* <Stack.Screen name="Test_notification" component={Test_notification} /> */}
+      <Stack.Screen name="Test_notification" component={Test_notification} />
       <Stack.Screen name="Test_payment" component={PaymentStack} options={{headerShown: false}} />
       <Stack.Screen name="Payment" component={PaymentStack} options={{headerShown: false}} />
     </Stack.Navigator>

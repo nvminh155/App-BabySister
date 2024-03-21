@@ -51,7 +51,7 @@ import {
   CustomModal,
 } from "../../components";
 
-import { formatDateTime, formatMoney, markerDistance } from "../../utils";
+import { expoPushNotice, formatDateTime, formatMoney, markerDistance } from "../../utils";
 
 import InfoSisterScreen from "./InfoSisterScreen";
 import Spin from "../../components/Spin";
@@ -286,9 +286,19 @@ export default function ViewPostScreen({ navigation, route }) {
 
   const handleFinishJob = async () => {
     const jobRef = doc(db, `posts/${docIdJob}`);
+    const collabMessage = {
+      to: "",
+      sound: "default",
+      title: "Hoàn thành công việc  !",
+      body: `Phụ huynh ${user.displayName} đã xác nhận bạn hoàn thành công việc ${job.title} ! \nVui lòng kiểm tra lại!`,
+    }
+
     await updateDoc(jobRef, { isDone: 2, isRated: true});
     await getDoc(doc(db, `users/${job.userChoosed}`)).then(async (doc) => {
       const data = doc.data();
+      console.log("🚀 ~ awaitgetDoc ~ data:", data)
+
+      expoPushNotice.send(collabMessage, data.expoPushTokens);
       await updateDoc(doc.ref, {
         wallet: data.wallet + job.money,
       });
