@@ -54,6 +54,7 @@ export default function ChatPrivateProvider({ children, navigation, route }) {
     docs.forEach((doc) => {
       setReceiver({ ...doc.data(), _id: doc.id });
     });
+
   };
 
   useLayoutEffect(() => {

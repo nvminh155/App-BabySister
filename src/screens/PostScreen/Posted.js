@@ -25,6 +25,10 @@ import {
   getDocs,
   getDoc,
   onSnapshot,
+  doc,
+  updateDoc,
+  deleteDoc,
+  orderBy,
 } from "firebase/firestore";
 
 // CONTEXT
@@ -55,7 +59,7 @@ export default function PostedScreen({ navigation }) {
   const [test, setTest] = useState([]);
 
   const fetchJobs = async () => {
-    const q = query(collection(db, "posts"), where("uid", "==", user.uid));
+    const q = query(collection(db, "posts"), orderBy('createdAt', 'asc'), where("uid", "==", user.uid));
     const querySnap = await getDocs(q);
 
     setJobs(
@@ -83,7 +87,7 @@ export default function PostedScreen({ navigation }) {
   }, []);
 
   useEffect(() => {
-    const q = query(collection(db, "posts"), where("uid", "==", user.uid));
+    const q = query(collection(db, "posts"),orderBy('createdAt', 'desc'), where("uid", "==", user.uid));
     const unsubscribe = onSnapshot(q, (postSnap) => {
       const posts = [];
       postSnap.forEach((doc) => {
@@ -101,6 +105,12 @@ export default function PostedScreen({ navigation }) {
   }, []);
 
   const removePost = () => {};
+
+  const borderLeftColorCard = (job) => {
+    if (job.isDone === 0) return "yellow";
+    else if (job.isDone === 1) return "blue";
+    return COLORS.accent;
+  };
 
   const headerCardInfoJob = (job) => {
     const isJobDone = () => {
@@ -128,8 +138,9 @@ export default function PostedScreen({ navigation }) {
         <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
           {job.title.toUpperCase()}
         </AppText>
+        
         <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
+          Thời gian làm: 
           <AppText
             style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
           >
@@ -155,14 +166,14 @@ export default function PostedScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong (giờ)</AppText>
+            <AppText>Số giờ</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {job.timeHire}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
-            <AppText>Số tiền(VND)</AppText>
+            <AppText>Tiền công (VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {formatMoney(job.money)}
             </AppText>
@@ -170,7 +181,7 @@ export default function PostedScreen({ navigation }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{job.address2.text}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
@@ -206,7 +217,7 @@ export default function PostedScreen({ navigation }) {
                 width: "max-content",
               }}
               onPress={() => {
-                navigation.navigate("EditPost", { job: job});
+                navigation.navigate("EditPost", { job: job });
               }}
             />
 
@@ -220,8 +231,11 @@ export default function PostedScreen({ navigation }) {
                 borderWidth: 1,
               }}
               styleText={{ color: COLORS.accent }}
-              onPress={() => {
-                navigation.navigate("ViewJob", { job });
+              onPress={async () => {
+                await deleteDoc(doc(db, `posts/${job._id}`));
+                await updateDoc(doc(db, `users/${user.uid}`), {
+                  wallet: parseInt(user.wallet) + job.money,
+                }).then(() => {}).catch(err => console.log(err));
               }}
             />
           </Row>
@@ -263,7 +277,7 @@ export default function PostedScreen({ navigation }) {
             paddingVertical: 20,
             borderTopLeftRadius: 15,
             borderBottomLeftRaidus: 15,
-            borderLeftColor: COLORS.accent, // red: end, green: done, blue: wait
+            borderLeftColor: borderLeftColorCard(job), // red: end, green: done, blue: wait
             borderLeftWidth: 4,
           }}
         />

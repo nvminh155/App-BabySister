@@ -32,7 +32,13 @@ import {
   Row,
   InputGroup,
 } from "../../components";
-import { collection, getDocs, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  onSnapshot,
+  orderBy,
+  query,
+} from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { formatDateTime } from "../../utils";
 
@@ -82,7 +88,7 @@ function NoticeJobAccepted({ data }) {
               </AppText>
             </Row>
             <AppText>
-              Tại: <AppText fontWeight={"bold"}>{data.address}</AppText>
+              Địa điểm: <AppText fontWeight={"bold"}>{data.address}</AppText>
             </AppText>
             <AppText>
               Vào lúc:{" "}
@@ -90,7 +96,7 @@ function NoticeJobAccepted({ data }) {
                 {formatDateTime(data.time).DDMYTS}
               </AppText>
             </AppText>
-            <AppText color={'grey'} style={{marginTop: 20}}>
+            <AppText color={"grey"} style={{ marginTop: 20 }}>
               {formatDateTime(data.createdAt).DDMYTS}
             </AppText>
           </View>
@@ -104,16 +110,20 @@ export default function NoticeScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
   const [noticePosts, setNoticePosts] = useState([]);
 
-  const fetchNotice = async () => {
-    const q = query(collection(db, `notices/${user.uid}/posts`), orderBy('createdAt', 'desc'));
-    const docs = (await getDocs(q)).docs;
-
-    setNoticePosts(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
-  };
-
   useEffect(() => {
-    fetchNotice();
     console.log("MOUTED INDEX NOTICE PHU HUYNH");
+    const fetchNoticePost = async () => {
+      const q = query(
+        collection(db, `notices/${user.uid}/posts`),
+        orderBy("createdAt", "desc")
+      );
+      const unsub = onSnapshot(q, (snapshot) => {
+        const docs = snapshot.docs;
+        setNoticePosts(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+      });
+      return unsub;
+    };
+    fetchNoticePost();
   }, []);
 
   return (
@@ -129,7 +139,6 @@ export default function NoticeScreen({ navigation, route }) {
       {noticePosts.map((notice, i) => (
         <NoticeJobAccepted key={i} data={notice} />
       ))}
-
     </ScrollView>
   );
 }

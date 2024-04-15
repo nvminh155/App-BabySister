@@ -4,10 +4,10 @@
     "slug": "chatapp",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/images/atm_card.png",
     "userInterfaceStyle": "light",
     "splash": {
-      "image": "./assets/splash.png",
+      "image": "./src/assets/images/atm_card.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -30,6 +30,13 @@
         "android.permission.FOREGROUND_SERVICE"
       ]
     },
+    "notification": {
+      "icon": "./assets/icon.png",
+      "color": "#FF153E",
+      "iconUrl": "https://d1wp6m56sqw74a.cloudfront.net/~assets/da4a0a2f789f1297c3e4a4bb4216d866",
+      "androidMode": "default",
+      "androidCollapsedTitle": ""
+    },
     "web": {
       "favicon": "./assets/favicon.png"
     },
@@ -43,7 +50,7 @@
       [
         "expo-notifications",
         {
-          "image":  "./src/assets/atm_card.png"
+          "icon":  "./src/assets/atm_card.png"
         }
       ]
     ],

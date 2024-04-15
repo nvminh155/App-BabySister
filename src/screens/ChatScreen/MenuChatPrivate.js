@@ -137,7 +137,6 @@ function MenuChatPrivate({ navigation, route }) {
           }}
           style={{ flexDirection: "row", alignItems: "center", columnGap: 10 }}
         >
-          <Ionicons name="trash" size={25} />
           <AppText fontSize={20}>Danh sách lịch biểu sử dụng</AppText>
           <View style={{ marginLeft: "auto", alignSelf: "center" }}>
             {showListSchedulesInChat ? (

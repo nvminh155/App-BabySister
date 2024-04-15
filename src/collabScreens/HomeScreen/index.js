@@ -82,14 +82,16 @@ export default function HomeScreen({ navigation }) {
       });
       await Promise.all(promise);
       setJobs(
-        jobs.map((job, i) => ({
-          ...job,
-          _id: job._id,
-          distance: markerDistance(
-            { lat: job.address2.lat, lon: job.address2.lon },
-            { lat: yourLocation.latitude, lon: yourLocation.longitude }
-          ),
-        })).sort((a, b) => a.distance - b.distance)
+        jobs
+          .map((job, i) => ({
+            ...job,
+            _id: job._id,
+            distance: markerDistance(
+              { lat: job.address2.lat, lon: job.address2.lon },
+              { lat: yourLocation.latitude, lon: yourLocation.longitude }
+            ),
+          }))
+          .sort((a, b) => a.distance - b.distance)
       );
     });
 
@@ -99,14 +101,21 @@ export default function HomeScreen({ navigation }) {
   const headerCardInfoJob = (title, startTimestamp, distance) => {
     return (
       <View>
-        <Row style={{alignItems: 'center', justifyContent: 'space-between'}}>
+        <Row style={{ alignItems: "center", justifyContent: "space-between" }}>
           <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
             {title.toUpperCase()}
           </AppText>
-          <AppText>{distance}</AppText>
+          <Row style={{ columnGap: 5, alignItems: "center" }}>
+            <AppImage
+              width={32}
+              height={32}
+              source={require("images/distance.png")}
+            />
+            <AppText>{distance}</AppText>
+          </Row>
         </Row>
         <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
+          Thời gian làm :
           <AppText
             style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
           >
@@ -132,14 +141,14 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong (giờ)</AppText>
+            <AppText>Số giờ</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
-            <AppText>Số tiền(VND)</AppText>
+            <AppText>Tiền công (VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {formatMoney(money)}
             </AppText>
@@ -147,7 +156,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{address.text}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>

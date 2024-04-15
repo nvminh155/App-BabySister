@@ -56,6 +56,7 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function ViewJobScreen({ navigation, route }) {
+  console.log("🚀 ~ ViewJobScre1en ~ navigation:", navigation)
   const { user, yourLocation } = useContext(AuthContext);
   const [acceptJob, setAcceptJob] = useState(false);
   console.log("🚀 ~ ViewJobScreen ~ yourLocation:", yourLocation);
@@ -66,13 +67,13 @@ export default function ViewJobScreen({ navigation, route }) {
   const [apply, setApply] = useState(null);
   const [showMap, setShowMap] = useState(false);
   const [job, setJob] = useState(route.params.job);
-  console.log("🚀 ~ ViewJobScreen ~ job:", job)
+  console.log("🚀 ~ ViewJobScreen ~ job:", job);
 
   useLayoutEffect(() => {
     async function fetchJob() {
       const jobRef = doc(db, `posts/${route.params.job._id}`);
       const jobDoc = await getDoc(jobRef);
-      setJob(prev => ({ ...prev, ...jobDoc.data(), _id: jobDoc.id}));
+      setJob((prev) => ({ ...prev, ...jobDoc.data(), _id: jobDoc.id }));
       const applies = await getDocs(collection(db, `posts/${job._id}/applies`));
       setApply(
         applies.docs
@@ -111,10 +112,17 @@ export default function ViewJobScreen({ navigation, route }) {
           <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
             {title.toUpperCase()}
           </AppText>
-          <AppText>{distance}</AppText>
+          <Row style={{ columnGap: 5, alignItems: "center" }}>
+            <AppImage
+              width={32}
+              height={32}
+              source={require("images/distance.png")}
+            />
+            <AppText>{distance}</AppText>
+          </Row>
         </Row>
         <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
+          Thời gian làm:
           <AppText
             style={{
               color: COLORS.accent,
@@ -146,14 +154,14 @@ export default function ViewJobScreen({ navigation, route }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong (giờ)</AppText>
+            <AppText>Số giờ</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
-            <AppText>Số tiền(VND)</AppText>
+            <AppText>Tiền công (VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {formatMoney(money)}
             </AppText>
@@ -161,7 +169,7 @@ export default function ViewJobScreen({ navigation, route }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{address.text}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
@@ -175,7 +183,6 @@ export default function ViewJobScreen({ navigation, route }) {
   const footerCardInfoJob = () => {
     return (
       <View>
-        <AppText color={COLORS.accent}>alsdfjljasdfklajtdlfkj</AppText>
         <AppText style={{ marginLeft: "auto", marginTop: 10 }}>
           Đã có{" "}
           <AppText color={COLORS.accent} fontWeight={"bold"}>
@@ -190,11 +197,11 @@ export default function ViewJobScreen({ navigation, route }) {
             borderTopWidth: 0.2,
             paddingTop: 10,
             paddingHorizontal: 10,
-            flexWrap: 'wrap',
+            flexWrap: "wrap",
             marginTop: 10,
             alignItems: "center",
             justifyContent: "center",
-            rowGap: 10
+            rowGap: 10,
           }}
         >
           <TouchableOpacity
@@ -212,12 +219,12 @@ export default function ViewJobScreen({ navigation, route }) {
               height={32}
               source={require("images/map.png")}
             />
-            <AppText fontWeight={"bold"}>XEM VỊ TRÍ LÀM VIỆC</AppText>
+            <AppText fontWeight={"bold"}>Xem vị trí</AppText>
           </TouchableOpacity>
 
           <TouchableOpacity
             onPress={() => {
-              navigation.navigate("ChatStack", { receiverID: job.postedBy });
+              navigation.navigate("ChatPrivateStackFromViewJob", { receiverID: job.postedBy });
             }}
             id="address-map"
             style={{
@@ -233,10 +240,9 @@ export default function ViewJobScreen({ navigation, route }) {
             <AppText fontWeight={"bold"}>Liên hệ ngay</AppText>
           </TouchableOpacity>
 
-
-          <TouchableOpacity
+          {/* <TouchableOpacity
             onPress={() => {
-              navigation.navigate("ChatStack", { receiverID: job.postedBy });
+              navigation.navigate("ChatPrivateStackFromViewJob", { receiverID: job.postedBy });
             }}
             id="address-map"
             style={{
@@ -250,8 +256,7 @@ export default function ViewJobScreen({ navigation, route }) {
               source={require("images/up_price.png")}
             />
             <AppText fontWeight={"bold"}>Yêu cầu tăng giá</AppText>
-          </TouchableOpacity>
-
+          </TouchableOpacity> */}
         </Row>
       </View>
     );
@@ -261,7 +266,7 @@ export default function ViewJobScreen({ navigation, route }) {
     if (!acceptJob) {
       Alert.alert(
         "CẢNH BÁO",
-        "Vui lòng đọc kỹ yêu cầu và nhấn vào nút Xác Nhận bên dưới trước khi nhận việc",
+        "Vui lòng đọc kỹ yêu cầu và nhấn vào nút Xác Nhận bên dưới trước khi nhận việc"
       );
       return;
     }
@@ -284,7 +289,7 @@ export default function ViewJobScreen({ navigation, route }) {
     navigation.goBack();
   };
   return (
-    <View style={{flex: 1, backgroundColor: COLORS.background }}>
+    <View style={{ flex: 1, backgroundColor: COLORS.background }}>
       {showMap && (
         <View
           style={{
@@ -331,13 +336,12 @@ export default function ViewJobScreen({ navigation, route }) {
       {job.isDone === 0 && (
         <View style={{ flex: 1 }}>
           {!isWaitting && (
-            <Row style={{marginLeft: 10}}>
+            <Row style={{ marginLeft: 10 }}>
               <InputCheckbox
                 edge={20}
                 onToggle={(val) => {
                   setAcceptJob(val);
                 }}
-            
               />
               <AppText>Bạn đã đọc kỹ thông tin và muốn nhận việc ? </AppText>
             </Row>

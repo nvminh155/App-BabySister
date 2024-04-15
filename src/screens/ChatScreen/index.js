@@ -148,6 +148,10 @@ export default function ChatScreen({ navigation, route }) {
                       receiverID: f.uid,
                     });
                   }}
+                  style={{
+                    paddingHorizontal: 10,
+                    
+                  }}
                   // style={{
                   //   backgroundColor: COLORS.secondary,
                   //   borderRadius: 10,
@@ -169,7 +173,7 @@ export default function ChatScreen({ navigation, route }) {
                           {f.displayName}
                         </AppText>
                         <AppText style={{ color: "grey" }}>
-                          last message {i}{" "}
+                          {/* last message {i}{" "} */}
                         </AppText>
                       </View>
                     }
@@ -177,6 +181,9 @@ export default function ChatScreen({ navigation, route }) {
                       flexDirection: "row",
                       alignItems: "center",
                       columnGap: 15,
+                      borderBottomColor: 'gray',
+                      borderBottomWidth: 0.5,
+                      paddingVertical: 5
                     }}
                   ></CustomCard>
                 </TouchableOpacity>

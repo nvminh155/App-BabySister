@@ -281,7 +281,7 @@ export default function ViewSchedule({ navigation, route }) {
                     height={64}
                     source={
                       childs[page].image
-                        ? childs[page].image.uri
+                        ? childs[page].image.urlFirebase
                         : require("images/upload_image.png")
                     }
                     type={childs[page].image ? "uri" : "icon"}
@@ -336,7 +336,7 @@ export default function ViewSchedule({ navigation, route }) {
                   height={64}
                   source={
                     childs[page].image
-                      ? childs[page].image.uri
+                      ? childs[page].image.urlFirebase
                       : require("images/upload_image.png")
                   }
                   type={childs[page].image ? "uri" : "icon"}

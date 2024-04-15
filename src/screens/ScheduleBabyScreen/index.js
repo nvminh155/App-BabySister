@@ -29,6 +29,7 @@ import {
   getDocs,
   and,
   doc,
+  deleteDoc,
 } from "firebase/firestore";
 
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -80,15 +81,13 @@ export default function ScheduleBabyScreen({ navigation }) {
   const footerCardSchedule = (schedule) => (
     <View>
       <CustomButton
-        label={"Xem"}
+        label={"Xóa"}
         style={{
-          backgroundColor: COLORS.accent,
+          backgroundColor: "red",
           paddingHorizontal: 15,
         }}
-        onPress={() => {
-          navigation.navigate("ViewSchedule", {
-            scheduleID: schedule.scheduleID,
-          });
+        onPress={ async () => {
+          await deleteDoc(doc(db, `users/${user._id}/schedules`, schedule._id));
         }}
       />
     </View>
@@ -122,13 +121,18 @@ export default function ScheduleBabyScreen({ navigation }) {
       {schedules.length > 0 ? (
         <View id="contains-schedules" style={{ marginTop: 25, rowGap: 20 }}>
           {schedules.map((schedule, i) => (
-            <View
+            <TouchableOpacity
               key={i}
               style={{
                 backgroundColor: COLORS.secondary,
                 padding: 5,
                 borderRadius: 10,
                 elevation: 2
+              }}
+              onPress={() => {
+                navigation.navigate("ViewSchedule", {
+                  scheduleID: schedule.scheduleID,
+                });
               }}
             >
               <CustomCard
@@ -142,7 +146,7 @@ export default function ScheduleBabyScreen({ navigation }) {
                   paddingVertical: 5,
                 }}
               />
-            </View>
+            </TouchableOpacity>
           ))}
         </View>
       ) : (

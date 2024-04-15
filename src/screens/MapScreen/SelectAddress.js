@@ -129,7 +129,7 @@ function SelectAddress({
             </MapView>
           )}
 
-          <View style={{ position: "absolute", bottom: 15, right: 0 }}>
+          <View style={{ position: "absolute", bottom: 100, right: 0 }}>
             <CustomButton
               label={"Xác Nhận"}
               style={{ backgroundColor: COLORS.accent }}

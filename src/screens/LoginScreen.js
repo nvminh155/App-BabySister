@@ -31,7 +31,8 @@ export default function LoginScreen({ navigation }) {
     expoPushNotice.registerForPushNotificationsAsync().then(async token => {
       if(token) {
         await updateDoc(doc(db, "users", uid), {
-          expoPushTokens: arrayUnion(token)
+          expoPushTokens: arrayUnion(token),
+          currentExpoPushToken: token
         })
       }
     });
@@ -68,7 +69,7 @@ export default function LoginScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          Login
+          Đăng nhập
         </AppText>
 
         <InputField
@@ -92,7 +93,7 @@ export default function LoginScreen({ navigation }) {
           label={"Enter Password"}
           icon={
             <Ionicons
-              name="ios-lock-closed-outline"
+              name="lock-closed-outline"
               size={20}
               color="#666"
               style={{ marginRight: 5 }}
@@ -106,7 +107,7 @@ export default function LoginScreen({ navigation }) {
         />
 
         <CustomButton
-          label={"Login"}
+          label={"Đăng nhập"}
           onPress={handleLogin}
           style={{
             backgroundColor: COLORS.accent,
@@ -117,7 +118,7 @@ export default function LoginScreen({ navigation }) {
           styleText={{fontSize: 18}}
         />
 
-        <AppText style={{ textAlign: "center", color: "#666", marginBottom: 30 }}>
+        {/* <AppText style={{ textAlign: "center", color: "#666", marginBottom: 30 }}>
           Or, login with ...
         </AppText>
 
@@ -147,7 +148,7 @@ export default function LoginScreen({ navigation }) {
               />
             </TouchableOpacity>
           ))}
-        </View>
+        </View> */}
 
         <View
           style={{
@@ -156,10 +157,10 @@ export default function LoginScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          <AppText>New to the app?</AppText>
+          <AppText>Bạn chưa có tài khoản? </AppText>
           <TouchableOpacity onPress={() => navigation.navigate("Signup")}>
             <AppText style={{ color: COLORS.accent, fontWeight: "700" }}>
-              Register
+              Đăng ký
             </AppText>
           </TouchableOpacity>
         </View>

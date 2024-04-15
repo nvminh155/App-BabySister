@@ -56,7 +56,7 @@ import { AuthContext } from "../../contexts/AuthProvider";
 import ListScheduleActive from "./ListScheduleActive";
 import Spin from "../../components/Spin";
 import { ChatPrivateContext } from "../../contexts/ChatPrivateProvider";
-import { formatDateTime, genShortId } from "../../utils";
+import { expoPushNotice, formatDateTime, genShortId } from "../../utils";
 
 export default function ActiveSchedule({ navigation, route, isDone }) {
   const { user } = useContext(AuthContext);
@@ -242,16 +242,20 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
 
   const handleSendNoticeMarkDoneToParent = async () => {
     let textMessage = "Bảo mẫu đã hoàn thành các mốc thời gian: ";
-    for(time of finishTimeSchedule) {
+    if (!finishTimeSchedule || finishTimeSchedule.length === 0) return;
+    for (time of finishTimeSchedule) {
       const findTime = timeSchedules.find((v) => v.timeScheduleID == time);
       textMessage += formatDateTime(findTime.time).T + ", ";
     }
-    if(finishTimeSchedule && finishTimeSchedule.length > 0) {
+    if (finishTimeSchedule && finishTimeSchedule.length > 0) {
       textMessage[textMessage.length - 2] = "";
     }
     textMessage += " !!!";
-    console.log("🚀 ~ handleSendNoticeMarkDoneToParent ~ textMessage:", textMessage)
-   
+    console.log(
+      "🚀 ~ handleSendNoticeMarkDoneToParent ~ textMessage:",
+      textMessage
+    );
+
     const dataMessage = {
       messageID: genShortId(),
       senderID: user.uid,
@@ -261,10 +265,35 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
       text: textMessage,
       createdAt: Date.now(),
     };
-    await setDoc(doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`), {
-      ...dataMessage
-    })
-  }
+    await setDoc(
+      doc(db, `chats/${dataChat._id}/messages/${dataMessage.messageID}`),
+      {
+        ...dataMessage,
+      }
+    );
+
+    const userDocs = await getDocs(
+      query(
+        collection(db, "users"),
+        and(or(where("uid", "==", user.uid), where("uid", "==", receiver.uid)), where("typeUser", "==", 2))
+      )
+    );
+    userDocs.docs.forEach(async (doc) => {
+      const data = doc.data();
+      console.log(data);
+      if (data.expoPushTokens && data.expoPushTokens.length > 0) {
+        expoPushNotice.send(
+          {
+            to: "",
+            sound: "default",
+            title: "Cập nhật tiến trình  !",
+            body: textMessage,
+          },
+          data.expoPushTokens
+        );
+      }
+    });
+  };
   const handleUploadImgChild = async (mode, childID) => {
     await uploadImage(mode).then((res) => {
       if (!res) return;
@@ -420,7 +449,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
                         height={64}
                         source={
                           childs[page].image
-                            ? childs[page].image.uri
+                            ? childs[page].image.urlFirebase
                             : require("images/upload_image.png")
                         }
                         type={childs[page].image ? "uri" : "icon"}
@@ -475,7 +504,7 @@ export default function ActiveSchedule({ navigation, route, isDone }) {
                       height={64}
                       source={
                         childs[page].image
-                          ? childs[page].image.uri
+                          ? childs[page].image.urlFirebase
                           : require("images/upload_image.png")
                       }
                       type={childs[page].image ? "uri" : "icon"}

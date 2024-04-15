@@ -51,10 +51,16 @@ import {
   CustomModal,
 } from "../../components";
 
-import { expoPushNotice, formatDateTime, formatMoney, markerDistance } from "../../utils";
+import {
+  expoPushNotice,
+  formatDateTime,
+  formatMoney,
+  markerDistance,
+} from "../../utils";
 
 import InfoSisterScreen from "./InfoSisterScreen";
 import Spin from "../../components/Spin";
+import calculateAverageRating from "../../utils/calculateAverageRating";
 
 const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
@@ -85,19 +91,40 @@ export default function ViewPostScreen({ navigation, route }) {
     const unsubscribe = onSnapshot(q, async (snap) => {
       const data = { ...snap.data() };
       setJob({ ...data, _id: docIdJob });
-      const applies = await getDocs(
+      const appliesPromis = await getDocs(
         collection(db, `posts/${docIdJob}/applies`)
-      );
-      setApplies(
-        applies.docs.map((apply) => ({
-          ...apply.data(),
-          _id: apply.id,
-          distance: markerDistance(
-            { lat: apply.data().lat, lon: apply.data().lon },
-            { lat: data.address2.lat, lon: data.address2.lon }
-          ),
-        }))
-      );
+      ).then(async (docs) => {
+        const mergeReviews = docs.docs.map(async (apply) => {
+          const reviews = await getDocs(
+            collection(db, `users/${apply.id}/reviews`)
+          )
+            .then((reviews) => {
+              return {
+                ...apply.data(),
+                _id: apply.id,
+                reviews: reviews.docs.map((review) => review.data()),
+              };
+            })
+            .then((res) => {
+              return res;
+            });
+          return reviews;
+        });
+        return mergeReviews;
+      });
+
+      Promise.all(appliesPromis).then((applies) => {
+        setApplies(
+          applies.map((apply) => ({
+            ...apply,
+            _id: apply.id,
+            distance: markerDistance(
+              { lat: apply.lat, lon: apply.lon },
+              { lat: data.address2.lat, lon: data.address2.lon }
+            ),
+          }))
+        );
+      });
       fetchSister(data.userChoosed);
       setChoosed(data.userChoosed ? true : false);
     });
@@ -140,8 +167,9 @@ export default function ViewPostScreen({ navigation, route }) {
         <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
           {title.toUpperCase()}
         </AppText>
+
         <AppText style={{ fontSize: 15 }}>
-          Bắt đầu vào lúc:
+          Thời gian làm:
           <AppText
             style={{
               color: COLORS.accent,
@@ -187,7 +215,7 @@ export default function ViewPostScreen({ navigation, route }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{address}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>
@@ -199,11 +227,7 @@ export default function ViewPostScreen({ navigation, route }) {
   };
 
   const footerCardInfoJob = () => {
-    return (
-      <View>
-        <AppText color={COLORS.accent}>alsdfjljasdfklajtdlfkj</AppText>
-      </View>
-    );
+    return <View></View>;
   };
 
   const handleSendNotice = async (uid, type, data) => {
@@ -212,8 +236,6 @@ export default function ViewPostScreen({ navigation, route }) {
   };
 
   const handleReview = async (sisterUid, numsOfStars, textReview) => {
-    console.log("🚀 ~ handleReview ~ sisterUid, numsOfStars, textReview:", sisterUid, numsOfStars, textReview)
-  
     const reviewRef = collection(db, `users/${sisterUid}/reviews`);
     await addDoc(reviewRef, {
       from: user.uid,
@@ -223,7 +245,8 @@ export default function ViewPostScreen({ navigation, route }) {
       videos: [],
       createdAt: Date.now(),
     });
-  }
+    await updateDoc(doc(db, `posts/${docIdJob}`), { isRated: true });
+  };
 
   const handleChoosedUser = async (sister) => {
     const jobRef = doc(db, "posts", job._id);
@@ -246,6 +269,14 @@ export default function ViewPostScreen({ navigation, route }) {
         createdAt: Date.now(),
       };
       await handleSendNotice(sisterApplyed.uid, "jobs", dataSendNoticeSister);
+      const message = {
+        to: token,
+        sound: "default",
+        title: `Bạn vừa được thuê`,
+        body: dataSendNoticeSister.text + `\nTại ${job.address2.text}\nVào lúc ${formatDateTime(job.start).DDMYTS}`,
+      };
+      expoPushNotice.send(message, sisterApplyed.expoPushTokens);
+
     });
 
     await handleSendNotice(user.uid, "posts", {
@@ -258,6 +289,7 @@ export default function ViewPostScreen({ navigation, route }) {
 
     console.log("SEND NOTICE FOR SESSTERAPPLYED SUCCESS FULL");
   };
+
   const onChooseSister = async (uid, sister) => {
     console.log("CHOSSED SISTER", uid, choosed);
 
@@ -291,18 +323,18 @@ export default function ViewPostScreen({ navigation, route }) {
       sound: "default",
       title: "Hoàn thành công việc  !",
       body: `Phụ huynh ${user.displayName} đã xác nhận bạn hoàn thành công việc ${job.title} ! \nVui lòng kiểm tra lại!`,
-    }
+    };
 
-    await updateDoc(jobRef, { isDone: 2, isRated: true});
+    await updateDoc(jobRef, { isDone: 2 });
     await getDoc(doc(db, `users/${job.userChoosed}`)).then(async (doc) => {
       const data = doc.data();
-      console.log("🚀 ~ awaitgetDoc ~ data:", data)
+      console.log("🚀 ~ awaitgetDoc ~ data:", data);
 
       expoPushNotice.send(collabMessage, data.expoPushTokens);
       await updateDoc(doc.ref, {
         wallet: data.wallet + job.money,
       });
-    })
+    });
     await handleSendNotice(job.userChoosed, "jobs", {
       type: "donejob",
       text: `Chúc mừng ! Bạn đã được xác nhận hoàn thành công việc ${job.title}`,
@@ -368,76 +400,122 @@ export default function ViewPostScreen({ navigation, route }) {
               style={{
                 rowGap: 15,
                 backgroundColor: "white",
-                paddingHorizontal: 30,
+                paddingHorizontal: 10,
                 paddingVertical: 15,
               }}
             />
 
             {!choosed && (
               <View id="list-applies" style={{ flex: 1 }}>
-                <AppText
-                  style={{ marginLeft: "auto", marginBottom: 20 }}
-                  fontSize={20}
-                  fontWeight={"bold"}
-                >
-                  Đã có{" "}
-                  <AppText
-                    color={COLORS.accent}
-                    fontSize={20}
-                    fontWeight={"bold"}
+                <Row style={{justifyContent: 'space-between'}}>
+                  <AppText fontSize={20} fontWeight={"bold"}>
+                    Đã có{" "}
+                    <AppText
+                      color={COLORS.accent}
+                      fontSize={20}
+                      fontWeight={"bold"}
+                    >
+                      {job.numOfApplies}
+                    </AppText>{" "}
+                    người nộp đơn
+                  </AppText>
+
+                  {/* <TouchableOpacity
+                    style={{ flexDirection: "row", alignItems: "center" }}
+                    onPress={() => {
+                      navigation.navigate('ViewHire')
+                    }}
                   >
-                    {job.numOfApplies}
-                  </AppText>{" "}
-                  người nộp đơn
-                </AppText>
+                    <AppText>Danh sách thuê</AppText>
+                    <AntDesign name="arrowright" size={20} />
+                  </TouchableOpacity> */}
+                </Row>
 
                 <ScrollView
                   style={{ flex: 1 }}
                   contentContainerStyle={{ rowGap: 10 }}
                 >
                   {applies.map((sister, i) => (
-                    <CustomCard
+                    <TouchableOpacity
                       key={i}
-                      style={{
-                        flexDirection: "row",
-                        alignItems: "center",
-                        columnGap: 15,
+                      onPress={() => {
+                        console.log(123);
+                        setInfoSister(sister);
                       }}
-                      header={
-                        <AppImage
-                          width={50}
-                          height={50}
-                          source={require("images/bbst_1.jpg")}
-                        />
-                      }
-                      body={
-                        <View style={{ flex: 1 }}>
-                          <Row style={{ marginTop: 0 }}>
-                            <AppText fontWeight={"bold"}>
-                              {sister.displayName}
-                            </AppText>
-                            <AppText>{sister.distance}</AppText>
-                          </Row>
-                          <AppText
-                            style={{ fontStyle: "italic", opacity: 0.5 }}
-                          >
-                            Chưa từng thuê trước đây
-                          </AppText>
-                        </View>
-                      }
-                      footer={
-                        <View>
-                          <CustomButton
-                            label={"Xem"}
-                            style={{ backgroundColor: COLORS.accent }}
-                            onPress={() => {
-                              console.log(123);
-                              setInfoSister(sister);
-                            }}
+                    >
+                      <CustomCard
+                        style={{
+                          flexDirection: "row",
+                          alignItems: "center",
+                          columnGap: 15,
+                          borderBottomColor: "grey",
+                          borderBottomWidth: 0.8,
+                          paddingVertical: 3,
+                        }}
+                        header={
+                          <AppImage
+                            width={50}
+                            height={50}
+                            source={require("images/bbst_1.jpg")}
                           />
-                        </View>
-                      }
-                    />
+                        }
+                        body={
+                          <View style={{ flex: 1 }}>
+                            <View
+                              style={{
+                                marginTop: 0,
+                                rowGap: 5,
+                                justifyContent: "space-between",
+                              }}
+                            >
+                              <AppText fontWeight={"bold"}>
+                                {sister.displayName}
+                              </AppText>
+                              <View
+                                style={{
+                                  flexDirection: "row",
+                                  columnGap: 4,
+                                  marginTop: 0,
+                                }}
+                              >
+                                {[1, 2, 3, 4, 5].map((v, i) => (
+                                  <View key={i}>
+                                    <AppImage
+                                      width={12}
+                                      height={12}
+                                      source={
+                                        i + 1 <=
+                                        calculateAverageRating(
+                                          sister?.reviews || []
+                                        )
+                                          ? require("images/star.png")
+                                          : require("images/star_empty.png")
+                                      }
+                                    />
+                                  </View>
+                                ))}
+                              </View>
+                            </View>
+                          </View>
+                        }
+                        footer={
+                          <View
+                            style={{
+                              alignItems: "center",
+                              columnGap: 5,
+                              marginTop: 0,
+                            }}
+                          >
+                            <AppImage
+                              width={24}
+                              height={24}
+                              source={require("images/distance.png")}
+                            />
+                            <AppText fontSize={14}>{sister.distance}</AppText>
+                          </View>
+                        }
+                      />
+                    </TouchableOpacity>
                   ))}
                 </ScrollView>
               </View>

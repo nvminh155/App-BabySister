@@ -103,10 +103,17 @@ export default function WaittingJobSreen({ navigation }) {
             <AppText style={{ fontSize: 20, fontWeight: "bold" }}>
               {title.toUpperCase()}
             </AppText>
-            <AppText>{distance}</AppText>
+            <Row style={{ columnGap: 5, alignItems: "center" }}>
+              <AppImage
+                width={32}
+                height={32}
+                source={require("images/distance.png")}
+              />
+              <AppText>{distance}</AppText>
+            </Row>
           </Row>
           <AppText style={{ fontSize: 15 }}>
-            Bắt đầu vào lúc:
+            Thời gian làm:
             <AppText
               style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
             >
@@ -133,14 +140,14 @@ export default function WaittingJobSreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong (giờ)</AppText>
+            <AppText>Số giờ</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
           </View>
 
           <View id="money" style={{ alignItems: "center" }}>
-            <AppText>Số tiền(VND)</AppText>
+            <AppText>Tiền công (VND)</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {formatMoney(money)}
             </AppText>
@@ -148,7 +155,7 @@ export default function WaittingJobSreen({ navigation }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{address}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>

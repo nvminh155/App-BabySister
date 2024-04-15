@@ -35,6 +35,7 @@ import ChatPrivateScreen from "../screens/ChatScreen/ChatPrivate";
 import MenuChatPrivate from "../screens/ChatScreen/MenuChatPrivate";
 import ActiveSchedule from "../screens/ScheduleBabyScreen/ActiveSchedule";
 import ChatPrivateProvider from "../contexts/ChatPrivateProvider";
+import { doc, updateDoc } from "firebase/firestore";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();
@@ -93,10 +94,9 @@ function CustomTabHeader(props) {
   );
 }
 
-
 function ContentDrawerHome(props) {
   const { navigation } = props;
-
+  const { user } = useContext(AuthContext);
   return (
     <DrawerContentScrollView
       {...props}
@@ -112,11 +112,13 @@ function ContentDrawerHome(props) {
           navigation.navigate("UserScreen");
         }}
       />
- 
+
       <DrawerItem
         {...props}
         label={"Tin Nhắn"}
-        icon={({focused, size}) => <Ionicons name="chatbox-outline" size={size} />}
+        icon={({ focused, size }) => (
+          <Ionicons name="chatbox-outline" size={size} />
+        )}
         onPress={() => {
           navigation.closeDrawer();
           navigation.navigate("ChatStack");
@@ -135,6 +137,16 @@ function ContentDrawerHome(props) {
           borderTopColor: "#333",
         }}
         onPress={async () => {
+          const expoPushTokens = user.expoPushTokens;
+          console.log("outz", auth.currentUser.uid, expoPushTokens);
+          if (expoPushTokens) {
+            await updateDoc(doc(db, "users", auth.currentUser.uid), {
+              expoPushTokens: expoPushTokens.filter(
+                (token) => token !== user.currentExpoPushToken
+              ),
+              currentExpoPushToken: "??",
+            });
+          }
           await signOut(auth).catch((err) => console.log(err));
         }}
       >
@@ -173,6 +185,46 @@ function DrawerHome() {
     </Drawer.Navigator>
   );
 }
+
+const ViewJobStackNav = createStackNavigator();
+const ChatPrivateStackFromViewJob = createStackNavigator();
+function ChatPrivateStack({ navigation, route }) {
+  return (
+    <ChatPrivateProvider navigation={navigation} route={route}>
+      <ChatPrivateStackFromViewJob.Navigator initialRouteName="ChatPrivate">
+        <ChatPrivateStackFromViewJob.Screen
+          name="ChatPrivate"
+          component={ChatPrivateScreen}
+        />
+        <ChatPrivateStackFromViewJob.Screen
+          name="MenuChatPrivate"
+          component={MenuChatPrivate}
+        />
+        <ChatPrivateStackFromViewJob.Screen
+          name="ActiveSchedule"
+          component={ActiveSchedule}
+        />
+      </ChatPrivateStackFromViewJob.Navigator>
+    </ChatPrivateProvider>
+  );
+}
+function ViewJobStack({ navigation, route }) {
+  return (
+    <ViewJobStackNav.Navigator initialRouteName="ViewJobSc" >
+      <ViewJobStackNav.Screen
+        name="ViewJobSc"
+        component={ViewJobScreen}
+        options={{ title: "Xem công việc" }}
+        initialParams={{...route.params}}
+      />
+      <ViewJobStackNav.Screen
+        name="ChatPrivateStackFromViewJob"
+        component={ChatPrivateStack}
+        options={{ headerShown: false }}
+      />
+    </ViewJobStackNav.Navigator>
+  );
+}
 export default function CollabStack() {
   const draw = useRef();
 
@@ -185,8 +237,8 @@ export default function CollabStack() {
       />
       <Stack.Screen
         name="ViewJob"
-        component={ViewJobScreen}
-        options={{ title: "Xem công việc" }}
+        component={ViewJobStack}
+        options={{ title: "Xem công việc", headerShown: false }}
       />
       <Stack.Screen
         name="UserScreen"
@@ -206,7 +258,6 @@ export default function CollabStack() {
         name="ChatStack"
         component={ChatStack}
         options={{ title: "Tin Nhắn", headerShown: false }}
-        
       />
     </Stack.Navigator>
   );

@@ -11,7 +11,13 @@ import {
   Dimensions,
 } from "react-native";
 
-import { useCallback, useContext, useEffect, useLayoutEffect, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+} from "react";
 
 // FIRE BASE
 
@@ -41,7 +47,7 @@ const wWidth = Dimensions.get("window").width;
 const wHeight = Dimensions.get("window").height;
 
 export default function UserScreen({ navigation }) {
-  const { user } = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [showMap, setShowMap] = useState(false);
   const [address, setAddress] = useState(user.address ?? "");
   const [email, setEmail] = useState(user.email);
@@ -51,16 +57,17 @@ export default function UserScreen({ navigation }) {
   const [editAble, setEditAble] = useState(false);
   const [showWalletAction, setShowWalletAction] = useState(false);
 
-  useEffect(() => {
-    const docs = getDocs(collection(db, 'users')).then((querySnapshot) => {
-      querySnapshot.forEach(async (qr) => {
-        console.log(qr.id, " => ", qr.data());
-        await updateDoc(qr.ref, {
-          expoPushTokens: []
-        });
-      });
-    })
-  }, [])
+  // useEffect(() => {
+  //   const docs = getDocs(collection(db, 'users')).then((querySnapshot) => {
+  //     querySnapshot.forEach(async (qr) => {
+  //       console.log(qr.id, " => ", qr.data());
+  //       await updateDoc(qr.ref, {
+  //         expoPushTokens: []
+  //       });
+  //     });
+  //   })
+  // }, [])
+
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -80,7 +87,7 @@ export default function UserScreen({ navigation }) {
     setAddress(data.text);
   }, []);
 
-  const updateProfile = useCallback(async () => {
+  const updateProfile =async () => {
     const docRef = doc(db, "users", user.uid);
     await updateDoc(docRef, {
       gender,
@@ -89,7 +96,11 @@ export default function UserScreen({ navigation }) {
       bio,
     });
     setEditAble(false);
-  }, [address]);
+    setUser(prev => ({...prev, gender,
+      address,
+      phone,
+      bio,}))
+  };
   return (
     <ScrollView
       style={{
@@ -303,6 +314,16 @@ export default function UserScreen({ navigation }) {
             paddingVertical: 20,
           }}
           onPress={async () => {
+            const expoPushTokens = user.expoPushTokens;
+            console.log("outz", auth.currentUser.uid, expoPushTokens);
+            if (expoPushTokens) {
+              await updateDoc(doc(db, "users", auth.currentUser.uid), {
+                expoPushTokens: expoPushTokens.filter(
+                  (token) => token !== user.currentExpoPushToken
+                ),
+                currentExpoPushToken: "??",
+              });
+            }
             await signOut(auth).catch((err) => console.log(err));
           }}
         >

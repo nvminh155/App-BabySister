@@ -32,7 +32,7 @@ import {
   Row,
   InputGroup,
 } from "../../components";
-import { collection, getDocs, query } from "firebase/firestore";
+import { collection, getDocs, onSnapshot, orderBy, query } from "firebase/firestore";
 import { db } from "../../firebase/config";
 import { formatDateTime } from "../../utils";
 
@@ -42,11 +42,10 @@ const wHeight = Dimensions.get("window").height;
 function NoticeJobAccepted({ data }) {
   const colorNotice = () => {
     const type = data.type;
-    if(type === "accepted") return COLORS.textInfo
-    else if(type === "donejob") return COLORS.accent
-    return COLORS.textDanger
-  }
-    
+    if (type === "accepted") return COLORS.textInfo;
+    else if (type === "donejob") return COLORS.accent;
+    return COLORS.textDanger;
+  };
 
   return (
     <TouchableOpacity
@@ -72,7 +71,7 @@ function NoticeJobAccepted({ data }) {
           marginLeft: 5,
         }}
         header={
-          <Row style={{ flexWrap: "wrap", columnGap: 0,marginBottom: 10 }}>
+          <Row style={{ flexWrap: "wrap", columnGap: 0, marginBottom: 10 }}>
             <AppText
               style={{ marginBottom: 5 }}
               color={colorNotice()}
@@ -94,7 +93,7 @@ function NoticeJobAccepted({ data }) {
         body={
           <View>
             <AppText>
-              Tại: <AppText fontWeight={"bold"}>{data.address}</AppText>
+            Địa điểm: <AppText fontWeight={"bold"}>{data.address}</AppText>
             </AppText>
             <AppText>
               Vào lúc:{" "}
@@ -102,7 +101,7 @@ function NoticeJobAccepted({ data }) {
                 {formatDateTime(data.time).DDMYTS}
               </AppText>
             </AppText>
-            <AppText color={'grey'} style={{marginTop: 20}}>
+            <AppText color={"grey"} style={{ marginTop: 20 }}>
               {formatDateTime(data.createdAt).DDMYTS}
             </AppText>
           </View>
@@ -116,16 +115,17 @@ export default function NoticeScreen({ navigation, route }) {
   const { user } = useContext(AuthContext);
   const [noticeJobs, setNoticeJobs] = useState([]);
 
-  const fetchNotice = async () => {
-    const q = query(collection(db, `notices/${user.uid}/jobs`));
-    const docs = (await getDocs(q)).docs;
-
-    setNoticeJobs(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
-  };
-
   useEffect(() => {
-    fetchNotice();
     // console.log("MOUTED INDEX NOTICE");
+    const fetchNoticeJob = async () => {
+      const q = query(collection(db, `notices/${user.uid}/jobs`), orderBy("createdAt", "desc"));
+      const unsub = onSnapshot(q, (snapshot) => {
+        const docs = snapshot.docs;
+        setNoticeJobs(docs.map((doc) => ({ ...doc.data(), _id: doc.id })));
+      });
+      return unsub;
+    };
+    fetchNoticeJob();
   }, []);
 
   return (
@@ -133,7 +133,7 @@ export default function NoticeScreen({ navigation, route }) {
       style={{
         paddingHorizontal: 10,
         flex: 1,
-        marginVertical: 15 
+        marginVertical: 15,
       }}
     >
       {noticeJobs.map((notice, i) => (

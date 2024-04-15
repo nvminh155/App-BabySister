@@ -14,22 +14,6 @@ import { useNavigation } from "@react-navigation/native";
 import { useContext, useEffect, useState } from "react";
 
 // FIRE BASE
-import { auth, db } from "../../firebase/config";
-import {
-  AuthCredential,
-  EmailAuthCredential,
-  EmailAuthProvider,
-  signOut,
-  updatePassword,
-} from "firebase/auth";
-import {
-  getDocs,
-  onSnapshot,
-  collection,
-  query,
-  where,
-  getDoc,
-} from "firebase/firestore";
 
 // CONTEXT
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -219,168 +203,20 @@ export default function HomeScreen() {
             style={{
               backgroundColor: COLORS.accent,
               marginBottom: 30,
-              width: 100,
               marginLeft: "auto",
               marginTop: 10,
+              paddingHorizoltal: 10,
+              paddingVertical: 15
             }}
           />
         </View>
 
-        {/* gan nha ban */}
-        {/* <View>
-          <AppText
-            style={{ fontWeight: "bold", marginBottom: 10, fontSize: 17 }}
-          >
-            Gần nhà bạn
-          </AppText>
+   
 
-          <ScrollView style={{ flexDirection: "row" }} horizontal={true}>
-            {[1, 2, 3].map((v, i) => {
-              const header = (
-                <View>
-                  <AppImage
-                    width={"100%"}
-                    height={50}
-                    options={{
-                      styles: { borderColor: "black", borderWidth: 1 },
-                    }}
-                    source={require("images/stay-home-take-care.png")}
-                  />
-                </View>
-              );
-
-              const body = (
-                <View style={{ maxWidth: wWidth / 2 }}>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <AppText style={{ fontWeight: "bold" }}>
-                      Họ và Tên:{" "}
-                    </AppText>
-                    <AppText ellipsizeMode="tail" numberOfLines={1}>
-                      Nguyễn Văn A{" "}
-                    </AppText>
-                  </View>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <AppText style={{ fontWeight: "bold" }}>Địa chỉ: </AppText>
-                    <AppText ellipsizeMode="tail" numberOfLines={1}>
-                      322/9 Huỳnh Văn Lũy, Phú Lợi, Thủ Dầu Một, Bình Dương{" "}
-                    </AppText>
-                  </View>
-                  <View style={{ flexDirection: "row", alignItems: "center" }}>
-                    <AppText style={{ fontWeight: "bold" }}>4.7 *****</AppText>
-                  </View>
-                </View>
-              );
-
-              const footer = (
-                <CustomButton
-                  label={"Thông Tin"}
-                  onPress={() => {
-                    navigation.navigate("InfoSister");
-                  }}
-                  style={{
-                    backgroundColor: COLORS.accent,
-                    marginLeft: "auto",
-                  }}
-                />
-              );
-              return (
-                <CustomCard
-                key={i}
-                  header={header}
-                  body={body}
-                  footer={footer}
-                  style={{ width: wWidth / 2, height: 200 }}
-                />
-              );
-            })}
-          </ScrollView>
-        </View> */}
-        <View>
-          {url && <Image width={200} height={200} source={{ uri: url }} />}
-          <CustomButton
-            label={"Camera"}
-            style={{ backgroundColor: COLORS.accent }}
-            onPress={() => {
-              // uploadImage();
-              dowloadURL();
-            }}
-          />
-
-          {image && (
-            <View>
-              <Image
-                source={{ uri: image.uri }}
-                style={{ width: 200, height: 200, resizeMode: "contain" }}
-              />
-
-              <Row>
-                <TextInput
-                  value={imageName}
-                  onChangeText={setImageName}
-                  style={{
-                    borderColor: "black",
-                    borderWidth: 1,
-                  }}
-                />
-                <CustomButton
-                  label={"Lưu"}
-                  onPress={() => {
-                    saveImage();
-                  }}
-                />
-              </Row>
-            </View>
-          )}
-        </View>
-        <TouchableOpacity
-          onPress={async () => {
-            await signOut(auth).catch((err) => console.log(err));
-          }}
-        >
-          <AppText>SIGN OUT</AppText>
-        </TouchableOpacity>
-
-        <CustomButton
-          label={"Test notification"}
-          style={{
-            backgroundColor: COLORS.accent,
-          }}
-          onPress={() => {
-            navigation.navigate("Test_notification");
-          }}
-        />
-
-        <CustomButton
-          label={" Test_payment"}
-          style={{
-            backgroundColor: COLORS.accent,
-          }}
-          onPress={() => {
-            navigation.navigate("Test_payment");
-          }}
-        />
+ 
       </ScrollView>
 
-      <TextInput
-        value={pass}
-        onChangeText={(text) => {
-          setPass(text);
-        }}
-      ></TextInput>
-        <AppText>Your Token: {token} </AppText>
-      <CustomButton
-        label={"change page"}
-        style={{
-          backgroundColor: COLORS.accent,
-        }}
-        onPress={async () => {
-          const userCurrent = auth.currentUser;
-          console.log("🚀 ~ onPress={ ~ userCurrent:", userCurrent)
-          await updatePassword(userCurrent, pass).then((data) => {
-            console.log("update successfull", pass, data);
-          });
-        }}
-      />
+    
     </View>
   );
 }

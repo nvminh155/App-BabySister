@@ -50,7 +50,7 @@ import {
   AppSafeAreaView,
   Row,
 } from "../../components";
-import { db } from "../../firebase/config";
+import { db, storage } from "../../firebase/config";
 
 
 import { AuthContext } from "../../contexts/AuthProvider";
@@ -59,6 +59,8 @@ import ListSchedule from "./ListSchedule";
 
 import { ScheduleContext } from "../../contexts/ScheduleProvider";
 import { genShortId, uploadImage } from "../../utils";
+import { getStorage, ref, uploadBytes } from "firebase/storage";
+import getImgUrlFireStorage from "../../utils/getImgUrlFireStorage";
 
 export default function ScheduleBabyScreen({ navigation, children }) {
   const { user } = useContext(AuthContext);
@@ -72,8 +74,9 @@ export default function ScheduleBabyScreen({ navigation, children }) {
   const [page, setPage] = useState(0);
 
   const handleUploadImgChild = async (mode, childID) => {
-      await uploadImage(mode).then(res => {
+      await uploadImage(mode).then( async res => {
         if(!res) return;
+        console.log("result img", res)
         setChilds((prev) => {
           console.log(prev);
           return prev.map((v, i) => ({
@@ -97,6 +100,7 @@ export default function ScheduleBabyScreen({ navigation, children }) {
       childs,
       timeSchedules,
     };
+
     await setDoc(doc(db, `users/${user._id}/schedules`, `${data.scheduleID}`), {
       ...data,
     });
@@ -233,7 +237,7 @@ export default function ScheduleBabyScreen({ navigation, children }) {
                 height={64}
                 source={
                   childs[page].image
-                    ? childs[page].image.uri
+                    ? childs[page].image.urlFirebase
                     : require("images/upload_image.png")
                 }
                 type={childs[page].image ? "uri" : "icon"}

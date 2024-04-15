@@ -96,6 +96,7 @@ export default function InfoSisterScreen({
         }}
         onPress={() => {
           onReview(sister.uid, numStar, textRate);
+          setVisiableRate(false)
         }}
       />
       <CustomButton
@@ -171,7 +172,7 @@ export default function InfoSisterScreen({
           <TextInput
             style={{
               backgroundColor: COLORS.secondary,
-              width: "100%",
+              flex: 1,
               color: "black",
               paddingVertical: 15,
               paddingHorizontal: 10,
@@ -240,9 +241,10 @@ export default function InfoSisterScreen({
               style={{ flexDirection: "row", columnGap: 10, flexWrap: "wrap" }}
             >
               <AppText style={{ fontWeight: "700" }}>Mô tả bản thân :</AppText>
-              <AppText numberOfLines={2}>{sister?.bio ?? "Không có"}</AppText>
+              <AppText numberOfLines={2}>
+                {sister?.bio ? sister.bio : "Không có"}
+              </AppText>
             </View>
-
           </View>
         </View>
 
@@ -281,70 +283,81 @@ export default function InfoSisterScreen({
             style={{ height: 200, paddingVertical: 10, flex: 1 }}
             nestedScrollEnabled
           >
-            {reviews && reviews.length > 0 ? reviews.map((review, i) => (
-              <View
-                key={i}
-                style={{
-                  flexDirection: "row",
-                  columnGap: 20,
-                  alignItems: "center",
-                  marginBottom: 20,
-                  flex: 1,
-                }}
-              >
-                <AppImage
-                  width={45}
-                  height={45}
-                  options={{
-                    styles: {
-                      borderRadius: 30,
-                      borderWidth: 1,
-                      borderColor: "black",
-                    },
+            {reviews && reviews.length > 0 ? (
+              reviews.map((review, i) => (
+                <View
+                  key={i}
+                  style={{
+                    flexDirection: "row",
+                    columnGap: 20,
+                    alignItems: "center",
+                    marginBottom: 20,
+                    flex: 1,
                   }}
-                  source={require("images/bbst_1.jpg")}
-                />
-                <View style={{ rowGap: 10 }}>
-                  <View
-                    style={{
-                      rowGap: 5,
+                >
+                  <AppImage
+                    width={45}
+                    height={45}
+                    options={{
+                      styles: {
+                        borderRadius: 30,
+                        borderWidth: 1,
+                        borderColor: "black",
+                      },
                     }}
-                  >
-                    <AppText style={{ fontWeight: "600" }}>
-                      {review.user.displayName}
-                    </AppText>
-                    <View style={{ flexDirection: "row", columnGap: 4 }}>
-                      {[1, 2, 3, 4, 5].map((v, i) => (
-                        <View key={i}>
-                          <AppImage
-                            width={24}
-                            height={24}
-                            source={
-                              i + 1 <= review.numsOfStars
-                                ? require("images/star.png")
-                                : require("images/star_empty.png")
-                            }
-                          />
-                        </View>
-                      ))}
+                    source={require("images/bbst_1.jpg")}
+                  />
+                  <View style={{ rowGap: 10 }}>
+                    <View
+                      style={{
+                        rowGap: 5,
+                      }}
+                    >
+                      <AppText style={{ fontWeight: "600" }}>
+                        {review.user.displayName}
+                      </AppText>
+                      <View style={{ flexDirection: "row", columnGap: 4 }}>
+                        {[1, 2, 3, 4, 5].map((v, i) => (
+                          <View key={i}>
+                            <AppImage
+                              width={24}
+                              height={24}
+                              source={
+                                i + 1 <= review.numsOfStars
+                                  ? require("images/star.png")
+                                  : require("images/star_empty.png")
+                              }
+                            />
+                          </View>
+                        ))}
+                      </View>
                     </View>
+                    <AppText style={{ color: "grey" }}>
+                      {review.textReview
+                        ? review.textReview
+                        : "Không có đánh giá"}
+                    </AppText>
+                    <AppText style={{ color: "grey" }}>
+                      Ngày bình luận : {formatDateTime(review.createdAt).DDMYTS}
+                    </AppText>
                   </View>
-                  <AppText style={{ color: "grey" }}>
-                    {review.textReview ? review.textReview : "Không có đánh giá"}
-                  </AppText>
-                  <AppText style={{ color: "grey" }}>
-                    Ngày bình luận : {formatDateTime(review.createdAt).DDMYTS}
-                  </AppText>
                 </View>
-              </View>
-            )) : <AppText style={{alignSelf: 'center', fontStyle: 'italic'}} color={'grey'} >Chưa có</AppText>}
+              ))
+            ) : (
+              <AppText
+                style={{ alignSelf: "center", fontStyle: "italic" }}
+                color={"grey"}
+              >
+                Chưa có
+              </AppText>
+            )}
           </ScrollView>
         </View>
       </ScrollView>
 
       {!choosed ? (
         <CustomButton
-          label={"Chọn"}
+          label={"Thuê"}
           style={{ backgroundColor: COLORS.accent, marginLeft: "auto" }}
           onPress={() => {
             if (choosedUid === sister.uid) {

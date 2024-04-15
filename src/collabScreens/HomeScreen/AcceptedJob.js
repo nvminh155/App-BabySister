@@ -77,7 +77,7 @@ export default function HomeScreen({ navigation }) {
             {title.toUpperCase()}
           </AppText>
           <AppText style={{ fontSize: 15 }}>
-            Bắt đầu vào lúc:
+            Thời gian làm: 
             <AppText
               style={{ color: COLORS.accent, fontSize: 17, fontWeight: "bold" }}
             >
@@ -104,7 +104,7 @@ export default function HomeScreen({ navigation }) {
           }}
         >
           <View id="time" style={{ alignItems: "center" }}>
-            <AppText>Làm trong (giờ)</AppText>
+            <AppText>Số giờ</AppText>
             <AppText color={COLORS.accent} fontWeight="bold" fontSize={20}>
               {timeJob}
             </AppText>
@@ -119,7 +119,7 @@ export default function HomeScreen({ navigation }) {
         </View>
 
         <View id="address" style={{ flexDirection: "row" }}>
-          <AppText>Tại: </AppText>
+          <AppText>Địa điểm: </AppText>
           <AppText fontWeight={"bold"}>{address}</AppText>
         </View>
         <View id="note-from-customer" style={{ flexDirection: "row" }}>

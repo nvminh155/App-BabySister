@@ -56,7 +56,7 @@ import {
 import { formatDateTime } from "../../utils";
 
 export default function PostSearchScreen({ navigation, route }) {
-  const {user, setUser} = useContext(AuthContext);
+  const { user, setUser } = useContext(AuthContext);
   const [numOfChilds, setNumOfChilds] = useState(0);
   const [textNote, setTextNote] = useState("");
   const [address, setAddress] = useState({ text: "", lon: 123, lat: 123 });
@@ -75,7 +75,7 @@ export default function PostSearchScreen({ navigation, route }) {
   const [title, setTitle] = useState("");
   const [timeHire, setTimeHire] = useState("0");
   const [money, setMoney] = useState(0);
-  console.log("GO BAC1K")
+  console.log("GO BAC1K");
   useLayoutEffect(() => {
     navigation.setOptions({
       title: "Đăng bài tìm kiếm",
@@ -109,16 +109,16 @@ export default function PostSearchScreen({ navigation, route }) {
   const handleSelectAddress = useCallback((data) => {
     setAddress(data);
     console.log("🚀 ~ handleSelectAddress ~ data:", data);
-  }, [])
+  }, []);
 
   const handlePost = async () => {
     navigation.navigate("Payment", {
       readOnly: true,
       amount: money,
       title: "Thanh toán job",
-      onGoBack: async ({code, amount, paymentType}) => {
-        if(code === 500) return;
-        console.log("🚀 ~ handlePost ~ code - success", code)
+      onGoBack: async ({ code, amount, paymentType }) => {
+        if (code === 500) return;
+        console.log("🚀 ~ handlePost ~ code - success", code);
         const docData = {
           uid: user.uid,
           title,
@@ -140,27 +140,30 @@ export default function PostSearchScreen({ navigation, route }) {
           updatedAt: Date.now(),
         };
         // console.log(docData)
-        const docRef = await addDoc(collection(db, "posts"), docData).then(async () => {
-          if(paymentType === "BSP") {
-            await updateDoc(doc(db, "users", user.uid), {
-              wallet: user.wallet - amount
-            }).then(() => {
-              setUser(prev => ({
-                ...prev,
-                wallet: prev.wallet - amount
-              }))
-            })
-          }
-          navigation.reset({
-            index: 0,
-            routes: [{ name: 'HomeStack' }],
-          });
 
-        });
+        const docRef = await addDoc(collection(db, "posts"), docData).then(
+          async () => {
+            if (paymentType === "BSP") {
+              console.log(amount);
+              await updateDoc(doc(db, "users", user.uid), {
+                wallet: parseInt(user.wallet) - amount,
+              }).then(() => {
+                setUser((prev) => ({
+                  ...prev,
+                  wallet: prev.wallet - amount,
+                }));
+              });
+            }
+            navigation.reset({
+              index: 0,
+              routes: [{ name: "HomeStack" }],
+            });
+          }
+        );
         // console.log(docRef);
-      }
-    })
-    
+      },
+    });
+
     return;
     const docData = {
       uid: user.uid,
@@ -197,8 +200,11 @@ export default function PostSearchScreen({ navigation, route }) {
   return (
     <View style={{ paddingHorizontal: 10, marginTop: 20, flex: 1 }}>
       {showMap && (
-        <View style={{height: 600}}>
-          <SelectAddress onSelectAddress={handleSelectAddress} setShowMap={setShowMap}/>
+        <View style={{ height: 600 }}>
+          <SelectAddress
+            onSelectAddress={handleSelectAddress}
+            setShowMap={setShowMap}
+          />
         </View>
       )}
 
@@ -451,9 +457,7 @@ export default function PostSearchScreen({ navigation, route }) {
             label={"Hủy"}
             style={{ borderColor: COLORS.accent, borderWidth: 1 }}
             styleText={{ color: COLORS.accent }}
-            onPress={() => {
-
-            }}
+            onPress={() => {}}
           />
         </View>
       </ScrollView>

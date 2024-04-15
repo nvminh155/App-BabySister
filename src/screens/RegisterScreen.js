@@ -30,6 +30,7 @@ import {
   Row,
   InputRadio,
 } from "../components";
+import { formatDateTime } from "../utils";
 
 export default function RegisterScreen({ navigation }) {
   const [date, setDate] = useState(Date.now());
@@ -61,7 +62,7 @@ export default function RegisterScreen({ navigation }) {
             phone,
             dob: date,
             address: "",
-            typeUser,
+            typeUser: 2,
             following: [],
             hitoryBooking: [],
             provider: "EmailPassword",
@@ -93,7 +94,7 @@ export default function RegisterScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          Register
+          Đăng ký
         </AppText>
 
         <InputField
@@ -128,7 +129,7 @@ export default function RegisterScreen({ navigation }) {
           label={"Enter Password"}
           icon={
             <Ionicons
-              name="ios-lock-closed-outline"
+              name="lock-closed-outline"
               size={20}
               color="#666"
               style={{ marginRight: 5 }}
@@ -171,14 +172,14 @@ export default function RegisterScreen({ navigation }) {
           />
           <TouchableOpacity onPress={() => setOpen(true)}>
             <AppText style={{ marginLeft: 5, marginTop: 5 }}>
-              {returnDateTime(date).toDateString()}
+              {formatDateTime(date).DMY}
             </AppText>
           </TouchableOpacity>
         </View>
 
         {open && (
           <DateTimePicker
-            value={returnDateTime(date)}
+            value={date ?? Date.now()}
             mode="date"
             is24Hour={true}
             display="spinner"
@@ -189,16 +190,16 @@ export default function RegisterScreen({ navigation }) {
           />
         )}
 
-        <View>
+        {/* <View>
           <AppText fontWeight={'bold'}>Bạn đăng ký làm ? </AppText>
           <Row style={{flexWrap: 'wrap'}}>
             <InputRadio edge={20} label={<AppText>Bảo Mẫu</AppText>} id={1} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
             <InputRadio edge={20} label={<AppText>Phụ Huynh</AppText>} id={2} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
             <InputRadio edge={20} label={<AppText>Bên Thứ 3</AppText>} id={3} activeRadio={typeUser} onClick={(ticked) => {setTypeUser(ticked)}} />
           </Row>
-        </View>
+        </View> */}
         <CustomButton
-          label={"Register"}
+          label={"Đăng ký"}
           onPress={handleSignup}
           style={{
             backgroundColor: COLORS.accent,
@@ -215,11 +216,10 @@ export default function RegisterScreen({ navigation }) {
             marginBottom: 30,
           }}
         >
-          <AppText>Already registered?</AppText>
+          <AppText>Bạn đã có tài khoản? </AppText>
           <TouchableOpacity onPress={() => navigation.goBack()}>
             <AppText style={{ color: COLORS.accent, fontWeight: "700" }}>
-              {" "}
-              Login
+              Đăng nhập
             </AppText>
           </TouchableOpacity>
         </View>
